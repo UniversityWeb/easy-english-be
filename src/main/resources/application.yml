@@ -12,7 +12,7 @@ spring:
     livereload:
       enabled: true
   datasource:
-    url: ${PROD_DB_URL} 
+    url: jdbc:postgresql://${PROD_DB_URL}
     username: ${PROD_DB_USER}
     password: ${PROD_DB_PASSWORD}
     driverClassName: org.postgresql.Driver
