@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication")
 public class AuthController {
@@ -105,5 +105,32 @@ public class AuthController {
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String tokenStr) {
         authService.logout(tokenStr);
         return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @Operation(
+            summary = "Get User by Token",
+            description = "Retrieve user details based on the provided authentication token.",
+            responses = {
+                    @ApiResponse(
+                            description = "User details retrieved successfully.",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))
+                    ),
+                    @ApiResponse(
+                            description = "Invalid or expired token.",
+                            responseCode = "401",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+                    ),
+                    @ApiResponse(
+                            description = "Internal server error.",
+                            responseCode = "500",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+                    )
+            }
+    )
+    @GetMapping("/get-user-by-token")
+    public ResponseEntity<UserDTO> getUserByTokenStr(@RequestParam String tokenStr) {
+        UserDTO userDTO = authService.getUserByTokenStr(tokenStr);
+        return ResponseEntity.ok(userDTO);
     }
 }

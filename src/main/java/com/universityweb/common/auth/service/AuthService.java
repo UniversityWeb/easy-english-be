@@ -12,4 +12,6 @@ public interface AuthService {
     LoginResponse login(LoginRequest loginRequest);
 
     void logout(String tokenStr);
+
+    UserDTO getUserByTokenStr(String tokenStr);
 }

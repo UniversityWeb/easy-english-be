@@ -5,7 +5,8 @@ public class SecurityUtils {
     public static final String[] PERMIT_ALL_URLS = {
             "/",
             "/v1/api/**",
-            "v1/api/auth/register/**"
+            "v1/api/auth/register/**",
+            "v1/api/auth/login/**"
     };
 
     public static final String[] SWAGGER_URLS = {

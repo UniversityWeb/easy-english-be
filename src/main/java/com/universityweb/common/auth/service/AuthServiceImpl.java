@@ -3,6 +3,7 @@ package com.universityweb.common.auth.service;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.exception.ExpiredTokenException;
 import com.universityweb.common.auth.exception.TokenNotFoundException;
 import com.universityweb.common.auth.exception.UserAlreadyExistsException;
 import com.universityweb.common.auth.exception.UserNotFoundException;
@@ -76,6 +77,19 @@ public class AuthServiceImpl implements AuthService {
         Token token = tokenOpt.get();
         token.setDeleted(true);
         tokenRepos.save(token);
+    }
+
+    @Override
+    public UserDTO getUserByTokenStr(String tokenStr) {
+        boolean isExpired = JwtTokenUtil.isTokenExpired(tokenStr);
+        if (isExpired) {
+            throw new ExpiredTokenException("Expired token");
+        }
+
+        String username = JwtTokenUtil.extractUsername(tokenStr);
+        User user = userRepos.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Could find any user with username=" + username));
+        return uMapper.toDTO(user);
     }
 
     private Token addToken(User user) {
