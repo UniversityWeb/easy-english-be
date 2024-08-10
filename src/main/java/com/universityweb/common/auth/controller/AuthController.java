@@ -2,6 +2,7 @@ package com.universityweb.common.auth.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.request.LoginRequest;
+import com.universityweb.common.auth.request.RegisterRequest;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.response.RegisterResponse;
 import com.universityweb.common.auth.service.AuthService;
@@ -41,9 +42,9 @@ public class AuthController {
     )
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(
-            @RequestBody UserDTO userDTO
+            @RequestBody RegisterRequest registerRequest
     ) {
-        RegisterResponse registerResponse = authService.registerStudentAccount(userDTO);
+        RegisterResponse registerResponse = authService.registerStudentAccount(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(registerResponse);
     }

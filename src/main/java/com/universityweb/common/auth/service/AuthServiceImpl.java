@@ -11,6 +11,7 @@ import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.TokenRepos;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.LoginRequest;
+import com.universityweb.common.auth.request.RegisterRequest;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.response.RegisterResponse;
 import com.universityweb.common.auth.util.JwtTokenUtil;
@@ -33,15 +34,27 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRepos tokenRepos;
 
     @Override
-    public RegisterResponse registerStudentAccount(UserDTO userDTO) {
-        String username = userDTO.getUsername();
+    public RegisterResponse registerStudentAccount(RegisterRequest registerRequest) {
+        String username = registerRequest.username();
         if (userRepos.existsByUsername(username)) {
             throw new UserAlreadyExistsException("Username already exists");
         }
 
-        String plainPassword = userDTO.getPassword();
+        String plainPassword = registerRequest.password();
         String encodedPassword = passwordEncoder.encode(plainPassword);
-        User user = uMapper.toEntity(userDTO);
+        User user = User.builder()
+                .username(username)
+                .password(encodedPassword)
+                .fullName(registerRequest.fullName())
+                .email(registerRequest.email())
+                .phoneNumber(registerRequest.phoneNumber())
+                .bio("")
+                .gender(registerRequest.gender())
+                .dob(registerRequest.dob())
+                .role(User.ERole.STUDENT)
+                .createdAt(LocalDateTime.now())
+                .isDeleted(false)
+                .build();
         user.setPassword(encodedPassword);
 
         User saved = userRepos.save(user);

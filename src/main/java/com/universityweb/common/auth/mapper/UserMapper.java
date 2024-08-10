@@ -2,6 +2,7 @@ package com.universityweb.common.auth.mapper;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.request.RegisterRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

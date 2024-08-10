@@ -34,6 +34,7 @@ public class User implements UserDetails {
 
     private String bio;
 
+    @Enumerated(EnumType.STRING)
     private EGender gender;
 
     private LocalDateTime dob;
