@@ -2,6 +2,9 @@ package com.universityweb.common.security;
 
 public class SecurityUtils {
 
+    public static final int EXPIRATION_DURATION_MILLIS = 24 * 60 * 60 * 1000;
+    public static final String DEFAULT_TOKEN_TYPE = "Bearer ";
+
     public static final String[] PERMIT_ALL_URLS = {
             "/",
             "api/v1/auth/register/**",

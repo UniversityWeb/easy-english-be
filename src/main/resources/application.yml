@@ -24,9 +24,6 @@ spring:
       ddl-auto: update
     show-sql: true
     open-in-view: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 logging:
   file:

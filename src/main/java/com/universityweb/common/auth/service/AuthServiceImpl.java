@@ -3,20 +3,20 @@ package com.universityweb.common.auth.service;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.exception.ExpiredTokenException;
 import com.universityweb.common.auth.exception.TokenNotFoundException;
-import com.universityweb.common.auth.exception.UserAlreadyExistsException;
-import com.universityweb.common.auth.exception.UserNotFoundException;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.TokenRepos;
-import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.LoginRequest;
 import com.universityweb.common.auth.request.RegisterRequest;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.response.RegisterResponse;
-import com.universityweb.common.auth.util.JwtTokenUtil;
+import com.universityweb.common.security.JwtGenerator;
+import com.universityweb.common.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,16 +29,16 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
 
     private final UserMapper uMapper = UserMapper.INSTANCE;
-    private final UserRepos userRepos;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtGenerator jwtGenerator;
     private final TokenRepos tokenRepos;
+    private final AuthenticationManager authManager;
 
     @Override
     public RegisterResponse registerStudentAccount(RegisterRequest registerRequest) {
         String username = registerRequest.username();
-        if (userRepos.existsByUsername(username)) {
-            throw new UserAlreadyExistsException("Username already exists");
-        }
+        userService.existsByUsername(username);
 
         String plainPassword = registerRequest.password();
         String encodedPassword = passwordEncoder.encode(plainPassword);
@@ -57,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         user.setPassword(encodedPassword);
 
-        User saved = userRepos.save(user);
+        User saved = userService.save(user);
         UserDTO savedDTO = uMapper.toDTO(saved);
         return new RegisterResponse("Register successfully", savedDTO);
     }
@@ -66,17 +66,15 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(LoginRequest loginRequest) {
         String username = loginRequest.username();
         String password = loginRequest.password();
-        Optional<User> userOpt = userRepos.findByUsername(username);
-        if (userOpt.isEmpty()) {
-            throw new UserNotFoundException("Could not found any user with username=" + username);
-        }
+        Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        password
+                )
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = userOpt.get();
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("Password not match");
-        }
-
-        Token savedToken = addToken(user);
+        Token savedToken = addToken(authentication);
         return new LoginResponse("Login successfully", "Bearer", savedToken.getTokenStr());
     }
 
@@ -94,21 +92,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserDTO getUserByTokenStr(String tokenStr) {
-        boolean isExpired = JwtTokenUtil.isTokenExpired(tokenStr);
-        if (isExpired) {
-            throw new ExpiredTokenException("Expired token");
-        }
+        jwtGenerator.validateToken(tokenStr);
 
-        String username = JwtTokenUtil.extractUsername(tokenStr);
-        User user = userRepos.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Could find any user with username=" + username));
+        String username = jwtGenerator.getUsernameFromJwt(tokenStr);
+        User user = userService.loadUserByUsername(username);
         return uMapper.toDTO(user);
     }
 
-    private Token addToken(User user) {
+    private Token addToken(Authentication authentication) {
         LocalDateTime curTime = LocalDateTime.now();
-        LocalDateTime expirationTime = curTime.plus(JwtTokenUtil.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
-        String tokenStr = JwtTokenUtil.generateToken(user, expirationTime);
+        LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
+        String tokenStr = jwtGenerator.generateToken(authentication, curTime, expirationTime);
+        User user = userService.loadUserByUsername(authentication.getName());
         Token token = Token.builder()
                 .tokenStr(tokenStr)
                 .createdAt(curTime)

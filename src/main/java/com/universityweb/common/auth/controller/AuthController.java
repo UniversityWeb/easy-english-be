@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "Authentication")
 public class AuthController {
+
+    private static final Logger log = LogManager.getLogger(AuthController.class);
 
     private final AuthService authService;
 
@@ -44,7 +48,9 @@ public class AuthController {
     public ResponseEntity<RegisterResponse> register(
             @RequestBody RegisterRequest registerRequest
     ) {
+        log.info("Register method called with request: {}", registerRequest);
         RegisterResponse registerResponse = authService.registerStudentAccount(registerRequest);
+        log.info("Register method completed successfully with response: {}", registerResponse);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(registerResponse);
     }
@@ -78,7 +84,9 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(
             @RequestBody LoginRequest loginRequest
     ) {
+        log.info("Login method called with request: {}", loginRequest);
         LoginResponse loginResponse = authService.login(loginRequest);
+        log.info("Login method completed successfully with response: {}", loginResponse);
         return ResponseEntity.ok(loginResponse);
     }
 
@@ -104,7 +112,9 @@ public class AuthController {
     )
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String tokenStr) {
+        log.info("Logout method called with token: {}", tokenStr);
         authService.logout(tokenStr);
+        log.info("Logout method completed successfully");
         return ResponseEntity.ok("Logged out successfully");
     }
 
@@ -131,7 +141,9 @@ public class AuthController {
     )
     @GetMapping("/get-user-by-token")
     public ResponseEntity<UserDTO> getUserByTokenStr(@RequestParam String tokenStr) {
+        log.info("GetUserByTokenStr method called with token: {}", tokenStr);
         UserDTO userDTO = authService.getUserByTokenStr(tokenStr);
+        log.info("GetUserByTokenStr method completed successfully with response: {}", userDTO);
         return ResponseEntity.ok(userDTO);
     }
 }
