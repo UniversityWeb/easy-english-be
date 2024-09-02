@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -20,13 +21,6 @@ public class UserDTO {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private String username;
-
-    @Schema(
-            description = "Password of the user",
-            example = "P@123456789",
-            requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    private String password;
 
     @Schema(
             description = "Fullname of the user",
@@ -65,10 +59,10 @@ public class UserDTO {
 
     @Schema(
             description = "Day of birth",
-            example = "2024-08-05T13:47:06.794Z",
+            example = "2024-08-05",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private LocalDateTime dob;
+    private LocalDate dob;
 
     @Schema(
             description = "Role of the user",

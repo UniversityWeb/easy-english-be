@@ -3,6 +3,7 @@ package com.universityweb.common.auth.controller;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.request.LoginRequest;
 import com.universityweb.common.auth.request.RegisterRequest;
+import com.universityweb.common.auth.request.UpdatePasswordRequest;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.response.RegisterResponse;
 import com.universityweb.common.auth.service.AuthService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -108,7 +110,8 @@ public class AuthController {
                             responseCode = "500",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     )
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String tokenStr) {
@@ -144,6 +147,38 @@ public class AuthController {
         log.info("GetUserByTokenStr method called with token: {}", tokenStr);
         UserDTO userDTO = authService.getUserByTokenStr(tokenStr);
         log.info("GetUserByTokenStr method completed successfully with response: {}", userDTO);
+        return ResponseEntity.ok(userDTO);
+    }
+
+    @Operation(
+            summary = "Update own password",
+            description = "Allows the authenticated user to update their own password. " +
+                    "The request must include the current password, the new password, " +
+                    "and a confirmation of the new password. The passwords must match for the update to be successful.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Password updated successfully.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)
+                            )
+                    )
+            }
+    )
+    @PutMapping("/update-own-password")
+    public ResponseEntity<UserDTO> updateOwnPassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        log.info("UpdateOwnPassword method called with request: {}", updatePasswordRequest);
+        UserDTO userDTO = authService.updateOwnPassword(updatePasswordRequest);
+        log.info("UpdateOwnPassword method completed successfully with response: {}", userDTO);
         return ResponseEntity.ok(userDTO);
     }
 }

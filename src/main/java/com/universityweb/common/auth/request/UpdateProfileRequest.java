@@ -4,22 +4,14 @@ import com.universityweb.common.auth.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-public record RegisterRequest(
+public record UpdateProfileRequest(
         @Schema(
                 description = "Username of the user",
                 example = "john",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         String username,
-
-        @Schema(
-                description = "Password of the user",
-                example = "P@123456789",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        String password,
 
         @Schema(
                 description = "Fullname of the user",
@@ -41,6 +33,13 @@ public record RegisterRequest(
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         String phoneNumber,
+
+        @Schema(
+                description = "Bio of the user",
+                example = "A student.",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
+        String bio,
 
         @Schema(
                 description = "Gender of the user",

@@ -31,7 +31,7 @@ public class Token {
     private boolean isDeleted;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "username")
     private User user;
 
     public boolean isExpired() {

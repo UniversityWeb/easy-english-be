@@ -17,6 +17,7 @@ public interface UserMapper {
 
     List<UserDTO> toDTOs(List<User> users);
 
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
     @Mapping(target = "tokens", ignore = true)
     User toEntity(UserDTO userDTO);

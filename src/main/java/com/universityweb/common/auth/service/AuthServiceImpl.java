@@ -4,10 +4,12 @@ import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.TokenNotFoundException;
+import com.universityweb.common.auth.exception.UserAlreadyExistsException;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.TokenRepos;
 import com.universityweb.common.auth.request.LoginRequest;
 import com.universityweb.common.auth.request.RegisterRequest;
+import com.universityweb.common.auth.request.UpdatePasswordRequest;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.response.RegisterResponse;
 import com.universityweb.common.security.JwtGenerator;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +41,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegisterResponse registerStudentAccount(RegisterRequest registerRequest) {
         String username = registerRequest.username();
-        userService.existsByUsername(username);
+        boolean isExists = userService.existsByUsername(username);
+        if (isExists) {
+            String msg = "Username already exists";
+            throw new UserAlreadyExistsException(msg);
+        }
 
         String plainPassword = registerRequest.password();
         String encodedPassword = passwordEncoder.encode(plainPassword);
@@ -97,6 +104,38 @@ public class AuthServiceImpl implements AuthService {
         String username = jwtGenerator.getUsernameFromJwt(tokenStr);
         User user = userService.loadUserByUsername(username);
         return uMapper.toDTO(user);
+    }
+
+    @Override
+    public String getCurrentUsername() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userDetails.getUsername();
+    }
+
+    @Override
+    public void checkAuthorization(String targetUsername) {
+        String currentUsername = getCurrentUsername();
+        if (!targetUsername.equals(currentUsername)) {
+            String msg = "User not authorized to access or modify this information";
+            throw new SecurityException(msg);
+        }
+    }
+
+    @Override
+    public UserDTO updateOwnPassword(UpdatePasswordRequest request) {
+        String usernameToUpdate = request.username();
+        checkAuthorization(usernameToUpdate);
+
+        if (!request.password().equals(request.confirmPassword())) {
+            throw new SecurityException("Passwords do not match");
+        }
+
+        User user = userService.loadUserByUsername(usernameToUpdate);
+        String encodedPassword = passwordEncoder.encode(request.password());
+        user.setPassword(encodedPassword);
+
+        User savedUser = userService.save(user);
+        return uMapper.toDTO(savedUser);
     }
 
     private Token addToken(Authentication authentication) {

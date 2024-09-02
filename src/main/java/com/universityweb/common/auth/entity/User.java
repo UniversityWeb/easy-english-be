@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -37,7 +39,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private EGender gender;
 
-    private LocalDateTime dob;
+    private LocalDate dob;
 
     @Enumerated(EnumType.STRING)
     private ERole role;
@@ -48,8 +50,8 @@ public class User implements UserDetails {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Token> tokens = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Token> tokens = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
