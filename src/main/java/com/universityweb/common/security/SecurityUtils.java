@@ -8,6 +8,7 @@ public class SecurityUtils {
     public static final String[] PERMIT_ALL_URLS = {
             "/",
             "api/v1/auth/register/**",
+            "api/v1/auth/active-account/**",
             "api/v1/auth/login/**",
             "api/v1/auth/get-user-by-token/**"
     };

@@ -33,3 +33,8 @@ logging:
 
 frontend:
   url: ${PROD_FRONTEND_URL}
+
+third-party:
+  sending-email:
+    address: ${PROD_SENDING_EMAIL_ADDRESS}
+    password: ${PROD_SENDING_EMAIL_PASSWORD}

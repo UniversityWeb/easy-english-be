@@ -1,4 +1,4 @@
-package com.universityweb.common.auth.service;
+package com.universityweb.common.auth.service.user;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
@@ -18,4 +18,6 @@ public interface UserService extends UserDetailsService {
     List<User> saveAll(List<User> users);
 
     UserDTO update(UpdateProfileRequest updateProfileRequest);
+
+    String getEmailByUsername(String username);
 }

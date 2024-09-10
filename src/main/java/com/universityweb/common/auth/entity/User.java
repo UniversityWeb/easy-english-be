@@ -1,6 +1,5 @@
 package com.universityweb.common.auth.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -20,7 +20,7 @@ import java.util.*;
 @NoArgsConstructor
 @Data
 @Builder
-public class User implements UserDetails {
+public class User implements UserDetails, Serializable {
     @Id
     private String username;
 
@@ -29,9 +29,10 @@ public class User implements UserDetails {
     @Column(name = "full_name")
     private String fullName;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
     private String bio;
@@ -47,11 +48,8 @@ public class User implements UserDetails {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Token> tokens = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    private EStatus status;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -95,5 +93,11 @@ public class User implements UserDetails {
         ADMIN,
         TEACHER,
         STUDENT
+    }
+
+    public enum EStatus {
+        ACTIVE,
+        INACTIVE,
+        DELETED
     }
 }

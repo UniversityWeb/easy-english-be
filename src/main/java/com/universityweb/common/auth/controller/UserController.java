@@ -2,8 +2,8 @@ package com.universityweb.common.auth.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
-import com.universityweb.common.auth.service.AuthService;
-import com.universityweb.common.auth.service.UserService;
+import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,7 +50,7 @@ public class UserController {
     )
     @PutMapping("/update-own-profile")
     public ResponseEntity<UserDTO> updateOwnProfile(@RequestBody UpdateProfileRequest updateProfileRequest) {
-        String usernameToUpdate = updateProfileRequest.username();
+        String usernameToUpdate = updateProfileRequest.getUsername();
         log.info("Received request to update user with username: {}", usernameToUpdate);
 
         authService.checkAuthorization(usernameToUpdate);

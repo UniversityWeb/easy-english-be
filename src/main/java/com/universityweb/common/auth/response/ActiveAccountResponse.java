@@ -5,10 +5,10 @@ import com.universityweb.common.auth.dto.UserDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-public record RegisterResponse(
+public record ActiveAccountResponse(
         @Schema(
                 description = "Message",
-                example = "Register successfully",
+                example = "Active successfully",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         String message,

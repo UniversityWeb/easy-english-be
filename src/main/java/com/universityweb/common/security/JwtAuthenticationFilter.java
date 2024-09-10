@@ -1,7 +1,7 @@
 package com.universityweb.common.security;
 
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.service.UserService;
+import com.universityweb.common.auth.service.user.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.universityweb.common.auth.service;
+package com.universityweb.common.auth.service.user;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
@@ -6,13 +6,14 @@ import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserDetailsService, UserService {
 
     private final UserMapper uMapper = UserMapper.INSTANCE;
 
@@ -44,18 +45,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO update(UpdateProfileRequest updateProfileRequest) {
-        String usernameToUpdate = updateProfileRequest.username();
+        String usernameToUpdate = updateProfileRequest.getUsername();
 
         User user = loadUserByUsername(usernameToUpdate);
 
         user.setFullName(usernameToUpdate);
-        user.setEmail(updateProfileRequest.email());
-        user.setPhoneNumber(updateProfileRequest.phoneNumber());
-        user.setBio(updateProfileRequest.bio());
-        user.setGender(updateProfileRequest.gender());
-        user.setDob(updateProfileRequest.dob());
+        user.setEmail(updateProfileRequest.getEmail());
+        user.setPhoneNumber(updateProfileRequest.getPhoneNumber());
+        user.setBio(updateProfileRequest.getBio());
+        user.setGender(updateProfileRequest.getGender());
+        user.setDob(updateProfileRequest.getDob());
 
         User savedUser = userRepos.save(user);
         return uMapper.toDTO(savedUser);
+    }
+
+    @Override
+    public String getEmailByUsername(String username) {
+        return userRepos.getEmailByUsername(username);
     }
 }

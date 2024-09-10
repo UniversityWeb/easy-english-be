@@ -1,12 +1,10 @@
 package com.universityweb.common.auth.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
-import com.universityweb.common.auth.request.LoginRequest;
-import com.universityweb.common.auth.request.RegisterRequest;
-import com.universityweb.common.auth.request.UpdatePasswordRequest;
+import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.LoginResponse;
-import com.universityweb.common.auth.response.RegisterResponse;
-import com.universityweb.common.auth.service.AuthService;
+import com.universityweb.common.auth.response.ActiveAccountResponse;
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,53 +33,125 @@ public class AuthController {
             summary = "Register",
             description = "Add a new student by providing the necessary details in the request body.",
             responses = {
-                    @ApiResponse(
-                            description = "Student added successfully.",
-                            responseCode = "201"
-                    ),
+                    @ApiResponse(description = "Student added successfully.", responseCode = "201"),
                     @ApiResponse(
                             description = "Internal server error.",
                             responseCode = "500",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    )
-            }
-    )
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)))
+            })
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(
+    public ResponseEntity<String> register(
             @RequestBody RegisterRequest registerRequest
     ) {
         log.info("Register method called with request: {}", registerRequest);
-        RegisterResponse registerResponse = authService.registerStudentAccount(registerRequest);
-        log.info("Register method completed successfully with response: {}", registerResponse);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(registerResponse);
+        authService.registerStudentAccount(registerRequest);
+        String msg = "Register successfully";
+        log.info(msg);
+        return ResponseEntity.status(HttpStatus.CREATED).body(msg);
+    }
+
+    @Operation(
+            summary = "Generate OTP for Login",
+            description = "Generates a one-time password (OTP) and sends it to the email associated with the provided username.",
+            responses = {
+                    @ApiResponse(
+                            description = "OTP successfully generated and sent to the user's email.",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(
+                            description = "Email not found.",
+                            responseCode = "404",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            description = "Internal server error while generating OTP.",
+                            responseCode = "500",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    @PostMapping("/generate-otp-to-login")
+    public ResponseEntity<String> generateOtpToLogin(LoginRequest generateOTPRequest) {
+        authService.generateAndSendOtpToLogin(generateOTPRequest);
+        return ResponseEntity.ok("OTP has been sent to your email");
+    }
+
+    @Operation(
+            summary = "Login with OTP",
+            description = "Login into an account using an OTP.",
+            responses = {
+                    @ApiResponse(description = "OTP login successfully.", responseCode = "200"),
+                    @ApiResponse(
+                            description = "OTP not found for the given email: ${email}.",
+                            responseCode = "400",
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            description = "Invalid OTP provided for the given email: ${email}.",
+                            responseCode = "400",
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            description = "OTP has expired for the given email: ${email}.",
+                            responseCode = "403",
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            description = "Internal server error.",
+                            responseCode = "500",
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PostMapping("/login-with-otp")
+    public ResponseEntity<LoginResponse> loginWithOtp(
+            @RequestBody OtpRequest loginWithOtpRequest
+    ) {
+        log.info("Login with OTP method called with request: {}", loginWithOtpRequest);
+        LoginResponse loginResponse = authService.loginWithOtp(loginWithOtpRequest);
+        log.info("Login with OTP method completed successfully with response: {}", loginResponse);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @Operation(
             summary = "Login",
             description = "Login into an account.",
             responses = {
-                    @ApiResponse(
-                            description = "Login successfully.",
-                            responseCode = "200"
-                    ),
+                    @ApiResponse(description = "Login successfully.", responseCode = "200"),
                     @ApiResponse(
                             description = "Invalid credentials.",
                             responseCode = "401",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    ),
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(
                             description = "User disabled.",
                             responseCode = "403",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    ),
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(
                             description = "Internal server error.",
                             responseCode = "500",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    )
-            }
-    )
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)))
+            })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
             @RequestBody LoginRequest loginRequest
@@ -96,23 +166,23 @@ public class AuthController {
             summary = "Logout",
             description = "Logout from an account.",
             responses = {
-                    @ApiResponse(
-                            description = "Logged out successfully.",
-                            responseCode = "200"
-                    ),
+                    @ApiResponse(description = "Logged out successfully.", responseCode = "200"),
                     @ApiResponse(
                             description = "Invalid tokenStr.",
                             responseCode = "401",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    ),
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(
                             description = "Internal server error.",
                             responseCode = "500",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    )
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)))
             },
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
+            security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String tokenStr) {
         log.info("Logout method called with token: {}", tokenStr);
@@ -128,20 +198,25 @@ public class AuthController {
                     @ApiResponse(
                             description = "User details retrieved successfully.",
                             responseCode = "200",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))
-                    ),
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserDTO.class))),
                     @ApiResponse(
                             description = "Invalid or expired token.",
                             responseCode = "401",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    ),
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(
                             description = "Internal server error.",
                             responseCode = "500",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                    )
-            }
-    )
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)))
+            })
     @GetMapping("/get-user-by-token")
     public ResponseEntity<UserDTO> getUserByTokenStr(@RequestParam String tokenStr) {
         log.info("GetUserByTokenStr method called with token: {}", tokenStr);
@@ -152,21 +227,52 @@ public class AuthController {
 
     @Operation(
             summary = "Update own password",
-            description = "Allows the authenticated user to update their own password. " +
-                    "The request must include the current password, the new password, " +
-                    "and a confirmation of the new password. The passwords must match for the update to be successful.",
+            description =
+                    "Allows the authenticated user to update their own password. The request must include the"
+                            + " current password, the new password, and a confirmation of the new password. The"
+                            + " passwords must match for the update to be successful.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Password updated successfully.",
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserDTO.class))),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error.",
+                            content =
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    @PutMapping("/update-own-password")
+    public ResponseEntity<UserDTO> updateOwnPassword(
+            @RequestBody UpdatePasswordRequest updatePasswordRequest
+    ) {
+        log.info("UpdateOwnPassword method called with request: {}", updatePasswordRequest);
+        UserDTO userDTO = authService.updateOwnPassword(updatePasswordRequest);
+        log.info("UpdateOwnPassword method completed successfully with response: {}", userDTO);
+        return ResponseEntity.ok(userDTO);
+    }
+
+    @Operation(
+            summary = "Activate User Account",
+            description = "Activates a user account using the provided email and OTP. Ensures the OTP is valid and not expired.",
+            responses = {
+                    @ApiResponse(
+                            description = "User account activated successfully.",
+                            responseCode = "200",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = UserDTO.class)
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "500",
                             description = "Internal server error.",
+                            responseCode = "500",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorResponse.class)
@@ -174,11 +280,46 @@ public class AuthController {
                     )
             }
     )
-    @PutMapping("/update-own-password")
-    public ResponseEntity<UserDTO> updateOwnPassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
-        log.info("UpdateOwnPassword method called with request: {}", updatePasswordRequest);
-        UserDTO userDTO = authService.updateOwnPassword(updatePasswordRequest);
-        log.info("UpdateOwnPassword method completed successfully with response: {}", userDTO);
+    @PutMapping("/active-account")
+    public ResponseEntity<ActiveAccountResponse> activeAccount(
+            @RequestBody OtpRequest activeAccountRequest
+    ) {
+        log.info("Received request to activate account with OTP: {}", activeAccountRequest);
+        ActiveAccountResponse activateAccount =
+                authService.activateAccount(activeAccountRequest);
+        log.info("Account activated successfully for user: {}", activeAccountRequest.username());
+        return ResponseEntity.ok(activateAccount);
+    }
+
+    @Operation(
+            summary = "Update User Profile with OTP",
+            description = "Updates the user profile with the provided details and OTP. Ensures the OTP is valid and not expired.",
+            responses = {
+                    @ApiResponse(
+                            description = "User profile updated successfully.",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "Internal server error.",
+                            responseCode = "500",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)
+                            )
+                    )
+            }
+    )
+    @PutMapping("/update-user-profile-with-otp")
+    public ResponseEntity<UserDTO> updateUserProfileWithOTP(
+            @RequestBody UpdateProfileWithOTPRequest updateProfileRequest
+    ) {
+        log.info("Received request to update user profile with OTP: {}", updateProfileRequest);
+        UserDTO userDTO = authService.updateProfileWithOTP(updateProfileRequest);
+        log.info("User profile updated successfully for user: {}", updateProfileRequest.getUsername());
         return ResponseEntity.ok(userDTO);
     }
 }

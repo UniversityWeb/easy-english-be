@@ -12,21 +12,21 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component
-public class JwtGenerator {
+public class JwtGenerator implements Serializable {
     private static final Logger log = LogManager.getLogger(JwtGenerator.class);
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     public String generateToken(
-            Authentication authentication,
+            String username,
             LocalDateTime current,
             LocalDateTime expiration
     ) {
-        String username = authentication.getName();
         Date currentDate = Utils.toDate(current);
         Date expiresDate = Utils.toDate(expiration);
 
