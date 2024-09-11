@@ -9,11 +9,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OtpServiceImpl implements OtpService {
-    private static final ConcurrentHashMap<String, OtpRecord> otpCache = new ConcurrentHashMap<>();
+    private static final Map<String, OtpRecord> otpCache = new ConcurrentHashMap<>();
 
     @Autowired
     private EmailService emailService;

@@ -313,14 +313,14 @@ public class AuthController {
                     )
             }
     )
-    @PostMapping("/generate-otp-to-update-profile")
+    @PostMapping("/generate-otp-to-update-profile/{username}")
     public ResponseEntity<String> generateOtpToUpdateProfile(
-            @RequestBody String username
+            @PathVariable("username") String username
     ) {
         log.info("Received request to generate otp to update user profile with username: {}", username);
         authService.generateAndSendOtpToUpdateProfile(username);
         log.info("OTP generated successfully for User: {}", username);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("OTP generated successfully");
     }
 
     @Operation(
