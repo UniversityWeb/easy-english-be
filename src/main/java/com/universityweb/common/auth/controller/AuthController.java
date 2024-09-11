@@ -76,7 +76,9 @@ public class AuthController {
             }
     )
     @PostMapping("/generate-otp-to-login")
-    public ResponseEntity<String> generateOtpToLogin(LoginRequest generateOTPRequest) {
+    public ResponseEntity<String> generateOtpToLogin(
+            @RequestBody LoginRequest generateOTPRequest
+    ) {
         authService.generateAndSendOtpToLogin(generateOTPRequest);
         return ResponseEntity.ok("OTP has been sent to your email");
     }
@@ -289,6 +291,36 @@ public class AuthController {
                 authService.activateAccount(activeAccountRequest);
         log.info("Account activated successfully for user: {}", activeAccountRequest.username());
         return ResponseEntity.ok(activateAccount);
+    }
+
+    @Operation(
+            summary = "Generate OTP to Update User Profile",
+            description = "Generates an OTP for updating the user profile associated with the provided email. " +
+                    "The OTP will be sent to the user's email and will be valid for a limited time.",
+            responses = {
+                    @ApiResponse(
+                            description = "OTP generated and sent successfully.",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
+                            description = "Internal server error.",
+                            responseCode = "500",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)
+                            )
+                    )
+            }
+    )
+    @PostMapping("/generate-otp-to-update-profile")
+    public ResponseEntity<String> generateOtpToUpdateProfile(
+            @RequestBody String username
+    ) {
+        log.info("Received request to generate otp to update user profile with username: {}", username);
+        authService.generateAndSendOtpToUpdateProfile(username);
+        log.info("OTP generated successfully for User: {}", username);
+        return ResponseEntity.ok("");
     }
 
     @Operation(

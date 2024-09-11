@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OtpServiceImpl implements OtpService {
-    private final ConcurrentHashMap<String, OtpRecord> otpStore = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, OtpRecord> otpCache = new ConcurrentHashMap<>();
 
     @Autowired
     private EmailService emailService;
@@ -21,7 +21,7 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public boolean validateOtp(String email, String otp, EPurpose purpose) {
         String key = generateKey(email, purpose);
-        OtpRecord otpRecord = otpStore.get(key);
+        OtpRecord otpRecord = otpCache.get(key);
 
         if (otpRecord == null) {
             throw new InvalidOtpException("OTP not found for the given email: " + email);
@@ -41,7 +41,7 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public void invalidateOtp(String email, EPurpose purpose) {
         String key = generateKey(email, purpose);
-        otpStore.remove(key);
+        otpCache.remove(key);
     }
 
     @Override
@@ -95,11 +95,11 @@ public class OtpServiceImpl implements OtpService {
 
     @Scheduled(fixedRate = 120_000)
     private void removeExpiredOtp() {
-        Iterator<String> iterator = otpStore.keySet().iterator();
+        Iterator<String> iterator = otpCache.keySet().iterator();
 
         while (iterator.hasNext()) {
             String key = iterator.next();
-            OtpRecord otpRecord = otpStore.get(key);
+            OtpRecord otpRecord = otpCache.get(key);
 
             if (otpRecord != null && otpRecord.expiryTime().isAfter(LocalDateTime.now())) {
                 iterator.remove();
@@ -112,7 +112,7 @@ public class OtpServiceImpl implements OtpService {
 
         OtpRecord otpRecord = new OtpRecord(otp, LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES));
         String key = generateKey(email, purpose);
-        otpStore.put(key, otpRecord);
+        otpCache.put(key, otpRecord);
 
         return otp;
     }

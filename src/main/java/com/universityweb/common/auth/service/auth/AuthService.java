@@ -27,7 +27,7 @@ public interface AuthService {
 
     ActiveAccountResponse activateAccount(OtpRequest activeAccountRequest);
 
-    void generateOtpToUpdateProfile(String username);
+    void generateAndSendOtpToUpdateProfile(String username);
 
     UserDTO updateProfileWithOTP(UpdateProfileWithOTPRequest updateProfileRequest);
 }

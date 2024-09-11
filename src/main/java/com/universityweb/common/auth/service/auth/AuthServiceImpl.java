@@ -183,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void generateOtpToUpdateProfile(String username) {
+    public void generateAndSendOtpToUpdateProfile(String username) {
         checkAuthorization(username);
         User user = userService.loadUserByUsername(username);
         String email = user.getEmail();
