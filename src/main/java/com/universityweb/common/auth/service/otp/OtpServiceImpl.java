@@ -13,14 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OtpServiceImpl implements OtpService {
-    private static final ConcurrentHashMap<String, OtpRecord> otpStore = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, OtpRecord> otpStore = new ConcurrentHashMap<>();
 
     @Autowired
     private EmailService emailService;
 
     @Override
     public boolean validateOtp(String email, String otp, EPurpose purpose) {
-        OtpRecord otpRecord = otpStore.get(email);
+        String key = generateKey(email, purpose);
+        OtpRecord otpRecord = otpStore.get(key);
 
         if (otpRecord == null) {
             throw new InvalidOtpException("OTP not found for the given email: " + email);
@@ -39,7 +40,8 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public void invalidateOtp(String email, EPurpose purpose) {
-        otpStore.remove(email);
+        String key = generateKey(email, purpose);
+        otpStore.remove(key);
     }
 
     @Override
@@ -87,13 +89,17 @@ public class OtpServiceImpl implements OtpService {
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
+    private String generateKey(String email, EPurpose purpose) {
+        return email + "_" + purpose;
+    }
+
     @Scheduled(fixedRate = 120_000)
     private void removeExpiredOtp() {
         Iterator<String> iterator = otpStore.keySet().iterator();
 
         while (iterator.hasNext()) {
-            String email = iterator.next();
-            OtpRecord otpRecord = otpStore.get(email);
+            String key = iterator.next();
+            OtpRecord otpRecord = otpStore.get(key);
 
             if (otpRecord != null && otpRecord.expiryTime().isAfter(LocalDateTime.now())) {
                 iterator.remove();
@@ -104,15 +110,15 @@ public class OtpServiceImpl implements OtpService {
     private String generateOtp(String email, EPurpose purpose) {
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
 
-        OtpRecord otpRecord = new OtpRecord(otp, purpose, LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES));
-        otpStore.put(email, otpRecord);
+        OtpRecord otpRecord = new OtpRecord(otp, LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES));
+        String key = generateKey(email, purpose);
+        otpStore.put(key, otpRecord);
 
         return otp;
     }
 
     private record OtpRecord(
             String otp,
-            EPurpose purpose,
             LocalDateTime expiryTime
     ) {}
 }
