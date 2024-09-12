@@ -61,7 +61,7 @@ public class JwtGenerator implements Serializable {
                     .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
-            throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect", e.fillInStackTrace());
+            return false;
         }
     }
 
