@@ -3,6 +3,8 @@ package com.universityweb.common.auth.service.otp;
 import com.universityweb.common.auth.exception.ExpiredOtpException;
 import com.universityweb.common.auth.exception.InvalidOtpException;
 import com.universityweb.common.service.mail.EmailService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OtpServiceImpl implements OtpService {
+    private static Logger log = LogManager.getLogger(OtpServiceImpl.class);
     private static final Map<String, OtpRecord> otpCache = new ConcurrentHashMap<>();
 
     @Autowired
@@ -102,7 +105,7 @@ public class OtpServiceImpl implements OtpService {
             String key = iterator.next();
             OtpRecord otpRecord = otpCache.get(key);
 
-            if (otpRecord != null && otpRecord.expiryTime().isAfter(LocalDateTime.now())) {
+            if (otpRecord != null && otpRecord.expiryTime().isBefore(LocalDateTime.now())) {
                 iterator.remove();
             }
         }
@@ -110,6 +113,7 @@ public class OtpServiceImpl implements OtpService {
 
     private String generateOtp(String email, EPurpose purpose) {
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
+        log.info("Generated OTP for {}: {}", email, otp);
 
         OtpRecord otpRecord = new OtpRecord(otp, LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES));
         String key = generateKey(email, purpose);

@@ -87,7 +87,8 @@ public class AuthServiceImpl implements AuthService {
         LocalDateTime curTime = LocalDateTime.now();
         LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
         String generatedToken = jwtGenerator.generateToken(username, curTime, expirationTime);
-        return new LoginResponse("Login successfully", "Bearer", generatedToken);
+        UserDTO userDTO = userService.getUserByUsername(username);
+        return new LoginResponse("Login successfully", "Bearer", generatedToken, userDTO);
     }
 
     @Override
@@ -113,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void checkAuthorization(String targetUsername) {
         String currentUsername = getCurrentUsername();
-        if (!targetUsername.equals(currentUsername)) {
+        if (targetUsername == null || !targetUsername.equals(currentUsername)) {
             String msg = "User not authorized to access or modify this information";
             throw new SecurityException(msg);
         }
@@ -156,7 +157,8 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse loginWithOtp(OtpRequest loginWithOtpRequest) {
         String username = loginWithOtpRequest.username();
         String otp = loginWithOtpRequest.otp();
-        String email = userService.getEmailByUsername(username);
+        UserDTO userDTO = userService.getUserByUsername(username);
+        String email = userDTO.getEmail();
 
         otpService.validateOtp(email, otp, OtpService.EPurpose.LOGIN);
         otpService.invalidateOtp(email, OtpService.EPurpose.LOGIN);
@@ -164,7 +166,7 @@ public class AuthServiceImpl implements AuthService {
         LocalDateTime curTime = LocalDateTime.now();
         LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
         String generatedToken = jwtGenerator.generateToken(username, curTime, expirationTime);
-        return new LoginResponse("OTP login successfully", "Bearer", generatedToken);
+        return new LoginResponse("OTP login successfully", "Bearer", generatedToken, userDTO);
     }
 
     @Override

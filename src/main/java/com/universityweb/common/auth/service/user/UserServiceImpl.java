@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserDetailsService, UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserMapper uMapper = UserMapper.INSTANCE;
 
@@ -26,6 +26,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         User user = userRepos.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(msg));
         return user;
+    }
+
+    @Override
+    public UserDTO getUserByUsername(String username) throws UsernameNotFoundException {
+        User user = loadUserByUsername(username);
+        return uMapper.toDTO(user);
     }
 
     @Override

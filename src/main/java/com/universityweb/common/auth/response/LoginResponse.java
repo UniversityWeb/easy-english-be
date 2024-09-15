@@ -1,26 +1,26 @@
 package com.universityweb.common.auth.response;
 
+import com.universityweb.common.auth.dto.UserDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record LoginResponse(
         @Schema(
                 description = "Message",
-                example = "Login successfully",
-                requiredMode = Schema.RequiredMode.REQUIRED
+                example = "Login successfully"
         )
         String message,
 
         @Schema(
                 description = "Type of the token",
-                example = "john",
-                requiredMode = Schema.RequiredMode.REQUIRED
+                example = "john"
         )
         String tokenType,
 
         @Schema(
                 description = "Token string",
-                example = "qwerqwr234asdgasg...",
-                requiredMode = Schema.RequiredMode.REQUIRED
+                example = "qwerqwr234asdgasg..."
         )
-        String tokenStr
+        String tokenStr,
+
+        UserDTO user
 ) {}
