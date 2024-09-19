@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @CrossOrigin
-@RequestMapping("/api/v1/courses")
+@RequestMapping("/courses")
 @RestController
 public class CourseController {
     @Autowired
@@ -32,7 +32,7 @@ public class CourseController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Course> > filteCourse(@RequestParam int price, @RequestParam String name) {
+    public ResponseEntity<List<Course> > filterCourse(@RequestParam int price, @RequestParam String name) {
         return ResponseEntity.ok(courseService.filterCourse(price, name));
     }
 
