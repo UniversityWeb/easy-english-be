@@ -3,9 +3,7 @@ package com.universityweb.course.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.List;
@@ -15,6 +13,9 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "sections")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Section {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
