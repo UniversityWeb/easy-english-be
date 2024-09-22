@@ -30,7 +30,7 @@ public class TestResult implements Serializable {
     private LocalDateTime finishedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "username")
     private User user;
 
     @ManyToOne

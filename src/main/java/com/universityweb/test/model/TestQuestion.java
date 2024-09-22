@@ -34,6 +34,10 @@ public class TestQuestion implements Serializable {
     @JoinColumn(name = "test_section_id")
     private TestSection testSection;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reading_passage_id")
+    private ReadingPassage readingPassage;
+
     public enum EType {
         SINGLE_CHOICE,
         MULTIPLE_CHOICE,

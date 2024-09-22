@@ -1,6 +1,5 @@
 package com.universityweb.test.model;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.model.Course;
 import com.universityweb.course.model.Section;
 import jakarta.persistence.*;
@@ -41,6 +40,6 @@ public class Test implements Serializable {
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     private Course course;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Section> sections;
 }

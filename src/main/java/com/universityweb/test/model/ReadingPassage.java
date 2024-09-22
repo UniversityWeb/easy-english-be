@@ -23,6 +23,6 @@ public class ReadingPassage implements Serializable {
 
     private String text;
 
-    @OneToMany(mappedBy = "testquestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "readingPassage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TestQuestion> questions;
 }
