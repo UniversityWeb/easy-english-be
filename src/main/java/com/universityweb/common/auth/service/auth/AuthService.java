@@ -30,4 +30,6 @@ public interface AuthService {
     void generateAndSendOtpToUpdateProfile(String username);
 
     UserDTO updateProfileWithOTP(UpdateProfileWithOTPRequest updateProfileRequest);
+
+    UserDTO resendOTPToActiveAccount(String username);
 }
