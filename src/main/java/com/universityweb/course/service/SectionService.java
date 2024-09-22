@@ -17,22 +17,6 @@ public class SectionService {
     @Autowired
     private CourseService courseService;
 
-
-    /*public void copy(Section section, SectionResponse sectionResponse) {
-        sectionResponse.setId(section.getId());
-        sectionResponse.setTitle(section.getTitle());
-        sectionResponse.setCreatedBy(section.getCreatedBy());
-        sectionResponse.setCreatedAt(section.getCreatedAt());
-
-        List<LessonResponse> lessonResponses = section.getLessons().stream()
-                .map(lesson -> {
-                    LessonResponse lessonResponse = new LessonResponse();
-                    lessonService.copy(lesson, lessonResponse);
-                    return lessonResponse;
-                })
-                .collect(Collectors.toList());
-        sectionResponse.setLessonResponses(lessonResponses);
-    }*/
     public void deleteSection(int id) {
         sectionRepository.deleteById(id);
     }

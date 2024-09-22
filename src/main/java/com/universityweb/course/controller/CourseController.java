@@ -21,8 +21,12 @@ public class CourseController {
     private EnrollmentService enrollmentService;
 
     @GetMapping("")
-    public ResponseEntity<List<Course>> getAllCourse() {
-        return ResponseEntity.ok(courseService.getAllCourses());
+    public ResponseEntity<List<Course>> getAllCourse(
+            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<Course> courses = courseService.getAllCourses(pageNumber, size);
+        return ResponseEntity.ok(courses);
     }
 
     @PostMapping("")
@@ -32,8 +36,12 @@ public class CourseController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Course> > filterCourse(@RequestParam int price, @RequestParam String name) {
-        return ResponseEntity.ok(courseService.filterCourse(price, name));
+    public ResponseEntity<List<Course> > filterCourse(
+            @RequestParam int price,
+            @RequestParam String name,
+            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(courseService.filterCourse(price, name, pageNumber, size));
     }
 
     @GetMapping("/{courseId}/sales-count")
