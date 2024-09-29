@@ -3,10 +3,14 @@ package com.universityweb.course.service;
 import com.universityweb.course.model.Course;
 import com.universityweb.course.model.Section;
 import com.universityweb.course.model.request.SectionRequest;
+import com.universityweb.course.model.response.CourseResponse;
+import com.universityweb.course.model.response.SectionResponse;
 import com.universityweb.course.repository.SectionRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,7 +35,9 @@ public class SectionService {
     }
 
     public void updateSection(Section section) {
-        sectionRepository.save(section);
+        Section currentSection = sectionRepository.findById(section.getId());
+        currentSection.setTitle(section.getTitle());
+        sectionRepository.save(currentSection);
     }
 
     public List<Section> getAllSections() {
@@ -40,5 +46,27 @@ public class SectionService {
 
     public Section getSectionById(int id) {
         return sectionRepository.findById(id);
+    }
+
+    public List<Section> getSectionByCourse(int courseId) {
+        return sectionRepository.findByCourseId(courseId);
+    }
+
+    public List<SectionResponse> getAllSectionByCourseV1(int courseId) {
+        List<Section> sections = sectionRepository.findByCourseId(courseId);
+        List<SectionResponse> sectionResponses = new ArrayList<>();
+        for (Section section : sections) {
+            SectionResponse sectionResponse = new SectionResponse();
+            BeanUtils.copyProperties(section, sectionResponse);
+            sectionResponses.add(sectionResponse);
+        }
+        return sectionResponses;
+    }
+
+    public SectionResponse getSectionByIdV1(int id) {
+        Section section = sectionRepository.findById(id);
+        SectionResponse sectionResponse = new SectionResponse();
+        BeanUtils.copyProperties(section, sectionResponse);
+        return sectionResponse;
     }
 }

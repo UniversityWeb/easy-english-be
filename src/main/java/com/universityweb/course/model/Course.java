@@ -42,6 +42,12 @@ public class Course {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "rating")
+    private double rating;
+
+    @Column(name = "rating_count")
+    private int ratingCount;
+
     @Column(name = "publish")
     private Boolean isPublish;
 
@@ -55,4 +61,21 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Section> sections;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Review> reviews;
+
+    public void updateRating() {
+        if (reviews != null && !reviews.isEmpty()) {
+            double averageRating = reviews.stream()
+                    .mapToDouble(Review::getRating)
+                    .average()
+                    .orElse(0.0);
+            this.rating = averageRating;
+            this.ratingCount = reviews.size();
+        } else {
+            this.rating = 0.0;
+        }
+    }
 }

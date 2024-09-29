@@ -4,10 +4,13 @@ package com.universityweb.course.service;
 import com.universityweb.course.model.Lesson;
 import com.universityweb.course.model.Section;
 import com.universityweb.course.model.request.LessonRequest;
+import com.universityweb.course.model.response.LessonResponse;
 import com.universityweb.course.repository.LessonRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -59,11 +62,32 @@ public class LessonService {
     }
 
     public void updateLesson(Lesson lesson) {
-        lessonRepository.save(lesson);
+
+        Lesson currentLesson = lessonRepository.findById(lesson.getId());
+        currentLesson.setTitle(lesson.getTitle());
+        lessonRepository.save(currentLesson);
     }
 
 
     public List<Lesson> getAllLessons() {
         return lessonRepository.findAll();
+    }
+
+    public List<LessonResponse> getAllLessonBySectionV1(int sectionId) {
+        List<Lesson> lessons = lessonRepository.findBySectionId(sectionId);
+        List<LessonResponse> lessonResponses = new ArrayList<>();
+        for (Lesson lesson : lessons) {
+            LessonResponse lessonResponse = new LessonResponse();
+            BeanUtils.copyProperties(lesson, lessonResponse);
+            lessonResponses.add(lessonResponse);
+        }
+        return lessonResponses;
+    }
+
+    public LessonResponse getLessonByIdV1(int id) {
+        Lesson lesson = lessonRepository.findById(id);
+        LessonResponse lessonResponse = new LessonResponse();
+        BeanUtils.copyProperties(lesson, lessonResponse);
+        return lessonResponse;
     }
 }
