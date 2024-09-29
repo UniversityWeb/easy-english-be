@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,7 +36,8 @@ public class NotificationServiceImpl implements NotificationService {
         int pageNumber = request.getPage();
         int size = request.getSize();
 
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        Sort sort = Sort.by("createdDate");
+        Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
 
         Page<Notification> notificationsPage = notificationRepos.findByUserUsername(username, pageable);
         return notificationsPage.map(notificationMapper::toDTO);
