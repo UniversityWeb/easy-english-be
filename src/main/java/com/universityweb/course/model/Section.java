@@ -2,6 +2,7 @@ package com.universityweb.course.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.universityweb.test.model.Test;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -40,4 +41,8 @@ public class Section {
     @JoinColumn(name = "course_id")
     @JsonBackReference
     private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_id")
+    private Test test;
 }
