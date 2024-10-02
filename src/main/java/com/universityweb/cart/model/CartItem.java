@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cart_items")
@@ -27,6 +28,9 @@ public class CartItem implements Serializable {
     private BigDecimal price;
 
     private BigDecimal discountPercent;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "username", nullable = false)

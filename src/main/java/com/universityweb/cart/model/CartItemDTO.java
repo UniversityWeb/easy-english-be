@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -15,6 +16,7 @@ public class CartItemDTO implements Serializable {
     private CartItem.EStatus status;
     private BigDecimal price;
     private BigDecimal discountPercent;
+    private LocalDateTime updatedAt;
     private String username;
     private Long courseId;
 }

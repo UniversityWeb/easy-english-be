@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public class CartServiceImpl implements CartService {
                     .status(CartItem.EStatus.ACTIVE)
                     .price(new BigDecimal(course.getPrice()))
                     .discountPercent(BigDecimal.ZERO)
+                    .updatedAt(LocalDateTime.now())
                     .user(user)
                     .course(course)
                     .build();
@@ -63,6 +65,7 @@ public class CartServiceImpl implements CartService {
 
             item.setStatus(CartItem.EStatus.ACTIVE);
             item.setDiscountPercent(discount);
+            item.setUpdatedAt(LocalDateTime.now());
         });
 
         CartItem savedCartItem = cartRepos.save(cartItem);
@@ -82,6 +85,7 @@ public class CartServiceImpl implements CartService {
         }
 
         cartItem.setStatus(CartItem.EStatus.DELETED);
+        cartItem.setUpdatedAt(LocalDateTime.now());
         cartRepos.save(cartItem);
         return true;
     }
@@ -92,8 +96,10 @@ public class CartServiceImpl implements CartService {
                 .stream()
                 .filter(item -> item.getUser().getUsername().equals(username))
                 .collect(Collectors.toList());
-
-        cartItems.forEach(item -> item.setStatus(CartItem.EStatus.DELETED));
+        cartItems.forEach(item -> {
+            item.setStatus(CartItem.EStatus.DELETED);
+            item.setUpdatedAt(LocalDateTime.now());
+        });
         cartRepos.saveAll(cartItems);
     }
 
