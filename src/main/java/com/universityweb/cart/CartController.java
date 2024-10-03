@@ -1,6 +1,6 @@
 package com.universityweb.cart;
 
-import com.universityweb.cart.model.CartItemDTO;
+import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.response.ErrorResponse;
@@ -35,7 +35,7 @@ public class CartController {
                     @ApiResponse(
                             description = "Successfully retrieved cart items.",
                             responseCode = "200",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartItemDTO.class))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartItemResponse.class))
                     ),
                     @ApiResponse(
                             description = "Unauthorized: User does not have permission to view this cart.",
@@ -50,10 +50,10 @@ public class CartController {
             }
     )
     @GetMapping("/{username}")
-    public ResponseEntity<List<CartItemDTO>> getCartItems(@PathVariable String username) {
+    public ResponseEntity<List<CartItemResponse>> getCartItems(@PathVariable String username) {
         log.info("Retrieving cart items for user: {}", username);
         authService.checkAuthorization(username);
-        List<CartItemDTO> cartItems = cartService.getCartItems(username);
+        List<CartItemResponse> cartItems = cartService.getCartItems(username);
         log.info("Successfully retrieved cart items for user: {}", username);
         return ResponseEntity.ok(cartItems);
     }
@@ -65,7 +65,7 @@ public class CartController {
                     @ApiResponse(
                             description = "Course successfully added to cart.",
                             responseCode = "200",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartItemDTO.class))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartItemResponse.class))
                     ),
                     @ApiResponse(
                             description = "Internal server error.",
@@ -75,13 +75,13 @@ public class CartController {
             }
     )
     @PostMapping("/add/{username}/{courseId}")
-    public ResponseEntity<CartItemDTO> addItemToCart(
+    public ResponseEntity<CartItemResponse> addItemToCart(
             @PathVariable String username,
             @PathVariable Long courseId
     ) {
         log.info("Adding course with ID: {} to cart for user: {}", courseId, username);
         authService.checkAuthorization(username);
-        CartItemDTO cartItem = cartService.addItemToCart(username, courseId);
+        CartItemResponse cartItem = cartService.addItemToCart(username, courseId);
         log.info("Successfully added course with ID: {} to cart for user: {}", courseId, username);
         return ResponseEntity.ok(cartItem);
     }

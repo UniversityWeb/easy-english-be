@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.entity;
 
+import com.universityweb.cart.entity.Cart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,6 +51,9 @@ public class User implements UserDetails, Serializable {
 
     @Enumerated(EnumType.STRING)
     private EStatus status;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Cart cart;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

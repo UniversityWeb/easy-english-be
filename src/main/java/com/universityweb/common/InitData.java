@@ -1,5 +1,11 @@
 package com.universityweb.common;
 
+import com.universityweb.cart.entity.Cart;
+import com.universityweb.cart.mapper.CartMapper;
+import com.universityweb.cart.repository.CartItemRepos;
+import com.universityweb.cart.entity.CartItem;
+import com.universityweb.cart.repository.CartRepos;
+import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.course.model.Course;
@@ -17,9 +23,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +35,8 @@ import java.util.List;
 @Transactional
 public class InitData {
     private final Logger log = LogManager.getLogger(this.getClass().getName());
+
+    private final CartMapper cartMapper = CartMapper.INSTANCE;
 
     @Autowired
     private UserService userService;
@@ -43,10 +53,21 @@ public class InitData {
     @Autowired
     private LessonRepository lessonRepository;
 
+    @Autowired
+    private CartService cartService;
+
+    @Autowired
+    private CartRepos cartRepos;
+
+    @Autowired
+    private CartItemRepos cartItemRepos;
+
     @Bean
     public void init() {
         List<User> users = initUsers();
-        //initCourses();
+        List<Course> savedCourses = initCourses();
+        List<Cart> savedCarts = initCarts(users);
+        List<CartItem> savedCardItems = initCartItems(savedCarts, savedCourses);
     }
 
     private List<User> initUsers() {
@@ -56,7 +77,7 @@ public class InitData {
                 .username("vanan")
                 .password(commonPass)
                 .fullName("Van An")
-                .email("vanan@gmail.com")
+                .email("vanantran05@gmail.com")
                 .phoneNumber("+840971640799")
                 .bio("Studying at HCMUTE")
                 .gender(User.EGender.MALE)
@@ -103,7 +124,7 @@ public class InitData {
                 .bio("Admin")
                 .gender(User.EGender.MALE)
                 .dob(LocalDate.of(2024, 7, 3))
-                .role(User.ERole.STUDENT)
+                .role(User.ERole.ADMIN)
                 .createdAt(LocalDateTime.now())
                 .status(User.EStatus.ACTIVE)
                 .build();
@@ -117,86 +138,320 @@ public class InitData {
         }
     }
 
-//    private void initCourses() {
-//        String commonUrlImg = "https://img-c.udemycdn.com/course/240x135/2776760_f176_10.jpg";
-//
-//        LocalDateTime now = LocalDateTime.now();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//
-//        Course course1 = Course.builder()
-//                .title("Java Basics")
-//                .category("Programming")
-//                .level("Beginner")
-//                .imageUrl(commonUrlImg)
-//                .duration(30)
-//                .price(200)
-//                .description("Introduction to Java programming.")
-//                .isPublish(true)
-//                .createdBy("admin")
-//                .createdAt(now.format(formatter))
-//                .build();
-//
-//        Course course2 = Course.builder()
-//                .title("Advanced Python")
-//                .category("Programming")
-//                .level("Advanced")
-//                .imageUrl(commonUrlImg)
-//                .duration(40)
-//                .price(300)
-//                .description("Deep dive into advanced Python topics.")
-//                .isPublish(true)
-//                .createdBy("admin")
-//                .createdAt(now.format(formatter))
-//                .build();
-//
-//        Section section1 = Section.builder()
-//                .title("Introduction to Java")
-//                .createdBy("admin")
-//                .createdAt(now.format(formatter))
-//                .course(course1)
-//                .build();
-//
-//        Section section2 = Section.builder()
-//                .title("Advanced Concepts in Java")
-//                .createdBy("admin")
-//                .createdAt(now.format(formatter))
-//                .course(course1)
-//                .build();
-//
-//        Lesson lesson1 = Lesson.builder()
-//                .title("Getting Started with Java")
-//                .type("Video")
-//                .content("Basic introduction to Java programming.")
-//                .contentUrl("http://example.com/java-intro.mp4")
-//                .description("First lesson of the Java Basics course.")
-//                .duration(60)
-//                .isPreview(true)
-//                .startDate(LocalDateTime.now())
-//                .createdBy("admin")
-//                .createdAt(LocalDateTime.now())
-//                .section(section1)
-//                .build();
-//
-//        Lesson lesson2 = Lesson.builder()
-//                .title("Java OOP Concepts")
-//                .type("Video")
-//                .content("Understanding Object-Oriented Programming in Java.")
-//                .contentUrl("http://example.com/java-oop.mp4")
-//                .description("Lesson on OOP concepts in Java.")
-//                .duration(90)
-//                .isPreview(false)
-//                .startDate(LocalDateTime.now())
-//                .createdBy("admin")
-//                .createdAt(LocalDateTime.now())
-//                .section(section2)
-//                .build();
-//
-//        try {
-//            courseRepository.saveAll(Arrays.asList(course1, course2));
-//            sectionRepository.saveAll(Arrays.asList(section1, section2));
-//            lessonRepository.saveAll(Arrays.asList(lesson1, lesson2));
-//        } catch (HibernateException e) {
-//            log.error("Error occurred while saving courses, sections, and lessons", e);
-//        }
-//    }
+    private List<Course> initCourses() {
+        List<Course> courses = createCourses();
+        Course course1 = courses.get(0);
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        Section section1 = Section.builder()
+                .id(1)
+                .title("Introduction to Java")
+                .createdBy("admin")
+                .createdAt(now.format(formatter))
+                .course(course1)
+                .build();
+
+        Section section2 = Section.builder()
+                .id(2)
+                .title("Advanced Concepts in Java")
+                .createdBy("admin")
+                .createdAt(now.format(formatter))
+                .course(course1)
+                .build();
+
+        Lesson lesson1 = Lesson.builder()
+                .id(1)
+                .title("Getting Started with Java")
+                .type("Video")
+                .content("Basic introduction to Java programming.")
+                .contentUrl("http://example.com/java-intro.mp4")
+                .description("First lesson of the Java Basics course.")
+                .duration(60)
+                .isPreview(true)
+                .startDate(LocalDateTime.now())
+                .createdBy("admin")
+                .createdAt(LocalDateTime.now())
+                .section(section1)
+                .build();
+
+        Lesson lesson2 = Lesson.builder()
+                .id(2)
+                .title("Java OOP Concepts")
+                .type("Video")
+                .content("Understanding Object-Oriented Programming in Java.")
+                .contentUrl("http://example.com/java-oop.mp4")
+                .description("Lesson on OOP concepts in Java.")
+                .duration(90)
+                .isPreview(false)
+                .startDate(LocalDateTime.now())
+                .createdBy("admin")
+                .createdAt(LocalDateTime.now())
+                .section(section2)
+                .build();
+
+        try {
+            List<Course> savedCourses = courseRepository.saveAll(courses);
+            sectionRepository.saveAll(Arrays.asList(section1, section2));
+            lessonRepository.saveAll(Arrays.asList(lesson1, lesson2));
+            return savedCourses;
+        } catch (HibernateException e) {
+            log.error("Error occurred while saving courses, sections, and lessons", e);
+            return new ArrayList<>();
+        }
+    }
+
+    private List<Course> createCourses() {
+        String commonUrlImg = "https://img-c.udemycdn.com/course/240x135/2776760_f176_10.jpg";
+        String commonAdmin = "admin";
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return Arrays.asList(
+                Course.builder()
+                        .id(1)
+                        .title("Java Basics")
+                        .category("Programming")
+                        .level("Beginner")
+                        .imageUrl(commonUrlImg)
+                        .duration(30)
+                        .price(200000)
+                        .description("Introduction to Java programming.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(2)
+                        .title("Advanced Python")
+                        .category("Programming")
+                        .level("Advanced")
+                        .imageUrl(commonUrlImg)
+                        .duration(40)
+                        .price(300000)
+                        .description("Deep dive into advanced Python topics.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(3)
+                        .title("Web Development with React")
+                        .category("Web Development")
+                        .level("Intermediate")
+                        .imageUrl(commonUrlImg)
+                        .duration(50)
+                        .price(350000)
+                        .description("Learn web development with React framework.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(4)
+                        .title("Data Science with Python")
+                        .category("Data Science")
+                        .level("Advanced")
+                        .imageUrl(commonUrlImg)
+                        .duration(60)
+                        .price(400000)
+                        .description("Master data science concepts using Python.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(5)
+                        .title("Introduction to Machine Learning")
+                        .category("Artificial Intelligence")
+                        .level("Beginner")
+                        .imageUrl(commonUrlImg)
+                        .duration(45)
+                        .price(250000)
+                        .description("Start your journey into machine learning.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(6)
+                        .title("Full Stack Web Development")
+                        .category("Web Development")
+                        .level("Advanced")
+                        .imageUrl(commonUrlImg)
+                        .duration(70)
+                        .price(450000)
+                        .description("Become a full stack web developer with this course.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(7)
+                        .title("Java Spring Boot Masterclass")
+                        .category("Programming")
+                        .level("Intermediate")
+                        .imageUrl(commonUrlImg)
+                        .duration(60)
+                        .price(400000)
+                        .description("Learn to build web applications with Java Spring Boot.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(8)
+                        .title("Angular for Beginners")
+                        .category("Web Development")
+                        .level("Beginner")
+                        .imageUrl(commonUrlImg)
+                        .duration(35)
+                        .price(300000)
+                        .description("Get started with Angular framework for front-end development.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(9)
+                        .title("Cybersecurity Basics")
+                        .category("IT & Software")
+                        .level("Beginner")
+                        .imageUrl(commonUrlImg)
+                        .duration(40)
+                        .price(280000)
+                        .description("Learn the basics of cybersecurity and protect systems from attacks.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(10)
+                        .title("SQL for Data Analysis")
+                        .category("Data Science")
+                        .level("Intermediate")
+                        .imageUrl(commonUrlImg)
+                        .duration(40)
+                        .price(320000)
+                        .description("Learn SQL for analyzing data in databases.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(11)
+                        .title("DevOps Essentials")
+                        .category("IT & Software")
+                        .level("Intermediate")
+                        .imageUrl(commonUrlImg)
+                        .duration(50)
+                        .price(380000)
+                        .description("Learn the essentials of DevOps and automation.")
+                        .isPublish(true)
+                        .createdBy("admin")
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(12)
+                        .title("Cloud Computing with AWS")
+                        .category("Cloud Computing")
+                        .level("Advanced")
+                        .imageUrl(commonUrlImg)
+                        .duration(55)
+                        .price(420000)
+                        .description("Master AWS services and cloud architecture.")
+                        .isPublish(true)
+                        .createdBy(commonAdmin)
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(13)
+                        .title("React Native: Mobile Development")
+                        .category("Mobile Development")
+                        .level("Intermediate")
+                        .imageUrl(commonUrlImg)
+                        .duration(45)
+                        .price(370000)
+                        .description("Develop cross-platform mobile apps with React Native.")
+                        .isPublish(true)
+                        .createdBy("admin")
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(14)
+                        .title("UI/UX Design Fundamentals")
+                        .category("Design")
+                        .level("Beginner")
+                        .imageUrl(commonUrlImg)
+                        .duration(35)
+                        .price(280000)
+                        .description("Learn the fundamentals of UI/UX design.")
+                        .isPublish(true)
+                        .createdBy("admin")
+                        .createdAt(now.format(formatter))
+                        .build(),
+                Course.builder()
+                        .id(15)
+                        .title("Blockchain Development")
+                        .category("Programming")
+                        .level("Advanced")
+                        .imageUrl(commonUrlImg)
+                        .duration(65)
+                        .price(450000)
+                        .description("Develop decentralized applications with blockchain.")
+                        .isPublish(true)
+                        .createdBy("admin")
+                        .createdAt(now.format(formatter))
+                        .build()
+        );
+    }
+
+    private List<Cart> initCarts(List<User> users) {
+        List<Cart> savedCarts = new ArrayList<>();
+        for (User user : users) {
+            Cart cart = Cart.builder()
+                    .totalAmount(BigDecimal.ZERO)
+                    .updatedAt(LocalDateTime.now())
+                    .user(user)
+                    .build();
+
+            Cart saved = cartRepos.save(cart);
+            savedCarts.add(saved);
+        }
+        return savedCarts;
+    }
+
+    private List<CartItem> initCartItems(List<Cart> savedCarts, List<Course> savedCourses) {
+        Cart cart = savedCarts.get(0);
+        Course course = savedCourses.get(0);
+        Course course1 = savedCourses.get(1);
+
+        CartItem cartItem = CartItem.builder()
+                .id(1L)
+                .status(CartItem.EStatus.ACTIVE)
+                .price(new BigDecimal(course.getPrice()))
+                .discountPercent(BigDecimal.ZERO)
+                .updatedAt(LocalDateTime.now())
+                .course(course)
+                .cart(cart)
+                .build();
+
+        CartItem cartItem1 = CartItem.builder()
+                .id(2L)
+                .status(CartItem.EStatus.ACTIVE)
+                .price(new BigDecimal(course.getPrice()))
+                .discountPercent(BigDecimal.ZERO)
+                .updatedAt(LocalDateTime.now())
+                .course(course1)
+                .cart(cart)
+                .build();
+
+        try {
+            return cartItemRepos.saveAll(Arrays.asList(cartItem, cartItem1));
+        } catch (HibernateException e) {
+            log.error("Error occurred while saving cart items", e);
+            return new ArrayList<>();
+        }
+    }
 }

@@ -1,11 +1,13 @@
 package com.universityweb.cart.service;
 
-import com.universityweb.cart.CartItemMapper;
-import com.universityweb.cart.CartRepos;
-import com.universityweb.cart.model.CartItem;
-import com.universityweb.cart.model.CartItemDTO;
+import com.universityweb.cart.mapper.CartItemMapper;
+import com.universityweb.cart.entity.Cart;
+import com.universityweb.cart.repository.CartRepos;
+import com.universityweb.cart.response.CartItemResponse;
+import com.universityweb.cart.repository.CartItemRepos;
+import com.universityweb.cart.entity.CartItem;
+import com.universityweb.cart.response.CartResponse;
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.course.model.Course;
 import com.universityweb.course.service.CourseService;
@@ -17,7 +19,6 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -28,23 +29,35 @@ public class CartServiceImpl implements CartService {
     private CartRepos cartRepos;
 
     @Autowired
+    private CartItemRepos cartItemRepos;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
     private CourseService courseService;
 
-    @Autowired
-    private UserRepos userRepos;
+    @Override
+    public CartResponse createCartForUser(String username) {
+        User user = userService.loadUserByUsername(username);
+
+        Optional<Cart> existingCartOpt = cartRepos.findByUsername(username);
+        if (existingCartOpt.isEmpty()) {
+            throw new RuntimeException("User already has an active cart");
+        }
+
+        return null;
+    }
 
     @Override
-    public List<CartItemDTO> getCartItems(String username) {
-        List<CartItem> cartItems = cartRepos.findByUserUsernameAndStatus(username, CartItem.EStatus.ACTIVE);
+    public List<CartItemResponse> getCartItems(String username) {
+        List<CartItem> cartItems = cartItemRepos.findByUserUsernameAndStatus(CartItem.EStatus.ACTIVE);
         return cartItemMapper.toDTOs(cartItems);
     }
 
     @Override
-    public CartItemDTO addItemToCart(String username, Long courseId) {
-        Optional<CartItem> existingCartItem = cartRepos.findByUsernameAndCourseId(username, courseId);
+    public CartItemResponse addItemToCart(String username, Long courseId) {
+        Optional<CartItem> existingCartItem = cartItemRepos.findByUsernameAndCourseId(courseId);
         Course course = courseService.getCourseById(courseId.intValue());
 
         CartItem cartItem = existingCartItem.orElseGet(() -> {
@@ -55,7 +68,6 @@ public class CartServiceImpl implements CartService {
                     .price(new BigDecimal(course.getPrice()))
                     .discountPercent(BigDecimal.ZERO)
                     .updatedAt(LocalDateTime.now())
-                    .user(user)
                     .course(course)
                     .build();
         });
@@ -68,39 +80,39 @@ public class CartServiceImpl implements CartService {
             item.setUpdatedAt(LocalDateTime.now());
         });
 
-        CartItem savedCartItem = cartRepos.save(cartItem);
+        CartItem savedCartItem = cartItemRepos.save(cartItem);
         return cartItemMapper.toDTO(savedCartItem);
     }
 
     @Override
     public boolean removeItemFromCart(String username, Long courseId) {
-        List<CartItem> cartItems = cartRepos.findByUserUsernameAndStatus(username, CartItem.EStatus.ACTIVE);
-        CartItem cartItem = cartItems.stream()
-                .filter(item -> item.getUser().getUsername().equals(username) && item.getCourse().getId() == courseId)
-                .findFirst()
-                .orElse(null);
-
-        if (cartItem == null) {
-            return false;
-        }
-
-        cartItem.setStatus(CartItem.EStatus.DELETED);
-        cartItem.setUpdatedAt(LocalDateTime.now());
-        cartRepos.save(cartItem);
+//        List<CartItem> cartItems = cartItemRepos.findByUserUsernameAndStatus(username, CartItem.EStatus.ACTIVE);
+//        CartItem cartItem = cartItems.stream()
+//                .filter(item -> item.getUser().getUsername().equals(username) && item.getCourse().getId() == courseId)
+//                .findFirst()
+//                .orElse(null);
+//
+//        if (cartItem == null) {
+//            return false;
+//        }
+//
+//        cartItem.setStatus(CartItem.EStatus.DELETED);
+//        cartItem.setUpdatedAt(LocalDateTime.now());
+//        cartItemRepos.save(cartItem);
         return true;
     }
 
     @Override
     public void clearCart(String username) {
-        List<CartItem> cartItems = cartRepos.findAll()
-                .stream()
-                .filter(item -> item.getUser().getUsername().equals(username))
-                .collect(Collectors.toList());
-        cartItems.forEach(item -> {
-            item.setStatus(CartItem.EStatus.DELETED);
-            item.setUpdatedAt(LocalDateTime.now());
-        });
-        cartRepos.saveAll(cartItems);
+//        List<CartItem> cartItems = cartItemRepos.findAll()
+//                .stream()
+//                .filter(item -> item.getUser().getUsername().equals(username))
+//                .collect(Collectors.toList());
+//        cartItems.forEach(item -> {
+//            item.setStatus(CartItem.EStatus.DELETED);
+//            item.setUpdatedAt(LocalDateTime.now());
+//        });
+//        cartItemRepos.saveAll(cartItems);
     }
 
     private BigDecimal calculateDiscount(BigDecimal coursePrice, BigDecimal cartItemPrice) {

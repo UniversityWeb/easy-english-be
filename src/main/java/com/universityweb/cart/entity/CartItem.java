@@ -1,4 +1,4 @@
-package com.universityweb.cart.model;
+package com.universityweb.cart.entity;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.model.Course;
@@ -33,14 +33,18 @@ public class CartItem implements Serializable {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "username", nullable = false)
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
+
     public enum EStatus {
-        ACTIVE, OUT_OF_STOCK, DELETED
+        ACTIVE,
+        OUT_OF_STOCK,
+        DELETED,
+        PAYMENT_PENDING,
+        PAYMENT_COMPLETED
     }
 }
