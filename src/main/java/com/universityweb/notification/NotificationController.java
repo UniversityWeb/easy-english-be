@@ -3,12 +3,11 @@ package com.universityweb.notification;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.response.ErrorResponse;
-import com.universityweb.notification.model.NotificationDTO;
-import com.universityweb.notification.model.request.GetNotificationsRequest;
-import com.universityweb.notification.model.request.SendNotificationRequest;
+import com.universityweb.notification.response.NotificationResponse;
+import com.universityweb.notification.request.GetNotificationsRequest;
+import com.universityweb.notification.request.SendNotificationRequest;
 import com.universityweb.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -40,7 +39,7 @@ public class NotificationController {
                             responseCode = "200",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = NotificationDTO.class))),
+                                    schema = @Schema(implementation = NotificationResponse.class))),
                     @ApiResponse(
                             description = "Internal server error.",
                             responseCode = "500",
@@ -50,7 +49,7 @@ public class NotificationController {
             }
     )
     @GetMapping("/get-by-username/{username}")
-    public ResponseEntity<Page<NotificationDTO>> getNotificationsByUsername(
+    public ResponseEntity<Page<NotificationResponse>> getNotificationsByUsername(
             @PathVariable String username,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -59,7 +58,7 @@ public class NotificationController {
         authService.checkAuthorization(username);
 
         GetNotificationsRequest getNotificationsRequest = new GetNotificationsRequest(page, size, username);
-        Page<NotificationDTO> notificationsPage =
+        Page<NotificationResponse> notificationsPage =
                 notificationService.getNotificationsByUsername(getNotificationsRequest);
         log.info("Retrieved {} notifications for user: {}", notificationsPage.getSize(), username);
         return ResponseEntity.ok(notificationsPage);
@@ -72,7 +71,7 @@ public class NotificationController {
                     @ApiResponse(description = "Notification sent successfully.", responseCode = "201",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = NotificationDTO.class))),
+                                    schema = @Schema(implementation = NotificationResponse.class))),
                     @ApiResponse(
                             description = "Internal server error.",
                             responseCode = "500",
@@ -81,11 +80,11 @@ public class NotificationController {
                                     schema = @Schema(implementation = ErrorResponse.class)))
             })
     @PostMapping("/send")
-    public ResponseEntity<NotificationDTO> send(
+    public ResponseEntity<NotificationResponse> send(
             @RequestBody SendNotificationRequest request
     ) {
         log.info("Send notification: `{}` to username: `{}`", request.message(), request.username());
-        NotificationDTO savedNotificationDTO = notificationService.send(request);
+        NotificationResponse savedNotificationDTO = notificationService.send(request);
         log.info("Notification sent successfully with id: {}", savedNotificationDTO.getId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)

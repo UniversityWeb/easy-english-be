@@ -1,4 +1,4 @@
-package com.universityweb.payment.model;
+package com.universityweb.payment.entity;
 
 import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;

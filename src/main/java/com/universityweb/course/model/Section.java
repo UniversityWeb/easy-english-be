@@ -2,7 +2,7 @@ package com.universityweb.course.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.universityweb.test.model.Test;
+import com.universityweb.test.entity.Test;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

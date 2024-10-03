@@ -1,6 +1,6 @@
-package com.universityweb.payment.model.request;
+package com.universityweb.payment.request;
 
-import com.universityweb.payment.model.Payment;
+import com.universityweb.payment.entity.Payment;
 
 import java.util.List;
 

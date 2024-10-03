@@ -3,8 +3,8 @@ package com.universityweb.payment.service;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.payment.PaymentRepos;
-import com.universityweb.payment.model.Payment;
-import com.universityweb.payment.model.request.PaymentRequest;
+import com.universityweb.payment.entity.Payment;
+import com.universityweb.payment.request.PaymentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

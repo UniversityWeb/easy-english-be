@@ -1,4 +1,4 @@
-package com.universityweb.test.model;
+package com.universityweb.test.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

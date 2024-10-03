@@ -1,4 +1,4 @@
-package com.universityweb.notification.model.request;
+package com.universityweb.notification.request;
 
 import com.universityweb.common.request.ListRequest;
 import lombok.AllArgsConstructor;

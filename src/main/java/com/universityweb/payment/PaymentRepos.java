@@ -1,6 +1,6 @@
 package com.universityweb.payment;
 
-import com.universityweb.payment.model.Payment;
+import com.universityweb.payment.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
