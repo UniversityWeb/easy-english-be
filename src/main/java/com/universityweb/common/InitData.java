@@ -409,8 +409,10 @@ public class InitData {
 
     private List<Cart> initCarts(List<User> users) {
         List<Cart> savedCarts = new ArrayList<>();
+        Long index = 0L;
         for (User user : users) {
             Cart cart = Cart.builder()
+                    .id(index)
                     .totalAmount(BigDecimal.ZERO)
                     .updatedAt(LocalDateTime.now())
                     .user(user)
@@ -418,6 +420,7 @@ public class InitData {
 
             Cart saved = cartRepos.save(cart);
             savedCarts.add(saved);
+            index++;
         }
         return savedCarts;
     }
