@@ -66,8 +66,8 @@ public class InitData {
     public void init() {
         List<User> users = initUsers();
         List<Course> savedCourses = initCourses();
-        List<Cart> savedCarts = initCarts(users);
-        List<CartItem> savedCardItems = initCartItems(savedCarts, savedCourses);
+//        List<Cart> savedCarts = initCarts(users);
+//        List<CartItem> savedCardItems = initCartItems(savedCarts, savedCourses);
     }
 
     private List<User> initUsers() {
@@ -409,18 +409,23 @@ public class InitData {
 
     private List<Cart> initCarts(List<User> users) {
         List<Cart> savedCarts = new ArrayList<>();
-        Long index = 0L;
-        for (User user : users) {
-            Cart cart = Cart.builder()
-                    .id(index)
-                    .totalAmount(BigDecimal.ZERO)
-                    .updatedAt(LocalDateTime.now())
-                    .user(user)
-                    .build();
+        try {
+            Long index = 0L;
+            for (User user : users) {
+                Cart cart = Cart.builder()
+                        .id(index)
+                        .totalAmount(BigDecimal.ZERO)
+                        .updatedAt(LocalDateTime.now())
+                        .user(user)
+                        .build();
 
-            Cart saved = cartRepos.save(cart);
-            savedCarts.add(saved);
-            index++;
+                Cart saved = cartRepos.save(cart);
+                savedCarts.add(saved);
+                index++;
+            }
+        } catch (RuntimeException e) {
+            log.error(e);
+            savedCarts = cartRepos.findAll();
         }
         return savedCarts;
     }

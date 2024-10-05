@@ -12,7 +12,6 @@ import java.util.List;
 public interface CartItemMapper {
     CartItemMapper INSTANCE = Mappers.getMapper(CartItemMapper.class);
 
-    @Mapping(source = "course.id", target = "courseId")
     @Mapping(source = "cart.id", target = "cartId")
     CartItemResponse toDTO(CartItem cartItem);
 

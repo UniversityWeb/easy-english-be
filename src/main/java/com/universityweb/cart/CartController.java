@@ -32,6 +32,15 @@ public class CartController {
         return ResponseEntity.ok(cart);
     }
 
+    @GetMapping("/count-items")
+    public ResponseEntity<Integer> countItems() {
+        String username = authService.getCurrentUsername();
+        log.info("Retrieving items count for user: {}", username);
+        Integer countItems = cartService.countItems(username);
+        log.info("Successfully retrieved items count for user: {}", username);
+        return ResponseEntity.ok(countItems);
+    }
+
     @PostMapping("/add-item/{courseId}")
     public ResponseEntity<CartItemResponse> addItemToCart(
             @PathVariable Long courseId

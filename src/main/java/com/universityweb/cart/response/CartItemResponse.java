@@ -1,6 +1,7 @@
 package com.universityweb.cart.response;
 
 import com.universityweb.cart.entity.CartItem;
+import com.universityweb.course.model.response.CourseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,9 +35,8 @@ public class CartItemResponse implements Serializable {
             example = "2024-09-28T14:30:00")
     private LocalDateTime updatedAt;
 
-    @Schema(description = "Course ID associated with the cart item",
-            example = "200")
-    private Long courseId;
+    @Schema(description = "Details of the course associated with the cart item")
+    private CourseResponse course;
 
     @Schema(description = "Cart ID to which this item belongs",
             example = "1")

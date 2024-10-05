@@ -11,4 +11,5 @@ public interface CartService {
     void clearCart(String username);
     CartResponse getCartByUsername(String username);
     Cart getCartByCartItemId(Long cartItemId);
+    Integer countItems(String username);
 }

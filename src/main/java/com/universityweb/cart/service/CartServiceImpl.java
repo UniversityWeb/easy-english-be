@@ -11,7 +11,9 @@ import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.response.CartResponse;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.model.Course;
+import com.universityweb.course.model.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +23,14 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
 
     private final CartMapper cartMapper = CartMapper.INSTANCE;
     private final CartItemMapper cartItemMapper = CartItemMapper.INSTANCE;
+    private final CourseMapper courseMapper = CourseMapper.INSTANCE;
 
     @Autowired
     private CartRepos cartRepos;
@@ -125,6 +129,12 @@ public class CartServiceImpl implements CartService {
     public Cart getCartByCartItemId(Long cartItemId) {
         CartItem cartItem = getCartItemByCartItemId(cartItemId);
         return cartItem.getCart();
+    }
+
+    @Override
+    public Integer countItems(String username) {
+        Long cartId = getCartIdByUsername(username);
+        return cartItemRepos.countByCartId(cartId);
     }
 
     private List<CartItem> getCartItemsToDisplay(String username) {
