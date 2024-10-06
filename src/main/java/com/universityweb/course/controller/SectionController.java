@@ -13,48 +13,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @CrossOrigin
-@RequestMapping("/sections")
+@RequestMapping("/api/v1/section")
 @RestController
 public class SectionController {
     @Autowired
     private SectionService sectionService;
-
-    @GetMapping("")
-    public List<Section> getAllSection() {
-        return sectionService.getAllSections();
-    }
-
-    @PostMapping("")
-    public String newSection(@RequestBody SectionRequest sectionRequest) {
-        sectionService.newSection(sectionRequest);
+    @PostMapping("/create-section")
+    public String createSection(@RequestBody SectionRequest sectionRequest) {
+        sectionService.createSection(sectionRequest);
         return "Section added successfully";
     }
 
-    @GetMapping("/{courseId}")
-    public ResponseEntity<?> getSectionByCourse(@PathVariable int courseId) {
-        return ResponseEntity.ok(sectionService.getSectionByCourse(courseId));
-    }
-
-    @GetMapping("/getAllSectionByCourse")
-    public ResponseEntity<List<SectionResponse>> getAllSectionByCourseV1(@RequestParam int courseId) {
-        return ResponseEntity.ok(sectionService.getAllSectionByCourseV1(courseId));
-    }
-
-    @GetMapping("/getSectionById")
-    public ResponseEntity<SectionResponse> getSectionByIdV1(@RequestParam int id) {
-        return ResponseEntity.ok(sectionService.getSectionByIdV1(id));
-    }
-
-    @PutMapping("")
-    public ResponseEntity<?> updateSection(@RequestBody Section sectionRequest) {
+    @PostMapping("/update-section")
+    public String updateSection(@RequestBody SectionRequest sectionRequest) {
         sectionService.updateSection(sectionRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Section updated successfully");
+        return "Section updated successfully";
+    }
+    @PostMapping("/delete-section")
+    public String deleteSection(@RequestBody SectionRequest sectionRequest) {
+        sectionService.deleteSection(sectionRequest);
+        return "Section deleted successfully";
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<?> deleteSection(@RequestParam int id) {
-        sectionService.deleteSection(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Section deleted successfully");
+    @PostMapping("/get-all-section-by-course")
+    public ResponseEntity<List<SectionResponse>> getAllSectionByCourse(@RequestBody SectionRequest sectionRequest) {
+        return ResponseEntity.ok(sectionService.getAllSectionByCourse(sectionRequest));
     }
-
 }

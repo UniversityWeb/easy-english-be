@@ -9,12 +9,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class LessonResponse {
-    private int id;
+    private Long id;
     private String title;
     private String type;
     private String content;

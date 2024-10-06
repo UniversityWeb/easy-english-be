@@ -12,43 +12,34 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @CrossOrigin
-@RequestMapping("/lessons")
+@RequestMapping("/api/v1/lesson")
 @RestController
 public class LessonController {
     @Autowired
     private LessonService lessonService;
 
-    @GetMapping("")
-    public List<Lesson> getAllLesson() {
-        return lessonService.getAllLessons();
-    }
-
-    @PostMapping("")
-    public String newLesson(@RequestBody LessonRequest lessonRequest) {
-        lessonService.newLesson(lessonRequest);
+    @PostMapping("/create-lesson")
+    public String createLesson(@RequestBody LessonRequest lessonRequest) {
+        lessonService.createLesson(lessonRequest);
         return "Lesson added successfully";
     }
-
-    @GetMapping("getAllLessonBySection")
-    public List<LessonResponse> getAllLessonBySectionV1(@RequestParam int sectionId) {
-        return lessonService.getAllLessonBySectionV1(sectionId);
+    @PostMapping("/update-lesson")
+    public ResponseEntity<String> updateLesson(@RequestBody LessonRequest lessonRequest) {
+        lessonService.updateLesson(lessonRequest);
+        return ResponseEntity.status(HttpStatus.OK).body("Lesson updated successfully");
     }
-
-    @GetMapping("getLessonById")
-    public LessonResponse getLessonByIdV1(@RequestParam int id) {
-        return lessonService.getLessonByIdV1(id);
-    }
-
-    @PutMapping("")
-    public String updateLesson(@RequestBody Lesson lesson) {
-        lessonService.updateLesson(lesson);
-        return "Lesson updated successfully";
-    }
-
-    @DeleteMapping("")
-    public ResponseEntity<?> deleteLesson(@RequestParam int id) {
-        lessonService.deleteLesson(id);
+    @PostMapping("")
+    public ResponseEntity<String> deleteLesson(@RequestBody LessonRequest lessonRequest) {
+        lessonService.deleteLesson(lessonRequest);
         return ResponseEntity.status(HttpStatus.OK).body("Lesson deleted successfully");
+    }
+    @PostMapping("get-lesson-by-id")
+    public LessonResponse getLessonById(@RequestBody LessonRequest lessonRequest) {
+        return lessonService.getLessonById(lessonRequest);
+    }
+    @PostMapping("get-all-lesson-by-section")
+    public List<LessonResponse> getAllLessonBySection(@RequestBody LessonRequest lessonRequest) {
+        return lessonService.getAllLessonBySection(lessonRequest);
     }
 
 }

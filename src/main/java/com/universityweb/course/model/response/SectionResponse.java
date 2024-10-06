@@ -12,12 +12,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.util.List;
 
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SectionResponse {
-    private int id;
+    private Long id;
     private String title;
     private String createdBy;
     private String createdAt;

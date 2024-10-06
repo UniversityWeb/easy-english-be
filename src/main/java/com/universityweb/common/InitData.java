@@ -89,7 +89,7 @@ public class InitData {
                 .bio("Teaching at HCMUTE")
                 .gender(User.EGender.MALE)
                 .dob(LocalDate.of(2003, 10, 3))
-                .role(User.ERole.STUDENT)
+                .role(User.ERole.TEACHER)
                 .createdAt(LocalDateTime.now())
                 .status(User.EStatus.ACTIVE)
                 .build();

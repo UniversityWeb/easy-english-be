@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LessonService {
@@ -21,60 +22,8 @@ public class LessonService {
     @Autowired
     private SectionService sectionService;
 
-    /*public void copy(Lesson lesson, LessonResponse lessonResponse) {
-        lessonResponse.setId(lesson.getId());
-        lessonResponse.setTitle(lesson.getTitle());
-        lessonResponse.setType(lesson.getType());
-        lessonResponse.setContent(lesson.getContent());
-        lessonResponse.setContentUrl(lesson.getContentUrl());
-        lessonResponse.setDescription(lesson.getDescription());
-        lessonResponse.setDuration(lesson.getDuration());
-        lessonResponse.setIsPreview(lesson.getIsPreview());
-        lessonResponse.setStartDate(lesson.getStartDate());
-        lessonResponse.setCreatedAt(lesson.getCreatedAt());
-        lessonResponse.setCreatedBy(lesson.getCreatedBy());
-    }*/
-
-
-    public void copy(Lesson lesson, LessonRequest lessonRequest) {
-        lesson.setTitle(lessonRequest.getTitle());
-        lesson.setType(lessonRequest.getType());
-        lesson.setContent(lessonRequest.getContent());
-        lesson.setContentUrl(lessonRequest.getContentUrl());
-        lesson.setDescription(lessonRequest.getDescription());
-        lesson.setDuration(lessonRequest.getDuration());
-        lesson.setIsPreview(lessonRequest.getIsPreview());
-        lesson.setStartDate(lessonRequest.getStartDate());
-        lesson.setCreatedAt(lessonRequest.getCreatedAt());
-        lesson.setCreatedBy(lessonRequest.getCreatedBy());
-    }
-
-    public void deleteLesson(int id) {
-        lessonRepository.deleteById(id);
-    }
-
-    public void newLesson(LessonRequest lessonRequest) {
-        Lesson lesson = new Lesson();
-        Section section = sectionService.getSectionById(lessonRequest.getSectionId());
-        copy(lesson, lessonRequest);
-        lesson.setSection(section);
-        lessonRepository.save(lesson);
-    }
-
-    public void updateLesson(Lesson lesson) {
-
-        Lesson currentLesson = lessonRepository.findById(lesson.getId());
-        currentLesson.setTitle(lesson.getTitle());
-        lessonRepository.save(currentLesson);
-    }
-
-
-    public List<Lesson> getAllLessons() {
-        return lessonRepository.findAll();
-    }
-
-    public List<LessonResponse> getAllLessonBySectionV1(int sectionId) {
-        List<Lesson> lessons = lessonRepository.findBySectionId(sectionId);
+    public List<LessonResponse> getAllLessonBySection(LessonRequest lessonRequest) {
+        List<Lesson> lessons = lessonRepository.findBySectionId(lessonRequest.getSectionId());
         List<LessonResponse> lessonResponses = new ArrayList<>();
         for (Lesson lesson : lessons) {
             LessonResponse lessonResponse = new LessonResponse();
@@ -84,8 +33,38 @@ public class LessonService {
         return lessonResponses;
     }
 
-    public LessonResponse getLessonByIdV1(int id) {
-        Lesson lesson = lessonRepository.findById(id);
+    public void createLesson(LessonRequest lessonRequest) {
+        Lesson lesson = new Lesson();
+        Optional<Section> sectionOptional = sectionService.getSectionById(lessonRequest.getSectionId());
+        if (sectionOptional.isPresent()) {
+            Section section = sectionOptional.get();
+            lesson.setSection(section);
+            BeanUtils.copyProperties(lessonRequest, lesson);
+            lessonRepository.save(lesson);
+        } else {
+            throw new RuntimeException("Section not found");
+        }
+    }
+
+    public void updateLesson(LessonRequest lessonRequest) {
+        Optional<Lesson> currentLessonOptional = lessonRepository.findById(lessonRequest.getId());
+        if (currentLessonOptional.isPresent()) {
+            Lesson currentLesson = currentLessonOptional.get();
+            BeanUtils.copyProperties(lessonRequest, currentLesson);
+            lessonRepository.save(currentLesson);
+        } else {
+            throw new RuntimeException("Lesson not found");
+        }
+    }
+
+    public void deleteLesson(LessonRequest lessonRequest) {
+        lessonRepository.deleteById(lessonRequest.getId());
+    }
+
+    public LessonResponse getLessonById(LessonRequest lessonRequest) {
+        Lesson lesson = lessonRepository.findById(lessonRequest.getId())
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+
         LessonResponse lessonResponse = new LessonResponse();
         BeanUtils.copyProperties(lesson, lessonResponse);
         return lessonResponse;

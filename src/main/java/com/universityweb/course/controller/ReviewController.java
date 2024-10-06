@@ -7,15 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
-@RequestMapping("/reviews")
+@RequestMapping("/api/v1/review")
 @RestController
 public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @PostMapping("")
-    public ResponseEntity<?> newReview(@RequestBody ReviewRequest reviewRequest) {
-        reviewService.newReview(reviewRequest);
+    @PostMapping("/create-review")
+    public ResponseEntity<String> createReview(@RequestBody ReviewRequest reviewRequest) {
+        reviewService.createReview(reviewRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body("Review added successfully");
     }
 }

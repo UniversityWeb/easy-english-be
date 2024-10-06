@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewService {
@@ -18,15 +19,24 @@ public class ReviewService {
     @Autowired
     private CourseRepository courseRepository;
 
-    public void newReview(ReviewRequest reviewRequest) {
+    public void createReview(ReviewRequest reviewRequest) {
         Review review = new Review();
-        Course course = courseRepository.findById(reviewRequest.getCourseId());
-        review.setCourse(course);
-        review.setOwner(reviewRequest.getUser());
-        review.setRating(reviewRequest.getRating());
-        review.setComment(reviewRequest.getComment());
-        reviewRepository.save(review);
-        course.updateRating();
-        courseRepository.save(course);
+        Optional<Course> courseOptional = courseRepository.findById(reviewRequest.getCourseId());
+
+        if (courseOptional.isPresent()) {
+            Course course = courseOptional.get();
+
+            review.setCourse(course);
+            review.setOwner(reviewRequest.getUser());
+            review.setRating(reviewRequest.getRating());
+            review.setComment(reviewRequest.getComment());
+
+            reviewRepository.save(review);
+
+            course.updateRating();
+            courseRepository.save(course);
+        } else {
+            throw new RuntimeException("Course not found");
+        }
     }
 }

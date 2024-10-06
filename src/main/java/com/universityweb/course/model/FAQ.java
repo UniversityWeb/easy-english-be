@@ -4,31 +4,27 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
-@Setter
+@Table(name = "faqs")
 @Getter
+@Setter
 @Builder
-@Table(name = "reviews")
-public class Review {
+@AllArgsConstructor
+@NoArgsConstructor
+public class FAQ {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "question")
+    private String question;
+
+    @Column(name = "answer")
+    private String answer;
+
     @ManyToOne
     @JoinColumn(name = "course_id")
     @JsonBackReference
     private Course course;
-
-    @Column(name = "rating")
-    private double rating;
-
-    @Column(name = "comment")
-    private String comment;
-
-    @Column(name = "owner")
-    private String owner;
-
 }

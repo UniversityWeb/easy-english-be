@@ -5,11 +5,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Getter
-@Setter
 public class ReviewRequest {
-    private int id;
-    private int courseId;
+    private Long id;
+    private Long courseId;
     private int rating;
     private String comment;
     private String user;
