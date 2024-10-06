@@ -1,6 +1,7 @@
 package com.universityweb.payment.entity;
 
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.customenum.ECurrency;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,8 +29,17 @@ public class Payment implements Serializable {
     @Enumerated(EnumType.STRING)
     private EMethod method;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "payment_time")
+    private LocalDateTime paymentTime;
+
+    @Column(name = "transaction_no")
+    private Long transactionNo;
+
+    @Column(name = "amount_paid")
+    private BigDecimal amountPaid;
+
+    @Enumerated(EnumType.STRING)
+    private ECurrency currency;
 
     @ManyToOne
     @JoinColumn(name = "username", nullable = false)
@@ -36,7 +47,7 @@ public class Payment implements Serializable {
 
     public enum EStatus {
         PENDING,
-        COMPLETED,
+        SUCCESS,
         FAILED,
         REFUNDED
     }

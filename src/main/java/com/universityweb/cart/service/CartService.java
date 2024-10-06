@@ -4,6 +4,8 @@ import com.universityweb.cart.entity.Cart;
 import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.response.CartResponse;
 
+import java.math.BigDecimal;
+
 public interface CartService {
     CartItemResponse addItemToCart(String username, Long courseId);
     CartItemResponse updateItem(Long cartItemId);
@@ -12,4 +14,5 @@ public interface CartService {
     CartResponse getCartByUsername(String username);
     Cart getCartByCartItemId(Long cartItemId);
     Integer countItems(String username);
+    BigDecimal getTotalAmountOfCart(String username);
 }

@@ -3,11 +3,11 @@ package com.universityweb.notification.service;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.UserNotFoundException;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.request.GetByUsernameRequest;
 import com.universityweb.notification.NotificationNotFoundException;
 import com.universityweb.notification.entity.Notification;
 import com.universityweb.notification.response.NotificationResponse;
 import com.universityweb.notification.NotificationMapper;
-import com.universityweb.notification.request.GetNotificationsRequest;
 import com.universityweb.notification.request.SendNotificationRequest;
 import com.universityweb.notification.NotificationRepos;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
     private UserService userService;
 
     @Override
-    public Page<NotificationResponse> getNotificationsByUsername(GetNotificationsRequest request) {
+    public Page<NotificationResponse> getNotificationsByUsername(GetByUsernameRequest request) {
         String username = request.getUsername();
         int pageNumber = request.getPage();
         int size = request.getSize();

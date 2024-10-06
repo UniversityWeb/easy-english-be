@@ -2,9 +2,9 @@ package com.universityweb.notification;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.request.GetByUsernameRequest;
 import com.universityweb.common.response.ErrorResponse;
 import com.universityweb.notification.response.NotificationResponse;
-import com.universityweb.notification.request.GetNotificationsRequest;
 import com.universityweb.notification.request.SendNotificationRequest;
 import com.universityweb.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,9 +57,9 @@ public class NotificationController {
         log.info("Fetching notifications for user: {}", username);
         authService.checkAuthorization(username);
 
-        GetNotificationsRequest getNotificationsRequest = new GetNotificationsRequest(page, size, username);
+        GetByUsernameRequest request = new GetByUsernameRequest(page, size, username);
         Page<NotificationResponse> notificationsPage =
-                notificationService.getNotificationsByUsername(getNotificationsRequest);
+                notificationService.getNotificationsByUsername(request);
         log.info("Retrieved {} notifications for user: {}", notificationsPage.getSize(), username);
         return ResponseEntity.ok(notificationsPage);
     }

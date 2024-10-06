@@ -1,8 +1,10 @@
 package com.universityweb.payment.vnpay;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -11,18 +13,33 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Component
 public class VNPayConfig {
 
-    private static Logger log = LogManager.getLogger(VNPayConfig.class);
+    public static final int VND_MULTIPLIER = 100;
+    public static String vnpPayUrl;
+    public static String vnpTmnCode;
+    public static String vnpHashSecret;
+
+    private static final Logger log = LogManager.getLogger(VNPayConfig.class);
 
     @Value("${third-party.vn-pay.pay-url}")
-    public static String vnpPayUrl;
+    private String vnpPayUrlValue;
 
     @Value("${third-party.vn-pay.tmn-code}")
-    public static String vnpTmnCode;
+    private String vnpTmnCodeValue;
 
     @Value("${third-party.vn-pay.hash-secret}")
-    public static String vnpHashSecret;
+    private String vnpHashSecretValue;
+
+    @PostConstruct
+    public void init() {
+        vnpPayUrl = vnpPayUrlValue;
+        vnpTmnCode = vnpTmnCodeValue;
+        vnpHashSecret = vnpHashSecretValue;
+
+        log.info("VNPay Config Initialized - Pay URL: {}", vnpPayUrl);
+    }
 
     public static String hashAllFields(Map fields) {
         List fieldNames = new ArrayList(fields.keySet());
@@ -79,16 +96,6 @@ public class VNPayConfig {
             log.error(e.getMessage());
         }
         return null;
-    }
-
-    public static String getIpAddress() {
-        try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            return inetAddress.getHostAddress();
-        } catch (UnknownHostException e) {
-            log.error(e);
-            return "Unable to determine IP address";
-        }
     }
 
     public static String getRandomNumber(int len) {

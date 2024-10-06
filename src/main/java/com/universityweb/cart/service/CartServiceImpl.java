@@ -11,9 +11,7 @@ import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.response.CartResponse;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.model.Course;
-import com.universityweb.course.model.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,14 +21,12 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
 
     private final CartMapper cartMapper = CartMapper.INSTANCE;
     private final CartItemMapper cartItemMapper = CartItemMapper.INSTANCE;
-    private final CourseMapper courseMapper = CourseMapper.INSTANCE;
 
     @Autowired
     private CartRepos cartRepos;
@@ -59,7 +55,9 @@ public class CartServiceImpl implements CartService {
                 .build();
 
         CartItem savedCartItem = cartItemRepos.save(cartItem);
-        return cartItemMapper.toDTO(savedCartItem);
+        CartItemResponse cartItemResponse = cartItemMapper.toDTO(savedCartItem);
+        updateCartTime(cart);
+        return cartItemResponse;
     }
 
     @Override
@@ -71,13 +69,15 @@ public class CartServiceImpl implements CartService {
 
         BigDecimal discountPercent = calculateDiscount(new BigDecimal(course.getPrice()), cartItem.getPrice());
         cartItem.setDiscountPercent(discountPercent);
-
-        return cartItemMapper.toDTO(cartItem);
+        CartItemResponse cartItemResponse = cartItemMapper.toDTO(cartItem);
+        updateCartTime(cartItem.getCart());
+        return cartItemResponse;
     }
 
     @Override
     public boolean removeItemFromCart(String username, Long courseId) {
-        Long cartId = getCartIdByUsername(username);
+        Cart cart = getOrCreateCart(username);
+        Long cartId = cart.getId();
         String cartItemNotFoundMsg = String.format("Could not find any cart item with username=%s, courseId=%d",
                 username, cartId);
         CartItem cartItem = cartItemRepos
@@ -91,14 +91,15 @@ public class CartServiceImpl implements CartService {
         }
 
         cartItemRepos.save(cartItem);
+        updateCartTime(cart);
         return true;
     }
 
     @Override
     public void clearCart(String username) {
-        Long cartId = getCartIdByUsername(username);
+        Cart cart = getOrCreateCart(username);
         List<CartItem> cartItems = cartItemRepos
-                .findByCartIdAndStatus(cartId, CartItem.EStatus.ACTIVE);
+                .findByCartIdAndStatus(cart.getId(), CartItem.EStatus.ACTIVE);
 
         cartItems.forEach(item -> {
             item.setStatus(CartItem.EStatus.DELETED);
@@ -106,6 +107,7 @@ public class CartServiceImpl implements CartService {
         });
 
         cartItemRepos.saveAll(cartItems);
+        updateCartTime(cart);
     }
 
     @Override
@@ -122,6 +124,9 @@ public class CartServiceImpl implements CartService {
 
         CartResponse cartResponse = cartMapper.toDTO(cart);
         cartResponse.setItems(cartItemResponses);
+
+        BigDecimal totalAmount = cartResponse.getTotalAmount();
+        cartResponse.setTotalAmount(totalAmount);
         return cartResponse;
     }
 
@@ -135,6 +140,18 @@ public class CartServiceImpl implements CartService {
     public Integer countItems(String username) {
         Long cartId = getCartIdByUsername(username);
         return cartItemRepos.countByCartId(cartId);
+    }
+
+    @Override
+    public BigDecimal getTotalAmountOfCart(String username) {
+        List<CartItem> cartItems = getCartItemsToDisplay(username);
+        List<CartItemResponse> cartItemResponses = cartItemMapper.toDTOs(cartItems);
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (CartItemResponse cartItemResponse : cartItemResponses) {
+            BigDecimal itemPrice = cartItemResponse.getPrice();
+            totalAmount = totalAmount.add(itemPrice);
+        }
+        return totalAmount;
     }
 
     private List<CartItem> getCartItemsToDisplay(String username) {
@@ -177,5 +194,10 @@ public class CartServiceImpl implements CartService {
         String msg = "Could not find any cart item with id: " + cartItemId;
         return cartItemRepos.findById(cartItemId)
                 .orElseThrow(() -> new CartItemNotFoundException(msg));
+    }
+
+    private void updateCartTime(Cart cart) {
+        cart.setUpdatedAt(LocalDateTime.now());
+        cartRepos.save(cart);
     }
 }

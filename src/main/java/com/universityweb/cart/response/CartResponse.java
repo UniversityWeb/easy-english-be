@@ -30,4 +30,13 @@ public class CartResponse {
 
     @Schema(description = "List of items in the cart")
     private List<CartItemResponse> items;
+
+    public BigDecimal getTotalAmount() {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (CartItemResponse cartItemResponse : items) {
+            BigDecimal itemPrice = cartItemResponse.getPrice();
+            totalAmount = totalAmount.add(itemPrice);
+        }
+        return totalAmount;
+    }
 }

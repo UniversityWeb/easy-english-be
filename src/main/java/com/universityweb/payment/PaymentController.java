@@ -1,16 +1,22 @@
 package com.universityweb.payment;
 
-import com.universityweb.payment.vnpay.VNPayService;
+import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.request.GetByUsernameRequest;
+import com.universityweb.payment.entity.Payment;
+import com.universityweb.payment.request.GetPaymentsByUsernameAndStatusRequest;
+import com.universityweb.payment.request.PaymentRequest;
+import com.universityweb.payment.response.PaymentResponse;
+import com.universityweb.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -21,45 +27,54 @@ public class PaymentController {
 
     private static final Logger log = LogManager.getLogger(PaymentController.class);
 
-    private final VNPayService vnPayService;
+    private final PaymentService paymentService;
+    private final AuthService authService;
 
     @PostMapping("/create-payment")
-    public ResponseEntity<String> createPaymentOrder(
-            HttpServletRequest req,
-            @RequestParam String username,
-            @RequestParam int amount,
-            @RequestParam String orderInfo
+    public ResponseEntity<String> createPayment(
+            @RequestBody PaymentRequest paymentRequest
     ) {
-        String scheme = req.getScheme();
-        String serverName = req.getServerName();
-        int port = req.getServerPort();
-        String contextPath = req.getContextPath();
-        String baseUrl = scheme + "://" + serverName + ":" + port + contextPath;
-
-        log.info("Base URL for return: {}", baseUrl);
-        String vnpayUrl = vnPayService.createOrder(amount, orderInfo, baseUrl);
+        log.info("Received createPayment request: {}", paymentRequest);
+        String paymentUrl = paymentService.createPayment(paymentRequest);
+        log.info("Payment URL generated: {}", paymentUrl);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(vnpayUrl);
+                .body(paymentUrl);
     }
 
-    @GetMapping("/payment-return")
-    public ResponseEntity<Map<String, Object>> processPaymentReturn(HttpServletRequest req) {
-        Map<String, Object> response = new HashMap<>();
-        int paymentStatus = vnPayService.orderReturn(req);
+    @GetMapping("/result")
+    public ResponseEntity<PaymentResponse> handlePaymentResult(
+            HttpServletRequest req,
+            @RequestParam Map<String, String> params
+    ) {
+        log.info("Received payment result with params: {}", params);
+        PaymentResponse paymentResponse = paymentService.processPaymentResult(req, params);
+        log.info("Processed payment result successfully: {}", paymentResponse);
+        return ResponseEntity.ok(paymentResponse);
+    }
 
-        String orderInfo = req.getParameter("vnp_OrderInfo");
-        String paymentTime = req.getParameter("vnp_PayDate");
-        String transactionId = req.getParameter("vnp_TransactionNo");
-        String totalPriceStr = req.getParameter("vnp_Amount");
-        int totalPrice = Integer.parseInt(totalPriceStr) / 100;
+    @GetMapping("/")
+    public ResponseEntity<Page<PaymentResponse>> getPayments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        String username = authService.getCurrentUsername();
+        log.info("Fetching payments for user: {}", username);
+        GetByUsernameRequest request = new GetByUsernameRequest(page, size, username);
+        Page<PaymentResponse> payments = paymentService.getPaymentsByUsername(request);
+        log.info("Payments found for user {}: {}", username, payments);
+        return ResponseEntity.ok(payments);
+    }
 
-
-        response.put("orderId", orderInfo);
-        response.put("totalPrice", totalPrice);
-        response.put("paymentTime", paymentTime);
-        response.put("transactionId", transactionId);
-        response.put("paymentStatus", paymentStatus == 1 ? "success" : "fail");
-
-        return ResponseEntity.ok(response);
+    @GetMapping("/status/{status}")
+    public ResponseEntity<Page<PaymentResponse>> getPaymentsByStatus(
+            @PathVariable Payment.EStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        String username = authService.getCurrentUsername();
+        log.info("Received request to get payments by status: {}", status);
+        GetPaymentsByUsernameAndStatusRequest request = new GetPaymentsByUsernameAndStatusRequest(page, size, username, status);
+        Page<PaymentResponse> payments = paymentService.getPaymentsByUsernameAndStatus(request);
+        return ResponseEntity.ok(payments);
     }
 }
