@@ -75,4 +75,10 @@ public class CourseService {
         BeanUtils.copyProperties(course, courseResponse);
         return courseResponse;
     }
+
+    public Course getCourseById(Long courseId) {
+        String msg = "Could not find any course with id=" + courseId;
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException(msg));
+    }
 }
