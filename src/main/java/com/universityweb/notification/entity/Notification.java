@@ -1,4 +1,4 @@
-package com.universityweb.notification.model;
+package com.universityweb.notification.entity;
 
 import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;

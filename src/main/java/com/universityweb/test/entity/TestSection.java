@@ -1,28 +1,26 @@
-package com.universityweb.test.model;
+package com.universityweb.test.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.aspectj.weaver.patterns.TypePatternQuestions;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Table(name = "reading_passages")
+@Table(name = "test_sections")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class ReadingPassage implements Serializable {
+public class TestSection {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String text;
+    private String title;
 
-    @OneToMany(mappedBy = "readingPassage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "testSection", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TestQuestion> questions;
 }

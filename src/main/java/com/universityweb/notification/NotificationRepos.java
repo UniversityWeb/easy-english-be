@@ -1,6 +1,6 @@
 package com.universityweb.notification;
 
-import com.universityweb.notification.model.Notification;
+import com.universityweb.notification.entity.Notification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

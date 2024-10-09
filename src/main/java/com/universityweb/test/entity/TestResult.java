@@ -1,4 +1,4 @@
-package com.universityweb.test.model;
+package com.universityweb.test.entity;
 
 import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;

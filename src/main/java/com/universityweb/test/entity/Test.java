@@ -1,4 +1,4 @@
-package com.universityweb.test.model;
+package com.universityweb.test.entity;
 
 import com.universityweb.course.model.Course;
 import com.universityweb.course.model.Section;
