@@ -112,6 +112,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse getCartByUsername(String username) {
+        Cart cart = getCartEntityByUsername(username);
+        CartResponse cartResponse = cartMapper.toDTO(cart);
+        BigDecimal totalAmount = cartResponse.getTotalAmount();
+        cartResponse.setTotalAmount(totalAmount);
+        return cartResponse;
+    }
+
+    @Override
+    public Cart getCartEntityByUsername(String username) {
         Cart cart = cartRepos.findByUsername(username)
                 .orElse(null);
 
@@ -120,14 +129,9 @@ public class CartServiceImpl implements CartService {
         }
 
         List<CartItem> cartItems = getCartItemsToDisplay(username);
-        List<CartItemResponse> cartItemResponses = cartItemMapper.toDTOs(cartItems);
+        cart.setItems(cartItems);
 
-        CartResponse cartResponse = cartMapper.toDTO(cart);
-        cartResponse.setItems(cartItemResponses);
-
-        BigDecimal totalAmount = cartResponse.getTotalAmount();
-        cartResponse.setTotalAmount(totalAmount);
-        return cartResponse;
+        return cart;
     }
 
     @Override
@@ -174,7 +178,6 @@ public class CartServiceImpl implements CartService {
         Optional<Cart> existingCartOpt = cartRepos.findByUsername(username);
         if (existingCartOpt.isEmpty()) {
             Cart cart = Cart.builder()
-                    .totalAmount(BigDecimal.ZERO)
                     .updatedAt(LocalDateTime.now())
                     .user(user)
                     .build();

@@ -1,7 +1,7 @@
 package com.universityweb.payment.entity;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
+import com.universityweb.order.entity.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,8 +42,8 @@ public class Payment implements Serializable {
     private ECurrency currency;
 
     @ManyToOne
-    @JoinColumn(name = "username", nullable = false)
-    private User user;
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
     public enum EStatus {
         PENDING,

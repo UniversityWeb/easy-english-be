@@ -1,11 +1,11 @@
 package com.universityweb.payment.service;
 
-import com.universityweb.cart.service.CartService;
 import com.universityweb.common.Utils;
-import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.common.request.GetByUsernameRequest;
+import com.universityweb.order.dto.OrderDTO;
+import com.universityweb.order.entity.Order;
+import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
 import com.universityweb.payment.exception.PaymentNotFoundException;
@@ -36,10 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
     private PaymentRepos paymentRepos;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CartService cartService;
+    private OrderService orderService;
 
     @Autowired
     private VNPayService vnPayService;
@@ -49,23 +46,23 @@ public class PaymentServiceImpl implements PaymentService {
         String paymentUrl;
         String username = paymentRequest.username();
         Payment.EMethod method = paymentRequest.method();
-        User user = userService.loadUserByUsername(username);
+
+        Order savedOrder = orderService.createOrderFromUserCart(username);
 
         Payment payment = Payment.builder()
                 .status(Payment.EStatus.PENDING)
                 .method(method)
                 .paymentTime(LocalDateTime.now())
-                .user(user)
+                .order(savedOrder)
                 .build();
-        Payment savedPayment = paymentRepos.save(payment);
+        paymentRepos.save(payment);
 
-        BigDecimal totalAmount = cartService.getTotalAmountOfCart(username);
         switch (method) {
             case VN_PAY -> {
-                int amount = totalAmount.intValue();
+                int amount = savedOrder.getTotalAmount().intValue();
                 paymentUrl = vnPayService.createOrder(
                         amount,
-                        String.valueOf(savedPayment.getId()),
+                        String.valueOf(savedOrder.getId()),
                         paymentRequest.urlReturn());
             }
             default -> throw new UnsupportedPaymentMethodException("Payment method " + method + " is not supported.");
@@ -113,7 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Page<PaymentResponse> getPaymentsByUsername(GetByUsernameRequest request) {
         String username = request.getUsername();
         Pageable pageable = createPageable(request.getPage(), request.getSize());
-        Page<Payment> paymentPage = paymentRepos.findByUserUsername(username, pageable);
+        Page<Payment> paymentPage = paymentRepos.findByUsername(username, pageable);
         return paymentPage.map(paymentMapper::toDTO);
     }
 
@@ -122,7 +119,7 @@ public class PaymentServiceImpl implements PaymentService {
         String username = request.getUsername();
         Payment.EStatus status = request.getStatus();
         Pageable pageable = createPageable(request.getPage(), request.getSize());
-        Page<Payment> paymentPage = paymentRepos.findByUserUsernameAndStatus(username, status, pageable);
+        Page<Payment> paymentPage = paymentRepos.findByUsernameAndStatus(username, status, pageable);
         return paymentPage.map(paymentMapper::toDTO);
     }
 

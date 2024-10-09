@@ -22,9 +22,6 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_amount")
-    private BigDecimal totalAmount;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
