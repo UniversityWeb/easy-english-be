@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.List;
 
-@Data
 @Getter
 @Setter
 @Entity
@@ -21,7 +20,7 @@ public class Section {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
     @Column(name = "title")
     private String title;
