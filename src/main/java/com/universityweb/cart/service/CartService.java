@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public interface CartService {
     CartItemResponse addItemToCart(String username, Long courseId);
     CartItemResponse updateItem(Long cartItemId);
-    boolean removeItemFromCart(String username, Long cartItemId);
+    boolean removeItemFromCart(Long cartItemId);
     void clearCart(String username);
     CartResponse getCartByUsername(String username);
     Cart getCartEntityByUsername(String username);

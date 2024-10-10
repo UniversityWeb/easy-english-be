@@ -1,6 +1,5 @@
 package com.universityweb.cart.entity;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.model.Course;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +9,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "cart_items")
+@Table(name = "cart_items", uniqueConstraints = {
+        @UniqueConstraint(name = "UniqueCourseCard", columnNames = {"course_id", "cart_id"})
+})
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,11 +34,11 @@ public class CartItem implements Serializable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 

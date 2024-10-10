@@ -75,13 +75,13 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public boolean removeItemFromCart(String username, Long courseId) {
-        Cart cart = getOrCreateCart(username);
+    public boolean removeItemFromCart(Long cartItemId) {
+        Cart cart = getCartByCartItemId(cartItemId);
         Long cartId = cart.getId();
-        String cartItemNotFoundMsg = String.format("Could not find any cart item with username=%s, courseId=%d",
-                username, cartId);
+        String cartItemNotFoundMsg =
+                String.format("Could not find any cart item with cartItemId=%d", cartId);
         CartItem cartItem = cartItemRepos
-                .findByCartIdAndCourseId(cartId, courseId)
+                .findByCartItemById(cartItemId)
                 .orElseThrow(() -> new CartItemNotFoundException(cartItemNotFoundMsg));
 
         CartItem.EStatus status = cartItem.getStatus();

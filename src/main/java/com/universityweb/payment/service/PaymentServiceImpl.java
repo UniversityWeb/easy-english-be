@@ -3,7 +3,6 @@ package com.universityweb.payment.service;
 import com.universityweb.common.Utils;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.common.request.GetByUsernameRequest;
-import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
@@ -53,6 +52,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .status(Payment.EStatus.PENDING)
                 .method(method)
                 .paymentTime(LocalDateTime.now())
+                .currency(savedOrder.getCurrency())
                 .order(savedOrder)
                 .build();
         paymentRepos.save(payment);
@@ -62,7 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
                 int amount = savedOrder.getTotalAmount().intValue();
                 paymentUrl = vnPayService.createOrder(
                         amount,
-                        String.valueOf(savedOrder.getId()),
+                        String.valueOf(payment.getId()),
                         paymentRequest.urlReturn());
             }
             default -> throw new UnsupportedPaymentMethodException("Payment method " + method + " is not supported.");

@@ -1,7 +1,9 @@
 package com.universityweb.order.service;
 
 import com.universityweb.cart.entity.Cart;
+import com.universityweb.cart.entity.CartItem;
 import com.universityweb.cart.service.CartService;
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.course.model.Course;
 import com.universityweb.order.dto.OrderDTO;
@@ -40,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order createOrderFromUserCart(String username) {
         Cart cart = cartService.getCartEntityByUsername(username);
+        User user = cart.getUser();
 
         BigDecimal totalAmount = cartService.getTotalAmountOfCart(username);
 
@@ -49,23 +52,28 @@ public class OrderServiceImpl implements OrderService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(null)
                 .status(Order.EStatus.PENDING_PAYMENT)
+                .user(user)
                 .build();
 
         Order savedOrder = orderRepos.save(order);
 
+        List<Long> cartItemIdsToRemove = cart.getItems().stream()
+                .map(CartItem::getId)
+                .toList();
+
         List<OrderItem> orderItems = cart.getItems().stream()
                 .map(cartItem -> {
                     Course course = cartItem.getCourse();
-                    OrderItem orderItem = OrderItem.builder()
+                    return OrderItem.builder()
                             .price(cartItem.getPrice())
                             .discountPercent(cartItem.getDiscountPercent())
                             .course(course)
+                            .order(savedOrder)
                             .build();
-                    cartService.removeItemFromCart(username, course.getId());
-                    return orderItem;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
+        cartItemIdsToRemove.forEach(cartService::removeItemFromCart);
         orderItemRepos.saveAll(orderItems);
         return savedOrder;
     }
