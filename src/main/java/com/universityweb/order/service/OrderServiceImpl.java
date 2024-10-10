@@ -93,7 +93,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<OrderDTO> getOrders(String username, Order.EStatus status, Pageable pageable) {
-        Page<Order> orders = orderRepos.findByUserUsernameAndStatus(username, status, pageable);
+        Page<Order> orders;
+        if (status == null) {
+            orders = orderRepos.findByUserUsername(username, pageable);
+        } else {
+            orders = orderRepos.findByUserUsernameAndStatus(username, status, pageable);
+        }
         return orders.map(orderMapper::toOrderDTO);
     }
 

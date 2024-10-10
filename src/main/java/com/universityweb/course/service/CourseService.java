@@ -81,4 +81,16 @@ public class CourseService {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException(msg));
     }
+
+    public List<Course> getAllCourses() {
+        return courseRepository.findAll();
+    }
+
+    public List<Course> filterCourse(int price, String name) {
+        return courseRepository.findAll();
+    }
+
+    public List<Course> getTop10Courses() {
+        return courseRepository.findAll();
+    }
 }
