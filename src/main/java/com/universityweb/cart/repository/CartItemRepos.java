@@ -11,20 +11,18 @@ import java.util.Optional;
 
 @Repository
 public interface CartItemRepos extends JpaRepository<CartItem, Long> {
-    @Query("SELECT c FROM CartItem c WHERE c.cart.id = :cartId AND (c.status = 'ACTIVE' OR c.status = 'OUT_OF_STOCK') " +
-            "ORDER BY c.updatedAt DESC")
+    @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND (ci.status = 'ACTIVE' OR ci.status = 'OUT_OF_STOCK') " +
+            "ORDER BY ci.updatedAt DESC")
     List<CartItem> findItemsByCartIdToDisplay(@Param("cartId") Long cartId);
 
-    @Query("SELECT c FROM CartItem c WHERE c.id = :cartId AND c.status = :status ORDER BY c.updatedAt DESC")
+    @Query("SELECT ci FROM CartItem ci WHERE ci.id = :cartId AND ci.status = :status ORDER BY ci.updatedAt DESC")
     List<CartItem> findByCartIdAndStatus(
             @Param("cartId") Long cartId,
             @Param("status") CartItem.EStatus status);
 
-    @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND ci.course.id = :courseId")
-    Optional<CartItem> findByCartIdAndCourseId(
-            @Param("cartId") Long cartId,
-            @Param("courseId") Long courseId);
+    @Query("SELECT ci FROM CartItem ci WHERE ci.id = :cardItemId AND (ci.status = 'ACTIVE' OR ci.status = 'OUT_OF_STOCK') ")
+    Optional<CartItem> findByCartItemById(@Param("cardItemId") Long cardItemId);
 
-    @Query("SELECT Count(c) FROM CartItem c WHERE c.cart.id = :cartId AND (c.status = 'ACTIVE' OR c.status = 'OUT_OF_STOCK')")
+    @Query("SELECT Count(ci) FROM CartItem ci WHERE ci.cart.id = :cartId AND (ci.status = 'ACTIVE' OR ci.status = 'OUT_OF_STOCK')")
     Integer countByCartId(Long cartId);
 }

@@ -45,4 +45,25 @@ public class CourseController {
     public ResponseEntity<CourseResponse> getMainCourse(@RequestBody CourseRequest courseRequest) {
         return ResponseEntity.ok( courseService.getMainCourse(courseRequest));
     }
+    @GetMapping("")
+    public ResponseEntity<List<Course>> getAllCourse() {
+        return ResponseEntity.ok(courseService.getAllCourses());
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Course>> filterCourse(@RequestParam int price, @RequestParam String name) {
+        return ResponseEntity.ok(courseService.filterCourse(price, name));
+    }
+
+    @GetMapping("/{courseId}/sales-count")
+    public ResponseEntity<Long> getSalesCountForCourse(@PathVariable Long courseId) {
+        Long sales = enrollmentService.countSalesByCourseId(courseId);
+        return ResponseEntity.ok(sales);
+    }
+
+    @GetMapping("/top-10-sales")
+    public ResponseEntity<List<Course>> getTop10CoursesBySales() {
+        List<Course> courses = courseService.getTop10Courses();
+        return ResponseEntity.ok(courses);
+    }
 }

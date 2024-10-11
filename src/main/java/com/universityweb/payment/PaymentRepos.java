@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaymentRepos extends JpaRepository<Payment, Long> {
-    Page<Payment> findByUserUsername(String username, Pageable pageable);
+    @Query("SELECT p FROM Payment p JOIN Order o ON p.order.id = o.id WHERE o.user.username = :username")
+    Page<Payment> findByUsername(String username, Pageable pageable);
 
-    Page<Payment> findByUserUsernameAndStatus(String username, Payment.EStatus status, Pageable pageable);
+    @Query("SELECT p FROM Payment p JOIN Order o ON p.order.id = o.id WHERE o.user.username = :username AND p.status = :status")
+    Page<Payment> findByUsernameAndStatus(String username, Payment.EStatus status, Pageable pageable);
 }

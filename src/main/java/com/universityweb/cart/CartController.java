@@ -75,7 +75,7 @@ public class CartController {
         checkAuthorization(cartItemId);
         String username = authService.getCurrentUsername();
         log.debug("User '{}' is attempting to remove item with ID: {}", username, cartItemId);
-        cartService.removeItemFromCart(username, cartItemId);
+        cartService.removeItemFromCart(cartItemId);
         log.info("Item with ID: {} removed from cart by user: {}", cartItemId, username);
         return ResponseEntity.ok("Course removed from cart.");
     }

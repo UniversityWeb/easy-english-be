@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@Transactional
 public class InitData {
     private final Logger log = LogManager.getLogger(this.getClass().getName());
 
@@ -399,7 +398,6 @@ public class InitData {
             for (User user : users) {
                 Cart cart = Cart.builder()
                         .id(index)
-                        .totalAmount(BigDecimal.ZERO)
                         .updatedAt(LocalDateTime.now())
                         .user(user)
                         .build();

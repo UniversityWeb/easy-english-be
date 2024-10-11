@@ -2,10 +2,7 @@ package com.universityweb.cart.entity;
 
 import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,16 +19,15 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_amount")
-    private BigDecimal totalAmount;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @OneToOne
     @JoinColumn(name = "username", nullable = false, unique = true)
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
     private List<CartItem> items;
 }

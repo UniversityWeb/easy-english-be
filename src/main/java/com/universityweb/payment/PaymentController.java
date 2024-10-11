@@ -41,7 +41,7 @@ public class PaymentController {
                 .body(paymentUrl);
     }
 
-    @GetMapping("/result")
+    @PutMapping("/result")
     public ResponseEntity<PaymentResponse> handlePaymentResult(
             HttpServletRequest req,
             @RequestParam Map<String, String> params

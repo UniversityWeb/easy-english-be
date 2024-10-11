@@ -75,13 +75,13 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public boolean removeItemFromCart(String username, Long courseId) {
-        Cart cart = getOrCreateCart(username);
+    public boolean removeItemFromCart(Long cartItemId) {
+        Cart cart = getCartByCartItemId(cartItemId);
         Long cartId = cart.getId();
-        String cartItemNotFoundMsg = String.format("Could not find any cart item with username=%s, courseId=%d",
-                username, cartId);
+        String cartItemNotFoundMsg =
+                String.format("Could not find any cart item with cartItemId=%d", cartId);
         CartItem cartItem = cartItemRepos
-                .findByCartIdAndCourseId(cartId, courseId)
+                .findByCartItemById(cartItemId)
                 .orElseThrow(() -> new CartItemNotFoundException(cartItemNotFoundMsg));
 
         CartItem.EStatus status = cartItem.getStatus();
@@ -112,6 +112,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse getCartByUsername(String username) {
+        Cart cart = getCartEntityByUsername(username);
+        CartResponse cartResponse = cartMapper.toDTO(cart);
+        BigDecimal totalAmount = cartResponse.getTotalAmount();
+        cartResponse.setTotalAmount(totalAmount);
+        return cartResponse;
+    }
+
+    @Override
+    public Cart getCartEntityByUsername(String username) {
         Cart cart = cartRepos.findByUsername(username)
                 .orElse(null);
 
@@ -120,14 +129,9 @@ public class CartServiceImpl implements CartService {
         }
 
         List<CartItem> cartItems = getCartItemsToDisplay(username);
-        List<CartItemResponse> cartItemResponses = cartItemMapper.toDTOs(cartItems);
+        cart.setItems(cartItems);
 
-        CartResponse cartResponse = cartMapper.toDTO(cart);
-        cartResponse.setItems(cartItemResponses);
-
-        BigDecimal totalAmount = cartResponse.getTotalAmount();
-        cartResponse.setTotalAmount(totalAmount);
-        return cartResponse;
+        return cart;
     }
 
     @Override
@@ -174,7 +178,6 @@ public class CartServiceImpl implements CartService {
         Optional<Cart> existingCartOpt = cartRepos.findByUsername(username);
         if (existingCartOpt.isEmpty()) {
             Cart cart = Cart.builder()
-                    .totalAmount(BigDecimal.ZERO)
                     .updatedAt(LocalDateTime.now())
                     .user(user)
                     .build();
