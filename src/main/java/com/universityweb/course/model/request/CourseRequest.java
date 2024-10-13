@@ -16,8 +16,10 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseRequest {
     private Long id;
+    private List<Long> categoryIds;
+    private Long levelId;
+    private Long topicId;
     private String title;
-    private String category;
     private String level;
     private String imageUrl;
     private int duration;

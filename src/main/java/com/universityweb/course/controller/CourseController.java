@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @CrossOrigin
 @RequestMapping("/api/v1/course")
 @RestController
@@ -20,12 +18,16 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    @Autowired
-    private EnrollmentService enrollmentService;
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
         return ResponseEntity.ok(courseService.getAllCourseOfTeacher(courseRequest));
     }
+
+    @PostMapping("/get-all-course")
+    public ResponseEntity<Page<CourseResponse>> getAllCourse(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.getAllCourse(courseRequest));
+    }
+
     @PostMapping("/update-course")
     public ResponseEntity<String> updateCourse( @RequestBody CourseRequest courseRequest) {
         courseService.updateCourse(courseRequest);
@@ -44,6 +46,20 @@ public class CourseController {
     @PostMapping("/get-main-course")
     public ResponseEntity<CourseResponse> getMainCourse(@RequestBody CourseRequest courseRequest) {
         return ResponseEntity.ok( courseService.getMainCourse(courseRequest));
+    }
+    @PostMapping("/get-all-course-by-list-category")
+    public ResponseEntity<Page<CourseResponse>> getAllCourseByListCategory(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.getAllCourseByListCategory(courseRequest));
+    }
+
+    @PostMapping("/get-all-course-by-topic")
+    public ResponseEntity<Page<CourseResponse>> getAllCourseByTopic(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.getAllCourseByTopic(courseRequest));
+    }
+
+    @PostMapping("/get-all-course-by-level")
+    public ResponseEntity<Page<CourseResponse>> getAllCourseByLevel(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.getAllCourseByLevel(courseRequest));
     }
     @GetMapping("")
     public ResponseEntity<List<Course>> getAllCourse() {

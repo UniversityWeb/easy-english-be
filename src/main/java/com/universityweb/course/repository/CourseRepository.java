@@ -17,4 +17,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findByCreatedBy(String createdBy, Pageable pageable);
 
     Page<Course> findByIsActiveAndCreatedBy(Boolean isActive,String createdBy, Pageable pageable);
+
+    Page<Course> findByIsActiveAndCategoriesId(boolean b, Long categoryId, Pageable pageable);
+
+    Page<Course> findByIsActiveAndTopicId(boolean b, Long topicId, Pageable pageable);
+
+    Page<Course> findByIsActiveAndLevelId(boolean b, Long levelId, Pageable pageable);
+
+    Page<Course> findByIsActive(boolean b, Pageable pageable);
 }

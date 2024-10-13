@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "lessons")
@@ -42,7 +44,9 @@ public class Lesson {
     private Boolean isPreview;
 
     @Column(name = "start_date")
-    private LocalDateTime startDate;
+    private LocalDate startDate;
+
+    private LocalTime startTime;
 
     @CreationTimestamp
     @Column(name = "created_at")
