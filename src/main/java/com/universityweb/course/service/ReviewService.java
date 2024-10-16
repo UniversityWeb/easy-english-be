@@ -31,13 +31,10 @@ public class ReviewService {
             Course course = courseOptional.get();
 
             review.setCourse(course);
-            review.setOwner(reviewRequest.getUser());
             review.setRating(reviewRequest.getRating());
             review.setComment(reviewRequest.getComment());
 
             reviewRepository.save(review);
-
-            course.updateRating();
             courseRepository.save(course);
         } else {
             throw new RuntimeException("Course not found");

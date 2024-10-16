@@ -1,9 +1,11 @@
 package com.universityweb.course.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.universityweb.course.model.Enum.LessonType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,44 +21,28 @@ import java.time.LocalTime;
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
-
-    @Column(name = "title")
     private String title;
 
-    @Column(name = "type")
-    private String type;
-
-    @Column(name = "content")
+    @Enumerated(EnumType.STRING)
+    private LessonType type;
     private String content;
-
-    @Column(name = "content_url")
     private String contentUrl;
-
-    @Column(name = "description")
     private String description;
-
-    @Column(name = "duration")
     private int duration;
 
     @Column(name = "preview")
     private Boolean isPreview;
-
-    @Column(name = "start_date")
     private LocalDate startDate;
-
     private LocalTime startTime;
 
     @CreationTimestamp
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "created_by")
-    private String createdBy;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "section_id")
-    @JsonBackReference
     private Section section;
 }

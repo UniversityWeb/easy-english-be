@@ -1,8 +1,11 @@
 package com.universityweb.course.model;
 
+import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,17 +21,24 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private String imageUrl;
-    private int duration;
+    private String imagePreview;
+    private String videoPreview;
+    private String descriptionPreview;
     private String description;
-    private double rating;
-    private int ratingCount;
+    private int duration;
     private int countView;
     @Column(name = "publish")
     private Boolean isPublish;
-    private String createdBy;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User createdBy;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @Column(name = "active")
     private Boolean isActive;
@@ -62,16 +72,4 @@ public class Course {
     )
     private List<Category> categories;
 
-    public void updateRating() {
-        if (reviews != null && !reviews.isEmpty()) {
-            double averageRating = reviews.stream()
-                    .mapToDouble(Review::getRating)
-                    .average()
-                    .orElse(0.0);
-            this.rating = averageRating;
-            this.ratingCount = reviews.size();
-        } else {
-            this.rating = 0.0;
-        }
-    }
 }
