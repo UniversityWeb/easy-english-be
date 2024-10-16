@@ -12,18 +12,19 @@ import java.util.List;
 @NoArgsConstructor
 public class CourseResponse {
     private Long id;
+    private List<Long> categoryIds;
+    private Long levelId;
+    private Long topicId;
     private String title;
     private String category;
-    private String level;
+    //private String level;
     private String imageUrl;
     private int duration;
     private String description;
     private double rating;
     private int ratingCount;
     private Boolean isPublish;
-    private String createdBy;
+    //private String createdBy;
     private String createdAt;
     private Boolean isActive;
-
-
 }
