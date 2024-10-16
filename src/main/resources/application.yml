@@ -26,6 +26,10 @@ spring:
     show-sql: true
     open-in-view: true
 
+security:
+  jwt:
+    secret-key: ${PROD_JWT_SECRET_KEY}
+
 logging:
   file:
     name: mylog.log

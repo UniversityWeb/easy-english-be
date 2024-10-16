@@ -11,12 +11,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin
 @RequestMapping("/api/v1/course")
 @RestController
 public class CourseController {
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
 
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
