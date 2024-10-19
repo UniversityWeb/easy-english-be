@@ -46,4 +46,6 @@ public class Section {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_id")
     private Test test;
+
+    private int ordinalNumber;
 }

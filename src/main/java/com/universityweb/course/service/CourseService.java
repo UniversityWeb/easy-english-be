@@ -1,5 +1,11 @@
 package com.universityweb.course.service;
 
+import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.repos.UserRepos;
+import com.universityweb.course.enrollment.EnrollmentRepos;
+import com.universityweb.course.enrollment.model.Enrollment;
+import com.universityweb.course.favourite.model.Favourite;
+import com.universityweb.course.favourite.repository.FavouriteRepository;
 import com.universityweb.course.model.*;
 import com.universityweb.course.model.request.CourseRequest;
 import com.universityweb.course.model.response.CourseResponse;
@@ -15,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CourseService {
@@ -27,15 +34,29 @@ public class CourseService {
     private LevelRepository levelRepository;
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private EnrollmentRepos enrollmentRepos;
+    @Autowired
+    private FavouriteRepository favouriteRepository;
+    @Autowired
+    private PriceRepository priceRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private UserRepos userRepos;
 
     public Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest) {
-        String createdBy = courseRequest.getCreatedBy();
+
+        User user = userRepos.findByUsername(courseRequest.getCreatedBy())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         int pageNumber = courseRequest.getPageNumber();
         int size = courseRequest.getSize();
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = courseRepository.findByIsActiveAndCreatedBy(true,createdBy, pageable);
+        Page<Course> coursePage = courseRepository.findByIsActiveAndCreatedBy(true,user, pageable);
 
         return coursePage.map(course -> {
             CourseResponse courseResponse = new CourseResponse();
@@ -73,12 +94,15 @@ public class CourseService {
         price.setSalePrice(BigDecimal.valueOf(0));
         course.setPrice(price);
         price.setCourse(course);
+
         Level level = levelRepository.findById(courseRequest.getLevelId())
                 .orElseThrow(() -> new RuntimeException("Level not found"));
         course.setLevel(level);
+
         Topic topic = topicRepository.findById(courseRequest.getTopicId())
                 .orElseThrow(() -> new RuntimeException("Topic not found"));
         course.setTopic(topic);
+
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : courseRequest.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId)
@@ -86,6 +110,11 @@ public class CourseService {
             categories.add(category);
         }
         course.setCategories(categories);
+
+        User user = userRepos.findByUsername(courseRequest.getCreatedBy())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        course.setCreatedBy(user);
         courseRepository.save(course);
     }
 
@@ -189,5 +218,43 @@ public class CourseService {
 
     public List<Course> getTop10Courses() {
         return courseRepository.findAll();
+    }
+
+
+    public List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest) {
+        User user = userRepos.findByUsername(courseRequest.getCreatedBy())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
+        List<CourseResponse> courseResponses = new ArrayList<>();
+        for (Enrollment enrollment : enrollments) {
+            Course course = enrollment.getCourse();
+            CourseResponse courseResponse = new CourseResponse();
+            BeanUtils.copyProperties(course, courseResponse);
+            courseResponse.setProgress(enrollment.getProgress());
+            courseResponse.setTeacher(course.getCreatedBy().getUsername());
+            courseResponses.add(courseResponse);
+        }
+        return courseResponses;
+    }
+
+    public List<CourseResponse> getAllCourseFavoriteOfStudent(CourseRequest courseRequest) {
+        User user = userRepos.findByUsername(courseRequest.getCreatedBy())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Favourite> favourites = favouriteRepository.findByUser(user);
+        List<CourseResponse> courseResponses = new ArrayList<>();
+        for (Favourite favourite : favourites) {
+            Course course = favourite.getCourse();
+            List<Review> reviews = reviewRepository.findByCourseId(course.getId());
+            Price price = priceRepository.findByCourse(course)
+                    .orElseThrow(() -> new RuntimeException("Price not found for course"));
+            CourseResponse courseResponse = new CourseResponse();
+            courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
+            courseResponse.setRatingCount(reviews.size());
+            courseResponse.setRealPrice(price.getPrice());
+            BeanUtils.copyProperties(course, courseResponse);
+            courseResponse.setTeacher(course.getCreatedBy().getUsername());
+            courseResponses.add(courseResponse);
+        }
+        return courseResponses;
     }
 }

@@ -1,5 +1,6 @@
 package com.universityweb.course.repository;
 
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.model.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Page<Course> findByCreatedBy(String createdBy, Pageable pageable);
 
-    Page<Course> findByIsActiveAndCreatedBy(Boolean isActive,String createdBy, Pageable pageable);
+    Page<Course> findByIsActiveAndCreatedBy(Boolean isActive, User user, Pageable pageable);
 
     Page<Course> findByIsActiveAndCategoriesId(boolean b, Long categoryId, Pageable pageable);
 

@@ -30,7 +30,7 @@ public class Lesson {
     private String contentUrl;
     private String description;
     private int duration;
-
+    private int ordinalNumber;
     @Column(name = "preview")
     private Boolean isPreview;
     private LocalDate startDate;
