@@ -16,17 +16,16 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseRequest {
     private Long id;
+    private String title;
     private List<Long> categoryIds;
     private Long levelId;
     private Long topicId;
-    private String title;
-    private String level;
-    private String imageUrl;
-    private int duration;
-    private int price;
+    private String imagePreview;
+    private String videoPreview;
+    private String descriptionPreview;
     private String description;
-    private double rating;
-    private int ratingCount;
+    private int duration;
+    private int countView;
     private Boolean isPublish;
     private String createdBy;
     private String createdAt;
