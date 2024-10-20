@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class UploadFileServiceImpl {
+public class UploadFileServiceImpl implements UploadFileService {
     @Autowired
     private Cloudinary cloudinary;
 
