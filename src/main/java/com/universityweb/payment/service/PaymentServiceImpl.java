@@ -1,9 +1,16 @@
 package com.universityweb.payment.service;
 
 import com.universityweb.common.Utils;
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.common.request.GetByUsernameRequest;
+import com.universityweb.course.enrollment.model.Enrollment;
+import com.universityweb.course.enrollment.request.AddEnrollmentRequest;
+import com.universityweb.course.enrollment.service.EnrollmentService;
+import com.universityweb.course.model.Course;
+import com.universityweb.course.service.CourseService;
 import com.universityweb.order.entity.Order;
+import com.universityweb.order.entity.OrderItem;
 import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
@@ -13,6 +20,7 @@ import com.universityweb.payment.mapper.PaymentMapper;
 import com.universityweb.payment.request.GetPaymentsByUsernameAndStatusRequest;
 import com.universityweb.payment.request.PaymentRequest;
 import com.universityweb.payment.response.PaymentResponse;
+import com.universityweb.payment.util.PaymentUtils;
 import com.universityweb.payment.vnpay.VNPayConfig;
 import com.universityweb.payment.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +33,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -39,6 +49,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private VNPayService vnPayService;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
+    @Autowired
+    private CourseService courseService;
 
     @Override
     public String createPayment(PaymentRequest paymentRequest) {
@@ -123,6 +138,31 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentPage.map(paymentMapper::toDTO);
     }
 
+    @Override
+    public PaymentResponse simulateSuccess(Long orderId) {
+        Order order = orderService.getOrderEntityById(orderId);
+
+        Payment payment = order.getPayments().stream()
+                .filter(p -> p.getStatus() == Payment.EStatus.PENDING)
+                .max(Comparator.comparing(Payment::getPaymentTime))
+                .orElseThrow(() -> new IllegalStateException("No valid payment found for order"));
+
+        LocalDateTime paymentTime = LocalDateTime.now();
+        Long transactionNo = PaymentUtils.generateTransactionNo();
+
+        payment.setStatus(Payment.EStatus.SUCCESS);
+        payment.setPaymentTime(paymentTime);
+        payment.setTransactionNo(transactionNo);
+        payment.setAmountPaid(order.getTotalAmount());
+        payment.setCurrency(ECurrency.VND);
+
+        Payment savedPayment = paymentRepos.save(payment);
+
+        addEnrollmentsByOrderId(orderId);
+
+        return paymentMapper.toDTO(savedPayment);
+    }
+
     private Payment getPaymentById(Long paymentId) {
         String msg = "Could not find any payment with id=" + paymentId;
         return paymentRepos.findById(paymentId)
@@ -134,5 +174,28 @@ public class PaymentServiceImpl implements PaymentService {
         int pageSize = (size <= 0) ? 10 : size;
         Sort sort = Sort.by("paymentTime");
         return PageRequest.of(pageNumber, pageSize, sort.descending());
+    }
+
+    private void addEnrollmentsByOrderId(Long orderId) {
+        Order order = orderService.getOrderEntityById(orderId);
+        List<OrderItem> orderItems = order.getItems();
+
+        User user = order.getUser();
+
+        Enrollment.EType enrollmentType = order.getTotalAmount().compareTo(BigDecimal.ZERO) > 0
+                ? Enrollment.EType.PAID
+                : Enrollment.EType.FREE;
+
+        for (OrderItem orderItem : orderItems) {
+            Course course = orderItem.getCourse();
+
+            AddEnrollmentRequest addEnrollmentRequest = new AddEnrollmentRequest(
+                    Enrollment.EStatus.ACTIVE,
+                    enrollmentType,
+                    user.getUsername(),
+                    course.getId()
+            );
+            enrollmentService.addNewEnrollment(addEnrollmentRequest);
+        }
     }
 }

@@ -49,7 +49,7 @@ public class Enrollment implements Serializable {
     public enum EStatus {
         ACTIVE,
         COMPLETED,
-        CANCALLED,
+        CANCELLED,
         PENDING
     }
 

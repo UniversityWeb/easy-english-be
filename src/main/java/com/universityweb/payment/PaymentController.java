@@ -77,4 +77,15 @@ public class PaymentController {
         Page<PaymentResponse> payments = paymentService.getPaymentsByUsernameAndStatus(request);
         return ResponseEntity.ok(payments);
     }
+
+    @PostMapping("/simulate-success/{orderId}")
+    public ResponseEntity<PaymentResponse> simulateSuccess(
+            @PathVariable
+            Long orderId
+    ) {
+        log.info("Simulating a fake successful payment for orderId: {}", orderId);
+        PaymentResponse paymentResponse = paymentService.simulateSuccess(orderId);
+        log.info("Simulate payment success: {}", paymentResponse);
+        return ResponseEntity.ok(paymentResponse);
+    }
 }
