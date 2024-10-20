@@ -1,6 +1,6 @@
 package com.universityweb.course.enrollment;
 
-import com.universityweb.course.enrollment.model.Enrollment;
+import com.universityweb.course.enrollment.entity.Enrollment;
 import com.universityweb.course.enrollment.response.EnrollmentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

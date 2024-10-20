@@ -1,6 +1,6 @@
 package com.universityweb.course.enrollment.request;
 
-import com.universityweb.course.enrollment.model.Enrollment;
+import com.universityweb.course.enrollment.entity.Enrollment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record AddEnrollmentRequest(

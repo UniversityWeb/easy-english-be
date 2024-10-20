@@ -2,13 +2,13 @@ package com.universityweb.course.enrollment.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.course.enrollment.EnrollmentMapper;
-import com.universityweb.course.enrollment.EnrollmentRepos;
-import com.universityweb.course.enrollment.model.Enrollment;
-import com.universityweb.course.enrollment.request.AddEnrollmentRequest;
-import com.universityweb.course.enrollment.response.EnrollmentResponse;
 import com.universityweb.course.common.entity.Course;
 import com.universityweb.course.common.service.CourseService;
+import com.universityweb.course.enrollment.EnrollmentMapper;
+import com.universityweb.course.enrollment.EnrollmentRepos;
+import com.universityweb.course.enrollment.entity.Enrollment;
+import com.universityweb.course.enrollment.request.AddEnrollmentRequest;
+import com.universityweb.course.enrollment.response.EnrollmentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

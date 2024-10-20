@@ -4,7 +4,7 @@ import com.universityweb.common.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.common.request.GetByUsernameRequest;
-import com.universityweb.course.enrollment.model.Enrollment;
+import com.universityweb.course.enrollment.entity.Enrollment;
 import com.universityweb.course.enrollment.request.AddEnrollmentRequest;
 import com.universityweb.course.enrollment.service.EnrollmentService;
 import com.universityweb.course.common.entity.Course;

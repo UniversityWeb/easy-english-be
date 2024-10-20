@@ -1,8 +1,8 @@
 package com.universityweb.course.enrollment;
 
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.course.enrollment.model.Enrollment;
 import com.universityweb.course.common.entity.Course;
+import com.universityweb.course.enrollment.entity.Enrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

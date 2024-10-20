@@ -1,4 +1,4 @@
-package com.universityweb.course.enrollment.model;
+package com.universityweb.course.enrollment.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.universityweb.common.auth.entity.User;
