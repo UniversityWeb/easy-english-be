@@ -205,6 +205,13 @@ public class CourseService {
 
         return coursePage.map(course -> {
             CourseResponse courseResponse = new CourseResponse();
+            List<Review> reviews = reviewRepository.findByCourseId(course.getId());
+            Price price = priceRepository.findByCourse(course)
+                    .orElseThrow(() -> new RuntimeException("Price not found for course"));
+            courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
+            courseResponse.setRatingCount(reviews.size());
+            courseResponse.setRealPrice(price.getPrice());
+            courseResponse.setTeacher(course.getCreatedBy().getUsername());
             BeanUtils.copyProperties(course, courseResponse);
             return courseResponse;
         });
