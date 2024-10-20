@@ -36,6 +36,13 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getAllCourseOfStudent(courseRequest));
     }
 
+    @PostMapping("/get-all-course-not-of-student")
+    public ResponseEntity<List<CourseResponse>> getAllCourseNotOfStudent(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.getAllCourseNotOfStudent(courseRequest));
+    }
+
+
+
     @PostMapping("/get-all-course-favorite-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseFavoriteOfStudent(@RequestBody CourseRequest courseRequest) {
         return ResponseEntity.ok(courseService.getAllCourseFavoriteOfStudent(courseRequest));

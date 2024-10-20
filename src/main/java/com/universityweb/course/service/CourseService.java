@@ -22,6 +22,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
@@ -237,6 +239,41 @@ public class CourseService {
         return courseResponses;
     }
 
+    public List<CourseResponse> getAllCourseNotOfStudent(CourseRequest courseRequest) {
+        // Lấy thông tin User dựa trên username
+        User user = userRepos.findByUsername(courseRequest.getCreatedBy())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Lấy danh sách các khóa học mà User đã tham gia
+        List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
+
+        // Tạo danh sách các khóa học mà User đã tham gia
+        Set<Course> enrolledCourses = enrollments.stream()
+                .map(Enrollment::getCourse)
+                .collect(Collectors.toSet());
+
+        // Lấy tất cả các khóa học
+        List<Course> allCourses = courseRepository.findAll();
+
+        // Lọc những khóa học mà User chưa tham gia
+        List<CourseResponse> courseResponses = new ArrayList<>();
+        for (Course course : allCourses) {
+            if (!enrolledCourses.contains(course)) {
+                List<Review> reviews = reviewRepository.findByCourseId(course.getId());
+                Price price = priceRepository.findByCourse(course)
+                        .orElseThrow(() -> new RuntimeException("Price not found for course"));
+                CourseResponse courseResponse = new CourseResponse();
+                courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
+                courseResponse.setRatingCount(reviews.size());
+                courseResponse.setRealPrice(price.getPrice());
+                BeanUtils.copyProperties(course, courseResponse);
+                courseResponse.setTeacher(course.getCreatedBy().getUsername());
+                courseResponses.add(courseResponse);
+            }
+        }
+        return courseResponses;
+    }
+
     public List<CourseResponse> getAllCourseFavoriteOfStudent(CourseRequest courseRequest) {
         User user = userRepos.findByUsername(courseRequest.getCreatedBy())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -257,4 +294,6 @@ public class CourseService {
         }
         return courseResponses;
     }
+
+
 }
