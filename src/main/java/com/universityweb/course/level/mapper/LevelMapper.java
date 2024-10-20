@@ -1,6 +1,7 @@
 package com.universityweb.course.level.mapper;
 
 import com.universityweb.course.level.entity.Level;
+import com.universityweb.course.level.request.LevelRequest;
 import com.universityweb.course.level.response.LevelResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,4 +21,7 @@ public interface LevelMapper {
     @Mapping(target = "topic", ignore = true)
     Level toEntity(LevelResponse dto);
     List<Level> toEntities(List<LevelResponse> dtos);
+
+    @Mapping(target = "topic", ignore = true)
+    Level toEntity(LevelRequest dto);
 }

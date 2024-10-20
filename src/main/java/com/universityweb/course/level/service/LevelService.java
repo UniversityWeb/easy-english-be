@@ -1,6 +1,7 @@
 package com.universityweb.course.level.service;
 
 import com.universityweb.course.level.entity.Level;
+import com.universityweb.course.level.mapper.LevelMapper;
 import com.universityweb.course.topic.entity.Topic;
 import com.universityweb.course.level.request.LevelRequest;
 import com.universityweb.course.level.response.LevelResponse;
@@ -15,14 +16,15 @@ import java.util.List;
 
 @Service
 public class LevelService {
+    private final LevelMapper levelMapper = LevelMapper.INSTANCE;
+
     @Autowired
     private LevelRepository levelRepository;
 
     @Autowired
     private TopicRepository topicRepository;
     public void createLevel(LevelRequest levelRequest) {
-        Level level = new Level();
-        BeanUtils.copyProperties(levelRequest, level);
+        Level level = levelMapper.toEntity(levelRequest);
         Topic topic = topicRepository.findById(levelRequest.getTopicId())
                 .orElseThrow(() -> new RuntimeException("Topic not found"));
         level.setTopic(topic);
@@ -41,8 +43,7 @@ public class LevelService {
         List<Level> levels = levelRepository.findByTopicId(topicId);
         List<LevelResponse> levelResponses = new ArrayList<>();
         levels.forEach(level -> {
-            LevelResponse levelResponse = new LevelResponse();
-            BeanUtils.copyProperties(level, levelResponse);
+            LevelResponse levelResponse = levelMapper.toDTO(level);
             levelResponses.add(levelResponse);
         });
         return levelResponses;
