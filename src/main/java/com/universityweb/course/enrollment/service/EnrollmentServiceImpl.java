@@ -4,7 +4,7 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.course.common.entity.Course;
 import com.universityweb.course.common.service.CourseService;
-import com.universityweb.course.enrollment.EnrollmentMapper;
+import com.universityweb.course.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.course.enrollment.EnrollmentRepos;
 import com.universityweb.course.enrollment.entity.Enrollment;
 import com.universityweb.course.enrollment.request.AddEnrollmentRequest;

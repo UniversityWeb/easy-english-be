@@ -1,4 +1,4 @@
-package com.universityweb.course.enrollment;
+package com.universityweb.course.enrollment.mapper;
 
 import com.universityweb.course.enrollment.entity.Enrollment;
 import com.universityweb.course.enrollment.response.EnrollmentResponse;
