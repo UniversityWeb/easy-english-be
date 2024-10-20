@@ -2,7 +2,7 @@ package com.universityweb.course.enrollment.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.course.model.Course;
+import com.universityweb.course.common.entity.Course;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,8 +1,8 @@
 package com.universityweb.common.auth.entity;
 
 import com.universityweb.cart.entity.Cart;
-import com.universityweb.course.model.Course;
-import com.universityweb.course.model.Review;
+import com.universityweb.course.common.entity.Course;
+import com.universityweb.course.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

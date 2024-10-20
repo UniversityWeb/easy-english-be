@@ -1,7 +1,7 @@
 package com.universityweb.test.entity;
 
-import com.universityweb.course.model.Course;
-import com.universityweb.course.model.Section;
+import com.universityweb.course.common.entity.Course;
+import com.universityweb.course.section.entity.Section;
 import jakarta.persistence.*;
 import lombok.*;
 
