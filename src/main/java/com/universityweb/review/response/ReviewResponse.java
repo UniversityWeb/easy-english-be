@@ -1,7 +1,8 @@
 package com.universityweb.review.response;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReviewResponse {

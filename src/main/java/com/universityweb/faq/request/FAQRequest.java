@@ -1,10 +1,11 @@
 package com.universityweb.faq.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class FAQRequest {

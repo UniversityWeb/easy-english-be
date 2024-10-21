@@ -2,12 +2,13 @@ package com.universityweb.common.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public abstract class ListRequest {
     @Schema(description = "The page number to retrieve (0-based index).", example = "0")
     protected int page;

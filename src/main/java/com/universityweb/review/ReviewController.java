@@ -1,8 +1,12 @@
 package com.universityweb.review;
+
+import com.universityweb.course.response.CourseResponse;
 import com.universityweb.review.request.ReviewRequest;
 import com.universityweb.review.response.ReviewResponse;
 import com.universityweb.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,9 @@ import java.util.List;
 @RestController
 @Tag(name = "Reviews")
 public class ReviewController {
+
+    private static final Logger log = LogManager.getLogger(ReviewController.class);
+
     @Autowired
     private ReviewService reviewService;
 
@@ -28,17 +35,22 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponse>> getReview5StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,5));
     }
+
     @PostMapping("/get-all-review-4-star-by-course")
     public ResponseEntity<List<ReviewResponse>> getReview4StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,4));
     }
+
     @PostMapping("/get-all-review-3-star-by-course")
     public ResponseEntity<List<ReviewResponse>> getReview3StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,3));
-    }    @PostMapping("/get-all-review-2-star-by-course")
+    }
+
+    @PostMapping("/get-all-review-2-star-by-course")
     public ResponseEntity<List<ReviewResponse>> getReview2StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,2));
     }
+
     @PostMapping("/get-all-review-1-star-by-course")
     public ResponseEntity<List<ReviewResponse>> getReview1StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,1));
@@ -49,4 +61,11 @@ public class ReviewController {
         return ResponseEntity.ok().body(reviewService.getReviewByCourse(reviewRequest));
     }
 
+    @GetMapping("/get-top-10-courses-by-rating")
+    public ResponseEntity<List<CourseResponse>> getTop10CoursesByRating() {
+        log.info("Fetching top 10 courses by rating");
+        List<CourseResponse> topCourses = reviewService.getTop10CoursesByRating();
+        log.info("Found {} top courses by rating", topCourses.size());
+        return ResponseEntity.ok().body(topCourses);
+    }
 }

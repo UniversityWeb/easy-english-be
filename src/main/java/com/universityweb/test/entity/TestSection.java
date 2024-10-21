@@ -3,7 +3,7 @@ package com.universityweb.test.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -12,7 +12,8 @@ import java.util.List;
 @Table(name = "test_sections")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class TestSection {
     @Id

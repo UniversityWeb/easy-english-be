@@ -1,14 +1,15 @@
 package com.universityweb.notification.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class NotificationResponse {
     private Long id;
 

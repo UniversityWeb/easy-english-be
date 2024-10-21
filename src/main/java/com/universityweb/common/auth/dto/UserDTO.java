@@ -4,7 +4,7 @@ import com.universityweb.common.auth.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Data
+@Getter
+@Setter
 public class UserDTO {
     @Schema(
             description = "Username of the user",

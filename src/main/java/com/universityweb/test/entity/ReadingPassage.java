@@ -3,7 +3,7 @@ package com.universityweb.test.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -13,7 +13,8 @@ import java.util.List;
 @Table(name = "reading_passages")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class ReadingPassage implements Serializable {
     @Id

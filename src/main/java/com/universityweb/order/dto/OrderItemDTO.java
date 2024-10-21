@@ -2,13 +2,14 @@ package com.universityweb.order.dto;
 
 import com.universityweb.course.response.CourseResponse;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemDTO implements Serializable {

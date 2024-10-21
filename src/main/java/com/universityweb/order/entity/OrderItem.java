@@ -4,7 +4,7 @@ import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -12,7 +12,8 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "order_items")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

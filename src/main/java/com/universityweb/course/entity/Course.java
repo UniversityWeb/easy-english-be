@@ -27,37 +27,45 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "title", nullable = false)
     private String title;
+
+    @Column(name = "image_preview")
     private String imagePreview;
+
+    @Column(name = "video_preview")
     private String videoPreview;
+
+    @Column(name = "description_preview", length = 1000)
     private String descriptionPreview;
+
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "duration")
     private int duration;
+
+    @Column(name = "count_view")
     private int countView;
+
     @Column(name = "publish")
     private Boolean isPublish;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User createdBy;
-
     @CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Column(name = "active")
     private Boolean isActive;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Section> sections;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<FAQ> faqs;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Review> reviews;
+    @ManyToOne
+    @JoinColumn(name = "username")
+    private User owner;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "price_id", referencedColumnName = "id")
@@ -70,6 +78,15 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "level_id")
     private Level level;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Section> sections;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<FAQ> faqs;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews;
 
     @ManyToMany
     @JoinTable(

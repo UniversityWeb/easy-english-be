@@ -1,18 +1,18 @@
 package com.universityweb.course.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseRequest {
     private Long id;
     private String title;
-    private List<Long> categoryIds;
     private Long levelId;
     private Long topicId;
     private String imagePreview;
@@ -22,9 +22,12 @@ public class CourseRequest {
     private int duration;
     private int countView;
     private Boolean isPublish;
-    private String createdBy;
     private String createdAt;
     private Boolean isActive;
+    private String ownerUsername;
+
+    private List<Long> categoryIds;
+
     private int pageNumber = 0;
     private int size = 10;
 }

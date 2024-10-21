@@ -2,7 +2,8 @@ package com.universityweb.section.response;
 
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SectionResponse {

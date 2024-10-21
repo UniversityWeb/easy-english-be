@@ -5,7 +5,7 @@ import com.universityweb.order.entity.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

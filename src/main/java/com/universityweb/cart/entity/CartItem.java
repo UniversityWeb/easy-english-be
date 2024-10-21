@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @Table(name = "cart_items", uniqueConstraints = {
         @UniqueConstraint(name = "UniqueCourseCard", columnNames = {"course_id", "cart_id"})
 })
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

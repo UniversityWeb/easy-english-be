@@ -3,7 +3,7 @@ package com.universityweb.test.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -12,7 +12,8 @@ import java.io.Serializable;
 @Table(name = "test_questions")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class TestQuestion implements Serializable {
     @Id
