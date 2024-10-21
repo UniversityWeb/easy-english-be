@@ -1,12 +1,10 @@
 package com.universityweb.course.controller;
 
-import com.universityweb.course.enrollment.service.EnrollmentService;
-import com.universityweb.course.model.Course;
-import com.universityweb.course.model.request.CourseRequest;
-import com.universityweb.course.model.request.LessonRequest;
-import com.universityweb.course.model.response.CourseResponse;
+import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
-import com.universityweb.course.service.UploadFileService;
+import com.universityweb.file.UploadFileService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -20,6 +18,7 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/api/v1/course")
 @RestController
+@Tag(name = "Courses")
 public class CourseController {
     @Autowired
     private CourseService courseService;
@@ -35,6 +34,13 @@ public class CourseController {
     public ResponseEntity<List<CourseResponse>> getAllCourseOfStudent(@RequestBody CourseRequest courseRequest) {
         return ResponseEntity.ok(courseService.getAllCourseOfStudent(courseRequest));
     }
+
+    @PostMapping("/get-all-course-not-of-student")
+    public ResponseEntity<List<CourseResponse>> getAllCourseNotOfStudent(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.getAllCourseNotOfStudent(courseRequest));
+    }
+
+
 
     @PostMapping("/get-all-course-favorite-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseFavoriteOfStudent(@RequestBody CourseRequest courseRequest) {

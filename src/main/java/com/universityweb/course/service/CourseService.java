@@ -2,14 +2,24 @@ package com.universityweb.course.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.repos.UserRepos;
-import com.universityweb.course.enrollment.EnrollmentRepos;
-import com.universityweb.course.enrollment.model.Enrollment;
-import com.universityweb.course.favourite.model.Favourite;
-import com.universityweb.course.favourite.repository.FavouriteRepository;
-import com.universityweb.course.model.*;
-import com.universityweb.course.model.request.CourseRequest;
-import com.universityweb.course.model.response.CourseResponse;
-import com.universityweb.course.repository.*;
+import com.universityweb.category.CategoryRepository;
+import com.universityweb.category.entity.Category;
+import com.universityweb.course.entity.Course;
+import com.universityweb.course.repository.CourseRepository;
+import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.response.CourseResponse;
+import com.universityweb.enrollment.EnrollmentRepos;
+import com.universityweb.enrollment.entity.Enrollment;
+import com.universityweb.favourite.entity.Favourite;
+import com.universityweb.favourite.repository.FavouriteRepository;
+import com.universityweb.level.LevelRepository;
+import com.universityweb.level.entity.Level;
+import com.universityweb.price.PriceRepository;
+import com.universityweb.price.entity.Price;
+import com.universityweb.review.ReviewRepository;
+import com.universityweb.review.entity.Review;
+import com.universityweb.topic.TopicRepository;
+import com.universityweb.topic.entity.Topic;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +31,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
@@ -203,6 +214,13 @@ public class CourseService {
 
         return coursePage.map(course -> {
             CourseResponse courseResponse = new CourseResponse();
+            List<Review> reviews = reviewRepository.findByCourseId(course.getId());
+            Price price = priceRepository.findByCourse(course)
+                    .orElseThrow(() -> new RuntimeException("Price not found for course"));
+            courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
+            courseResponse.setRatingCount(reviews.size());
+            courseResponse.setRealPrice(price.getPrice());
+            courseResponse.setTeacher(course.getCreatedBy().getUsername());
             BeanUtils.copyProperties(course, courseResponse);
             return courseResponse;
         });
@@ -237,6 +255,41 @@ public class CourseService {
         return courseResponses;
     }
 
+    public List<CourseResponse> getAllCourseNotOfStudent(CourseRequest courseRequest) {
+        // Lấy thông tin User dựa trên username
+        User user = userRepos.findByUsername(courseRequest.getCreatedBy())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Lấy danh sách các khóa học mà User đã tham gia
+        List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
+
+        // Tạo danh sách các khóa học mà User đã tham gia
+        Set<Course> enrolledCourses = enrollments.stream()
+                .map(Enrollment::getCourse)
+                .collect(Collectors.toSet());
+
+        // Lấy tất cả các khóa học
+        List<Course> allCourses = courseRepository.findAll();
+
+        // Lọc những khóa học mà User chưa tham gia
+        List<CourseResponse> courseResponses = new ArrayList<>();
+        for (Course course : allCourses) {
+            if (!enrolledCourses.contains(course)) {
+                List<Review> reviews = reviewRepository.findByCourseId(course.getId());
+                Price price = priceRepository.findByCourse(course)
+                        .orElseThrow(() -> new RuntimeException("Price not found for course"));
+                CourseResponse courseResponse = new CourseResponse();
+                courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
+                courseResponse.setRatingCount(reviews.size());
+                courseResponse.setRealPrice(price.getPrice());
+                BeanUtils.copyProperties(course, courseResponse);
+                courseResponse.setTeacher(course.getCreatedBy().getUsername());
+                courseResponses.add(courseResponse);
+            }
+        }
+        return courseResponses;
+    }
+
     public List<CourseResponse> getAllCourseFavoriteOfStudent(CourseRequest courseRequest) {
         User user = userRepos.findByUsername(courseRequest.getCreatedBy())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -257,4 +310,6 @@ public class CourseService {
         }
         return courseResponses;
     }
+
+
 }

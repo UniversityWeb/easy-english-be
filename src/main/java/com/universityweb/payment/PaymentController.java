@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/payment")
 @RequiredArgsConstructor
-@Tag(name = "Payment")
+@Tag(name = "Payments")
 public class PaymentController {
 
     private static final Logger log = LogManager.getLogger(PaymentController.class);
@@ -76,5 +76,16 @@ public class PaymentController {
         GetPaymentsByUsernameAndStatusRequest request = new GetPaymentsByUsernameAndStatusRequest(page, size, username, status);
         Page<PaymentResponse> payments = paymentService.getPaymentsByUsernameAndStatus(request);
         return ResponseEntity.ok(payments);
+    }
+
+    @PostMapping("/simulate-success/{orderId}")
+    public ResponseEntity<PaymentResponse> simulateSuccess(
+            @PathVariable
+            Long orderId
+    ) {
+        log.info("Simulating a fake successful payment for orderId: {}", orderId);
+        PaymentResponse paymentResponse = paymentService.simulateSuccess(orderId);
+        log.info("Simulate payment success: {}", paymentResponse);
+        return ResponseEntity.ok(paymentResponse);
     }
 }

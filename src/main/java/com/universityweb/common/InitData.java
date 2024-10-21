@@ -1,20 +1,14 @@
 package com.universityweb.common;
 
-import com.universityweb.cart.entity.Cart;
 import com.universityweb.cart.mapper.CartMapper;
 import com.universityweb.cart.repository.CartItemRepos;
-import com.universityweb.cart.entity.CartItem;
 import com.universityweb.cart.repository.CartRepos;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.course.model.Course;
-import com.universityweb.course.model.Lesson;
-import com.universityweb.course.model.Section;
 import com.universityweb.course.repository.CourseRepository;
-import com.universityweb.course.repository.LessonRepository;
-import com.universityweb.course.repository.SectionRepository;
-import jakarta.transaction.Transactional;
+import com.universityweb.lesson.LessonRepository;
+import com.universityweb.section.SectionRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -23,12 +17,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Component

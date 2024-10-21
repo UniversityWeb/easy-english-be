@@ -1,7 +1,7 @@
 package com.universityweb.cart.response;
 
 import com.universityweb.cart.entity.CartItem;
-import com.universityweb.course.model.response.CourseResponse;
+import com.universityweb.course.response.CourseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;

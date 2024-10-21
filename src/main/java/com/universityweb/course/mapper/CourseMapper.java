@@ -1,7 +1,7 @@
 package com.universityweb.course.mapper;
 
-import com.universityweb.course.model.Course;
-import com.universityweb.course.model.response.CourseResponse;
+import com.universityweb.course.entity.Course;
+import com.universityweb.course.response.CourseResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

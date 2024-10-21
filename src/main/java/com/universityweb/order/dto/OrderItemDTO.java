@@ -1,6 +1,6 @@
 package com.universityweb.order.dto;
 
-import com.universityweb.course.model.response.CourseResponse;
+import com.universityweb.course.response.CourseResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
