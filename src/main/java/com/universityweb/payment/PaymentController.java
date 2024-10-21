@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/payment")
 @RequiredArgsConstructor
-@Tag(name = "Payment")
+@Tag(name = "Payments")
 public class PaymentController {
 
     private static final Logger log = LogManager.getLogger(PaymentController.class);

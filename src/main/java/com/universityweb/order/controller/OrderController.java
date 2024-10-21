@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
-@Tag(name = "Order")
+@Tag(name = "Orders")
 public class OrderController {
 
     private static final Logger log = LogManager.getLogger(OrderController.class);

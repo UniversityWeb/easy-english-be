@@ -11,8 +11,8 @@ import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.response.CartResponse;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.course.common.entity.Course;
-import com.universityweb.course.common.service.CourseService;
+import com.universityweb.course.entity.Course;
+import com.universityweb.course.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

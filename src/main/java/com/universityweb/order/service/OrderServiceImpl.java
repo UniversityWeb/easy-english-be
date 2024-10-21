@@ -5,7 +5,7 @@ import com.universityweb.cart.entity.CartItem;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
-import com.universityweb.course.common.entity.Course;
+import com.universityweb.course.entity.Course;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.order.entity.Order;
