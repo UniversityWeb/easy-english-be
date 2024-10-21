@@ -13,7 +13,8 @@ import java.util.List;
 @Table(name = "tests")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class Test implements Serializable {
     @Id

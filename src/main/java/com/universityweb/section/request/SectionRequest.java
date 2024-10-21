@@ -2,7 +2,8 @@ package com.universityweb.section.request;
 
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SectionRequest {

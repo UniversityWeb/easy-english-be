@@ -1,6 +1,7 @@
 package com.universityweb.notification;
 
 import com.universityweb.common.response.ErrorResponse;
+import com.universityweb.notification.exception.NotificationNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.Ordered;

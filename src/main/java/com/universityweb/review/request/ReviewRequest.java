@@ -4,7 +4,8 @@ import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class ReviewRequest {
     private Long id;
     private Long courseId;

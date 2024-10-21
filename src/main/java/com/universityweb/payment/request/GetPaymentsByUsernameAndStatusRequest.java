@@ -3,10 +3,11 @@ package com.universityweb.payment.request;
 import com.universityweb.common.request.GetByUsernameRequest;
 import com.universityweb.payment.entity.Payment;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetPaymentsByUsernameAndStatusRequest extends GetByUsernameRequest {

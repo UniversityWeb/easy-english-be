@@ -4,7 +4,7 @@ import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 @Table(name = "test_results")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class TestResult implements Serializable {
     @Id

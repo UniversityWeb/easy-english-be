@@ -1,11 +1,11 @@
-package com.universityweb.notification;
+package com.universityweb.notification.controller;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.request.GetByUsernameRequest;
 import com.universityweb.common.response.ErrorResponse;
 import com.universityweb.notification.response.NotificationResponse;
-import com.universityweb.notification.request.SendNotificationRequest;
+import com.universityweb.notification.request.AddNotificationRequest;
 import com.universityweb.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -81,10 +81,10 @@ public class NotificationController {
             })
     @PostMapping("/send")
     public ResponseEntity<NotificationResponse> send(
-            @RequestBody SendNotificationRequest request
+            @RequestBody AddNotificationRequest request
     ) {
         log.info("Send notification: `{}` to username: `{}`", request.message(), request.username());
-        NotificationResponse savedNotificationDTO = notificationService.send(request);
+        NotificationResponse savedNotificationDTO = notificationService.addNewNotification(request);
         log.info("Notification sent successfully with id: {}", savedNotificationDTO.getId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)

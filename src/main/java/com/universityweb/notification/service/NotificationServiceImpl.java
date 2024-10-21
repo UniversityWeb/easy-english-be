@@ -4,20 +4,20 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.UserNotFoundException;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.request.GetByUsernameRequest;
-import com.universityweb.notification.NotificationNotFoundException;
+import com.universityweb.common.websocket.WebSocketConstants;
+import com.universityweb.notification.exception.NotificationNotFoundException;
 import com.universityweb.notification.entity.Notification;
 import com.universityweb.notification.response.NotificationResponse;
 import com.universityweb.notification.NotificationMapper;
-import com.universityweb.notification.request.SendNotificationRequest;
+import com.universityweb.notification.request.AddNotificationRequest;
 import com.universityweb.notification.NotificationRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -29,6 +29,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     public Page<NotificationResponse> getNotificationsByUsername(GetByUsernameRequest request) {
@@ -44,17 +47,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public NotificationResponse send(SendNotificationRequest request) {
+    public NotificationResponse addNewNotification(AddNotificationRequest request) {
         User user = userService.loadUserByUsername(request.username());
 
         Notification notification = Notification.builder()
                 .message(request.message())
-                .createdDate(LocalDateTime.now())
+                .createdDate(request.createdDate())
                 .read(false)
                 .user(user)
                 .build();
 
         Notification saved = notificationRepos.save(notification);
+
         return notificationMapper.toDTO(saved);
     }
 
@@ -76,6 +80,14 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         return user;
+    }
+
+    @Override
+    public NotificationResponse sendRealtimeNotification(AddNotificationRequest request) {
+        NotificationResponse notificationResponse = addNewNotification(request);
+        String destination = WebSocketConstants.getNotificationTopic(request.username());
+        simpMessagingTemplate.convertAndSend(destination, notificationResponse);
+        return notificationResponse;
     }
 
     private Notification getNotificationById(Long id) {

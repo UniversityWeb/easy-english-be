@@ -1,12 +1,13 @@
 package com.universityweb.common.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class GetByUsernameRequest extends ListRequest {
     private String username;
 

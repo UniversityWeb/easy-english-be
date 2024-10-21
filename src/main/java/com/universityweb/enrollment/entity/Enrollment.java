@@ -6,7 +6,7 @@ import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @Table(name = "enrollments")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class Enrollment implements Serializable {
     @Id

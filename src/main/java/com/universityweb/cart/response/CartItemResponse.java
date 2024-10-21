@@ -3,15 +3,14 @@ package com.universityweb.cart.response;
 import com.universityweb.cart.entity.CartItem;
 import com.universityweb.course.response.CourseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItemResponse implements Serializable {
