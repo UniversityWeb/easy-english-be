@@ -12,10 +12,15 @@ import java.util.List;
 public interface CourseMapper {
     CourseMapper INSTANCE = Mappers.getMapper(CourseMapper.class);
 
+    @Mapping(source = "owner.username", target = "ownerUsername")
+    @Mapping(target = "progress", ignore = true)
+    @Mapping(target = "rating", ignore = true)
+    @Mapping(target = "ratingCount", ignore = true)
     CourseResponse toDTO(Course entity);
 
     List<CourseResponse> toDTOs(List<Course> entities);
 
+    @Mapping(target = "owner", ignore = true)
     @Mapping(target = "sections", ignore = true)
     Course toEntity(CourseResponse dto);
 

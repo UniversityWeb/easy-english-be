@@ -1,23 +1,21 @@
 package com.universityweb.course.response;
 
-import jakarta.persistence.Column;
+import com.universityweb.category.response.CategoryResponse;
+import com.universityweb.level.response.LevelResponse;
+import com.universityweb.price.response.PriceResponse;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseResponse {
     private Long id;
-    private List<Long> categoryIds;
-    private Long levelId;
-    private Long topicId;
     private String title;
     private String category;
-    //private String level;
     private String imagePreview;
     private String videoPreview;
     private String descriptionPreview;
@@ -25,12 +23,18 @@ public class CourseResponse {
     private int duration;
     private int countView;
     private Boolean isPublish;
-    private double progress;
-    //private String createdBy;
-    private double rating;
-    private double ratingCount;
-    private BigDecimal realPrice;
-    private String teacher;
-    private String createdAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updateAt;
     private Boolean isActive;
+
+    private double progress;
+    private double rating;
+    private Long ratingCount;
+
+    private String ownerUsername;
+    private PriceResponse price;
+    private Long topicId;
+    private LevelResponse level;
+
+    private List<CategoryResponse> categories;
 }

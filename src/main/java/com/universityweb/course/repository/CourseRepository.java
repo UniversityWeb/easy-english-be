@@ -12,13 +12,11 @@ import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
-    Optional<Course> findById(Long id);
-
     Page<Course> findByPriceGreaterThanAndTitleContaining(int price, String title, Pageable pageable);
 
-    Page<Course> findByCreatedBy(String createdBy, Pageable pageable);
+    Page<Course> findByOwner(String createdBy, Pageable pageable);
 
-    Page<Course> findByIsActiveAndCreatedBy(Boolean isActive, User user, Pageable pageable);
+    Page<Course> findByIsActiveAndOwner(Boolean isActive, User user, Pageable pageable);
 
     Page<Course> findByIsActiveAndCategoriesId(boolean b, Long categoryId, Pageable pageable);
 
@@ -28,5 +26,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Page<Course> findByIsActive(boolean b, Pageable pageable);
 
-    List<Course> findByCreatedByNot(User user);
+    List<Course> findByOwnerNot(User user);
 }
