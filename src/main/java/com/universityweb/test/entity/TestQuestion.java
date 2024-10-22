@@ -32,8 +32,8 @@ public class TestQuestion implements Serializable {
     private EType type;
 
     @ManyToOne
-    @JoinColumn(name = "test_section_id")
-    private TestSection testSection;
+    @JoinColumn(name = "test_part_id")
+    private TestPart testPart;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reading_passage_id")

@@ -15,13 +15,13 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class TestSection {
+public class TestPart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
 
-    @OneToMany(mappedBy = "testSection", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "testPart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TestQuestion> questions;
 }

@@ -25,8 +25,11 @@ public class Test implements Serializable {
 
     private String description;
 
+    @Column(name = "ordinal_number")
+    private Integer ordinalNumber;
+
     @Column(name = "duration_in_milis")
-    private int durationInMilis;
+    private Integer durationInMilis;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -38,8 +41,8 @@ public class Test implements Serializable {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", referencedColumnName = "id")
-    private Course course;
+    @JoinColumn(name = "course_section_id", referencedColumnName = "id")
+    private Section section;
 
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Section> sections;
