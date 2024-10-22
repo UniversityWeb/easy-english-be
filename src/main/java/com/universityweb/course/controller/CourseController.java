@@ -87,6 +87,25 @@ public class CourseController {
     public ResponseEntity<Page<CourseResponse>> getAllCourseByLevel(@RequestBody CourseRequest courseRequest) {
         return ResponseEntity.ok(courseService.getAllCourseByLevel(courseRequest));
     }
+
+    @PostMapping("add-course-to-favorite")
+    public ResponseEntity<String> addCourseToFavorite(@RequestBody CourseRequest courseRequest) {
+        courseService.addCourseToFavorite(courseRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Course added to favorite successfully");
+    }
+
+    @PostMapping("remove-course-from-favorite")
+    public ResponseEntity<String> removeCourseFromFavorite(@RequestBody CourseRequest courseRequest) {
+        courseService.removeCourseFromFavorite(courseRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Course removed from favorite successfully");
+    }
+
+    @PostMapping("check-course-in-favorite")
+    public ResponseEntity<Boolean> checkCourseInFavorite(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.checkCourseInFavorite(courseRequest));
+    }
+
+
 //    @GetMapping("")
 //    public ResponseEntity<List<Course>> getAllCourse() {
 //        return ResponseEntity.ok(courseService.getAllCourses());
