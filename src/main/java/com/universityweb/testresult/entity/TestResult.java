@@ -1,6 +1,7 @@
-package com.universityweb.test.entity;
+package com.universityweb.testresult.entity;
 
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.test.entity.Test;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,11 +28,17 @@ public class TestResult implements Serializable {
     @Enumerated(EnumType.STRING)
     private EStatus status;
 
+    @Column(name = "taking_duration")
+    private Integer takingDuration;
+
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
     @Column(name = "finished_at")
     private LocalDateTime finishedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "username")
+    @JoinColumn(name = "username", referencedColumnName = "username")
     private User user;
 
     @ManyToOne
