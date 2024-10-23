@@ -31,14 +31,14 @@ public class PaymentController {
     private final AuthService authService;
 
     @PostMapping("/create-payment")
-    public ResponseEntity<String> createPayment(
+    public ResponseEntity<PaymentResponse> createPayment(
             @RequestBody PaymentRequest paymentRequest
     ) {
         log.info("Received createPayment request: {}", paymentRequest);
-        String paymentUrl = paymentService.createPayment(paymentRequest);
-        log.info("Payment URL generated: {}", paymentUrl);
+        PaymentResponse paymentResponse = paymentService.createPayment(paymentRequest);
+        log.info("Payment URL generated: {}", paymentResponse.getPaymentUrl());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(paymentUrl);
+                .body(paymentResponse);
     }
 
     @PutMapping("/result")

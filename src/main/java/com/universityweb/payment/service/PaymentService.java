@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import java.util.Map;
 
 public interface PaymentService {
-    String createPayment(PaymentRequest paymentRequest);
+    PaymentResponse createPayment(PaymentRequest paymentRequest);
     PaymentResponse processPaymentResult(HttpServletRequest req, Map<String, String> params);
     Page<PaymentResponse> getPaymentsByUsername(GetByUsernameRequest request);
     Page<PaymentResponse> getPaymentsByUsernameAndStatus(GetPaymentsByUsernameAndStatusRequest request);

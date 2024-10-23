@@ -16,6 +16,7 @@ import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.order.repository.OrderItemRepos;
 import com.universityweb.order.repository.OrderRepos;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    private static final long EXPIRATION_CHECK_RATE_MS = 60000; // 60 seconds
     private static final OrderMapper orderMapper = OrderMapper.INSTANCE;
 
     @Autowired
@@ -130,5 +132,20 @@ public class OrderServiceImpl implements OrderService {
     public OrderItem getOrderItemEntityById(Long orderItemId) {
         return orderItemRepos.findById(orderItemId)
                 .orElseThrow(() -> new OrderItemNotFoundException("Order item not found with ID: " + orderItemId));
+    }
+
+    @Scheduled(fixedRate = EXPIRATION_CHECK_RATE_MS)
+    private void updateExpiredOrders() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime fiveMinutesAgo = currentTime.minusMinutes(5);
+
+        List<Order> expiredOrders = orderRepos
+                .findAllByCreatedAtBeforeAndStatusNot(fiveMinutesAgo, Order.EStatus.EXPIRED);
+
+        for (Order order : expiredOrders) {
+            order.setStatus(Order.EStatus.EXPIRED);
+        }
+
+        orderRepos.saveAll(expiredOrders);
     }
 }

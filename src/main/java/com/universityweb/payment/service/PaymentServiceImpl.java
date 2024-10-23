@@ -52,11 +52,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private EnrollmentService enrollmentService;
-    @Autowired
-    private CourseService courseService;
 
     @Override
-    public String createPayment(PaymentRequest paymentRequest) {
+    public PaymentResponse createPayment(PaymentRequest paymentRequest) {
         String paymentUrl;
         String username = paymentRequest.username();
         Payment.EMethod method = paymentRequest.method();
@@ -77,13 +75,15 @@ public class PaymentServiceImpl implements PaymentService {
                 int amount = savedOrder.getTotalAmount().intValue();
                 paymentUrl = vnPayService.createOrder(
                         amount,
-                        String.valueOf(payment.getId()),
+                        String.valueOf(savedOrder.getId()),
                         paymentRequest.urlReturn());
             }
             default -> throw new UnsupportedPaymentMethodException("Payment method " + method + " is not supported.");
         }
 
-        return paymentUrl;
+        PaymentResponse paymentResponse = paymentMapper.toDTO(payment);
+        paymentResponse.setPaymentUrl(paymentUrl);
+        return paymentResponse;
     }
 
     @Override
@@ -96,8 +96,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         switch (method) {
             case VN_PAY -> {
-                String paymentIdStr = params.get("vnp_OrderInfo");
-                Long paymentId = Long.parseLong(paymentIdStr);
+                String orderIdStr = params.get("vnp_OrderInfo");
+                Long orderId = Long.parseLong(orderIdStr);
                 String paymentTimeStrInMillis = params.get("vnp_PayDate");
                 LocalDateTime paymentTime = Utils.convertMillisToLocalDateTime(paymentTimeStrInMillis);
                 String transactionNoStr = params.get("vnp_TransactionNo");
@@ -105,7 +105,8 @@ public class PaymentServiceImpl implements PaymentService {
                 String totalAmountStr = params.get("vnp_Amount");
                 BigDecimal totalAmount = new BigDecimal(Long.parseLong(totalAmountStr) / VNPayConfig.VND_MULTIPLIER);
 
-                Payment payment = getPaymentById(paymentId);
+                Order order = orderService.getOrderEntityById(orderId);
+                Payment payment = order.getPayment();
 
                 int paymentStatus = vnPayService.orderReturn(req);
                 payment.setStatus(paymentStatus == 1 ? Payment.EStatus.SUCCESS : Payment.EStatus.FAILED);
@@ -142,13 +143,9 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse simulateSuccess(Long orderId) {
         Order order = orderService.getOrderEntityById(orderId);
 
-        Payment payment = order.getPayments().stream()
-                .filter(p -> p.getStatus() == Payment.EStatus.PENDING)
-                .max(Comparator.comparing(Payment::getPaymentTime))
-                .orElseThrow(() -> new IllegalStateException("No valid payment found for order"));
-
         LocalDateTime paymentTime = LocalDateTime.now();
         Long transactionNo = PaymentUtils.generateTransactionNo();
+        Payment payment = order.getPayment();
 
         payment.setStatus(Payment.EStatus.SUCCESS);
         payment.setPaymentTime(paymentTime);
@@ -161,12 +158,6 @@ public class PaymentServiceImpl implements PaymentService {
         addEnrollmentsByOrderId(orderId);
 
         return paymentMapper.toDTO(savedPayment);
-    }
-
-    private Payment getPaymentById(Long paymentId) {
-        String msg = "Could not find any payment with id=" + paymentId;
-        return paymentRepos.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException(msg));
     }
 
     private Pageable createPageable(int page, int size) {
@@ -197,5 +188,11 @@ public class PaymentServiceImpl implements PaymentService {
             );
             enrollmentService.addNewEnrollment(addEnrollmentRequest);
         }
+    }
+
+    private Payment getPaymentById(Long paymentId) {
+        String msg = "Could not find any payment with id=" + paymentId;
+        return paymentRepos.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(msg));
     }
 }

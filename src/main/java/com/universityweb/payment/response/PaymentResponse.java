@@ -2,17 +2,27 @@ package com.universityweb.payment.response;
 
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.payment.entity.Payment;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record PaymentResponse(
-        Long id,
-        Payment.EStatus status,
-        Payment.EMethod method,
-        LocalDateTime paymentTime,
-        Long transactionNo,
-        BigDecimal amountPaid,
-        ECurrency currency,
-        String username
-) {}
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class PaymentResponse {
+    private Long id;
+    private Payment.EStatus status;
+    private Payment.EMethod method;
+    private LocalDateTime paymentTime;
+    private Long transactionNo;
+    private BigDecimal amountPaid;
+    private ECurrency currency;
+    private String orderId;
+    private String username;
+    private String paymentUrl;
+}
