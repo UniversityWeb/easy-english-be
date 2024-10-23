@@ -11,6 +11,7 @@ import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
+import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
@@ -25,6 +26,7 @@ import com.universityweb.payment.vnpay.VNPayConfig;
 import com.universityweb.payment.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +54,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private EnrollmentService enrollmentService;
+    @Autowired
+    private OrderRepos orderRepos;
 
     @Override
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
@@ -142,10 +146,12 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse simulateSuccess(Long orderId) {
         Order order = orderService.getOrderEntityById(orderId);
-
         LocalDateTime paymentTime = LocalDateTime.now();
         Long transactionNo = PaymentUtils.generateTransactionNo();
         Payment payment = order.getPayment();
+
+        order.setUpdatedAt(paymentTime);
+        order.setStatus(Order.EStatus.PAID);
 
         payment.setStatus(Payment.EStatus.SUCCESS);
         payment.setPaymentTime(paymentTime);
@@ -153,6 +159,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmountPaid(order.getTotalAmount());
         payment.setCurrency(ECurrency.VND);
 
+        orderRepos.save(order);
         Payment savedPayment = paymentRepos.save(payment);
 
         addEnrollmentsByOrderId(orderId);

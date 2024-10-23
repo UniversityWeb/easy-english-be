@@ -60,11 +60,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndOwner(true,user, pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
@@ -150,11 +146,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndTopicId(true, topicId, pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
@@ -167,11 +159,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndLevelId(true, levelId, pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
@@ -184,11 +172,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndCategoriesId(true, categoryIds.get(0), pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
