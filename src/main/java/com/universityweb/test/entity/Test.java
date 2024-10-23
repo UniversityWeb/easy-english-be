@@ -1,7 +1,7 @@
 package com.universityweb.test.entity;
 
-import com.universityweb.course.entity.Course;
 import com.universityweb.section.entity.Section;
+import com.universityweb.testpart.entity.TestPart;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,6 +43,9 @@ public class Test implements Serializable {
     @ManyToOne
     @JoinColumn(name = "course_section_id", referencedColumnName = "id")
     private Section section;
+
+    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TestPart> parts;
 
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Section> sections;

@@ -1,5 +1,6 @@
-package com.universityweb.test.entity;
+package com.universityweb.listeningaudio;
 
+import com.universityweb.test.entity.Test;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

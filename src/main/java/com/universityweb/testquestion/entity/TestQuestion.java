@@ -1,5 +1,6 @@
-package com.universityweb.test.entity;
+package com.universityweb.testquestion.entity;
 
+import com.universityweb.testpart.entity.TestPart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,10 +35,6 @@ public class TestQuestion implements Serializable {
     @ManyToOne
     @JoinColumn(name = "test_part_id")
     private TestPart testPart;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reading_passage_id")
-    private ReadingPassage readingPassage;
 
     public enum EType {
         SINGLE_CHOICE,
