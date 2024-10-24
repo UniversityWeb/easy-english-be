@@ -1,7 +1,7 @@
 package com.universityweb.testpart.entity;
 
+import com.universityweb.questiongroup.QuestionGroup;
 import com.universityweb.test.entity.Test;
-import com.universityweb.testquestion.entity.TestQuestion;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name = "test_sections")
+@Table(name = "test_parts")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -24,7 +24,7 @@ public class TestPart {
 
     private String title;
 
-    @Column(name = "reading_passage", columnDefinition = "TEXT")
+    @Column(name = "reading_passage", columnDefinition = "TEXT", nullable = true)
     private String readingPassage;
 
     @Column(name = "ordinal_number")
@@ -38,5 +38,5 @@ public class TestPart {
     private Test test;
 
     @OneToMany(mappedBy = "testPart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<TestQuestion> questions;
+    private List<QuestionGroup> questionGroups;
 }

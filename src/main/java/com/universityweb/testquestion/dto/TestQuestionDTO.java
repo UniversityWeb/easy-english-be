@@ -2,11 +2,17 @@ package com.universityweb.testquestion.dto;
 
 import com.universityweb.testquestion.entity.TestQuestion;
 
+import java.util.List;
+
 public record TestQuestionDTO(
         Long id,
-        String answers,
-        String answerKey,
-        String imageUrl,
         TestQuestion.EType type,
-        Long testPartId
+        Integer ordinalNumber,
+        String title,
+        String description,
+        String audioPath,
+        String imagePath,
+        List<String> options,
+        List<String> correctAnswers,
+        Long questionGroupId
 ) {}

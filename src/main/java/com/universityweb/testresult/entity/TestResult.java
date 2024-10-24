@@ -1,7 +1,7 @@
 package com.universityweb.testresult.entity;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.test.entity.Test;
+import com.universityweb.useranswer.UserAnswer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "test_results")
@@ -38,12 +39,11 @@ public class TestResult implements Serializable {
     private LocalDateTime finishedAt;
 
     @ManyToOne
-    @JoinColumn(name = "username", referencedColumnName = "username")
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "test_id", referencedColumnName = "id")
     private Test test;
+
+    @OneToMany(mappedBy = "testResult", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserAnswer> userAnswers;
 
     public enum EStatus {
         DONE, IN_PROGRESS

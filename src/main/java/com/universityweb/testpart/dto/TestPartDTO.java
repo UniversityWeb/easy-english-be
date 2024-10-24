@@ -1,13 +1,15 @@
 package com.universityweb.testpart.dto;
 
-import com.universityweb.testquestion.dto.TestQuestionDTO;
+import com.universityweb.questiongroup.QuestionGroup;
+import com.universityweb.questiongroup.dto.QuestionGroupDTO;
 
 import java.util.List;
 
 public record TestPartDTO(
         Long id,
         String title,
+        String readingPassage,
         Integer ordinalNumber,
         Long testId,
-        List<TestQuestionDTO> questions
+        List<QuestionGroupDTO> questionGroups
 ) {}

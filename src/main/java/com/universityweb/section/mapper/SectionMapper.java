@@ -16,7 +16,6 @@ public interface SectionMapper {
     List<SectionResponse> toDTOs(List<Section> entities);
 
     @Mapping(target = "lessons", ignore = true)
-    @Mapping(target = "test", ignore = true)
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "ordinalNumber", ignore = true)
     Section toEntity(SectionResponse dto);

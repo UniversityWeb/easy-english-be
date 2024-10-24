@@ -24,6 +24,5 @@ public interface TestPartMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "test", ignore = true)
-    @Mapping(target = "questions", ignore = true)
     TestPart toEntity(AddTestPartRequest addTestPartRequest);
 }

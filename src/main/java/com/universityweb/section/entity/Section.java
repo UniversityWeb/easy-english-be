@@ -45,9 +45,8 @@ public class Section {
     @JsonBackReference
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "test_id")
-    private Test test;
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Test> tests;
 
     private int ordinalNumber;
 }
