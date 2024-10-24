@@ -28,7 +28,7 @@ public class TestQuestionServiceImpl
     }
 
     @Override
-    protected void setEntityRelationshipsBeforeSave(TestQuestion entity, TestQuestionDTO dto) {
+    protected void setEntityRelationshipsBeforeAdd(TestQuestion entity, TestQuestionDTO dto) {
         entity.setQuestionGroup(questionGroupService.getEntityById(dto.questionGroupId()));
     }
 

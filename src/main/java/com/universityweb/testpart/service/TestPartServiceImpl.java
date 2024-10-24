@@ -59,7 +59,7 @@ public class TestPartServiceImpl
     }
 
     @Override
-    protected void setEntityRelationshipsBeforeSave(TestPart entity, TestPartDTO dto) {
+    protected void setEntityRelationshipsBeforeAdd(TestPart entity, TestPartDTO dto) {
         entity.setTest(testService.getEntityById(dto.testId()));
     }
 }

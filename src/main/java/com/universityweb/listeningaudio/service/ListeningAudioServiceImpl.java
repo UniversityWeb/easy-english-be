@@ -29,7 +29,7 @@ public class ListeningAudioServiceImpl
     }
 
     @Override
-    protected void setEntityRelationshipsBeforeSave(ListeningAudio entity, ListeningAudioDTO dto) {
+    protected void setEntityRelationshipsBeforeAdd(ListeningAudio entity, ListeningAudioDTO dto) {
         Test test = testService.getEntityById(dto.getTestId());
         entity.setTest(test);
     }

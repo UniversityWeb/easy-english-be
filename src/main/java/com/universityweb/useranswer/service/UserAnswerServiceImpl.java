@@ -31,7 +31,7 @@ public class UserAnswerServiceImpl extends BaseServiceImpl<UserAnswer, UserAnswe
     }
 
     @Override
-    protected void setEntityRelationshipsBeforeSave(UserAnswer entity, UserAnswerDTO dto) {
+    protected void setEntityRelationshipsBeforeAdd(UserAnswer entity, UserAnswerDTO dto) {
         entity.setTestQuestion( testQuestionService.getEntityById(dto.getTestQuestionId()) );
         entity.setTestResult( testResultService.getEntityById(dto.getTestResultId()) );
     }

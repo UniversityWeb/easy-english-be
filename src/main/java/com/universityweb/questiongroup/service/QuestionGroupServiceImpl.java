@@ -56,7 +56,7 @@ public class QuestionGroupServiceImpl
     }
 
     @Override
-    protected void setEntityRelationshipsBeforeSave(QuestionGroup entity, QuestionGroupDTO dto) {
+    protected void setEntityRelationshipsBeforeAdd(QuestionGroup entity, QuestionGroupDTO dto) {
         TestPart testPart = testPartService.getEntityById(dto.getTestPartId());
         entity.setTestPart(testPart);
     }
