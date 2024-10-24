@@ -1,68 +1,52 @@
 package com.universityweb.questiongroup.service;
 
-import com.universityweb.questiongroup.QuestionGroup;
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.questiongroup.QuestionGroupRepos;
 import com.universityweb.questiongroup.dto.QuestionGroupDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class QuestionGroupServiceImpl implements QuestionGroupService {
-    private final QuestionGroupMapper questionGroupMapper = QuestionGroupMapper.INSTANCE;
+public class QuestionGroupServiceImpl
+        extends BaseServiceImpl<QuestionGroup, QuestionGroupDTO, Long, QuestionGroupRepos, QuestionGroupMapper>
+        implements QuestionGroupService {
 
     @Autowired
-    private QuestionGroupRepos questionGroupRepository;
-
-    @Override
-    public List<QuestionGroupDTO> getAllQuestionGroups() {
-        List<QuestionGroup> questionGroups = questionGroupRepository.findAll();
-        return questionGroupMapper.toDTOs(questionGroups);
+    public QuestionGroupServiceImpl(QuestionGroupRepos repository) {
+        super(repository, QuestionGroupMapper.INSTANCE);
     }
 
     @Override
-    public QuestionGroupDTO getQuestionGroupById(Long id) {
-        QuestionGroup questionGroup = questionGroupRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("QuestionGroup not found with ID: " + id));
-        return questionGroupMapper.toDTO(questionGroup);
+    public QuestionGroupDTO update(Long id, QuestionGroupDTO dto) {
+        QuestionGroup existingQuestionGroup = getEntityById(dto.getId());
+
+        existingQuestionGroup.setTitle(dto.getTitle());
+        existingQuestionGroup.setOrdinalNumber(dto.getOrdinalNumber());
+        existingQuestionGroup.setFrom(dto.getFrom());
+        existingQuestionGroup.setTo(dto.getTo());
+        existingQuestionGroup.setRequirement(dto.getRequirement());
+        existingQuestionGroup.setAudioPath(dto.getAudioPath());
+        existingQuestionGroup.setImagePath(dto.getImagePath());
+        existingQuestionGroup.setContentToDisplay(dto.getContentToDisplay());
+        existingQuestionGroup.setOriginalContent(dto.getOriginalContent());
+
+        QuestionGroup updatedQuestionGroup = repository.save(existingQuestionGroup);
+        return mapper.toDTO(updatedQuestionGroup);
     }
 
     @Override
-    public QuestionGroupDTO createQuestionGroup(QuestionGroupDTO questionGroupDTO) {
-        QuestionGroup questionGroup = questionGroupMapper.toEntity(questionGroupDTO);
-        QuestionGroup savedQuestionGroup = questionGroupRepository.save(questionGroup);
-        return questionGroupMapper.toDTO(savedQuestionGroup);
+    public void softDelete(Long id) {
+        super.softDelete(id);
+
+        QuestionGroup existingQuestionGroup = getEntityById(id);
+        existingQuestionGroup.setIsDeleted(true);
+        repository.save(existingQuestionGroup);
     }
 
     @Override
-    public QuestionGroupDTO updateQuestionGroup(QuestionGroupDTO questionGroupDTO) {
-        QuestionGroup existingQuestionGroup = getEntityById(questionGroupDTO.getId());
-
-        existingQuestionGroup.setTitle(questionGroupDTO.getTitle());
-        existingQuestionGroup.setOrdinalNumber(questionGroupDTO.getOrdinalNumber());
-        existingQuestionGroup.setFrom(questionGroupDTO.getFrom());
-        existingQuestionGroup.setTo(questionGroupDTO.getTo());
-        existingQuestionGroup.setRequirement(questionGroupDTO.getRequirement());
-        existingQuestionGroup.setAudioPath(questionGroupDTO.getAudioPath());
-        existingQuestionGroup.setImagePath(questionGroupDTO.getImagePath());
-        existingQuestionGroup.setContentToDisplay(questionGroupDTO.getContentToDisplay());
-        existingQuestionGroup.setOriginalContent(questionGroupDTO.getOriginalContent());
-        existingQuestionGroup.setIsDeleted(questionGroupDTO.getIsDeleted());
-
-        QuestionGroup updatedQuestionGroup = questionGroupRepository.save(existingQuestionGroup);
-        return questionGroupMapper.toDTO(updatedQuestionGroup);
-    }
-
-    @Override
-    public void deleteQuestionGroup(Long id) {
-        questionGroupRepository.deleteById(id);
-    }
-
-    @Override
-    public QuestionGroup getEntityById(Long id) {
-        return questionGroupRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("QuestionGroup not found with ID: " + id));
+    protected void throwNotFoundException(Long id) {
+        throw new RuntimeException("QuestionGroup not found with ID: " + id);
     }
 }

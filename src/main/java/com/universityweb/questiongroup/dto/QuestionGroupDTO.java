@@ -23,7 +23,6 @@ public class QuestionGroupDTO {
     private String imagePath;
     private String contentToDisplay;
     private String originalContent;
-    private Boolean isDeleted;
     private List<TestQuestionDTO> questions;
     private Long testPartId;
 }

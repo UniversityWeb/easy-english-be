@@ -1,10 +1,9 @@
-package com.universityweb.questiongroup;
+package com.universityweb.questiongroup.entity;
 
 import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testquestion.entity.TestQuestion;
 import jakarta.persistence.*;
 import lombok.*;
-import org.aspectj.weaver.patterns.TypePatternQuestions;
 
 import java.io.Serializable;
 import java.util.List;

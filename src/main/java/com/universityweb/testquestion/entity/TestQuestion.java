@@ -1,6 +1,6 @@
 package com.universityweb.testquestion.entity;
 
-import com.universityweb.questiongroup.QuestionGroup;
+import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.useranswer.entity.UserAnswer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
