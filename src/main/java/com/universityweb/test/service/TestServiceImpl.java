@@ -1,5 +1,6 @@
 package com.universityweb.test.service;
 
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.test.TestMapper;
 import com.universityweb.test.TestRepos;
 import com.universityweb.test.dto.TestDTO;
@@ -10,62 +11,47 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TestServiceImpl implements TestService {
-    private final TestMapper testMapper = TestMapper.INSTANCE;
+public class TestServiceImpl extends BaseServiceImpl<Test, TestDTO, Long, TestRepos, TestMapper>
+        implements TestService {
+
 
     @Autowired
-    private TestRepos testRepos;
-
-    @Override
-    public List<TestDTO> getAllTests() {
-        List<Test> tests = testRepos.findAll();
-        return testMapper.toDTOs(tests);
-    }
-
-    @Override
-    public TestDTO getTestById(Long id) {
-        Test test = getEntityById(id);
-        return testMapper.toDTO(test);
-    }
-
-    @Override
-    public TestDTO createTest(TestDTO testDTO) {
-        Test test = testMapper.toEntity(testDTO);
-        Test savedTest = testRepos.save(test);
-        return testMapper.toDTO(savedTest);
-    }
-
-    @Override
-    public TestDTO updateTest(TestDTO testDTO) {
-        Test existingTest = getEntityById(testDTO.getId());
-
-        existingTest.setStatus(testDTO.getStatus());
-        existingTest.setTitle(testDTO.getTitle());
-        existingTest.setDescription(testDTO.getDescription());
-        existingTest.setOrdinalNumber(testDTO.getOrdinalNumber());
-        existingTest.setDurationInMilis(testDTO.getDurationInMilis());
-        existingTest.setStartDate(testDTO.getStartDate());
-        existingTest.setEndDate(testDTO.getEndDate());
-
-        Test updatedTest = testRepos.save(existingTest);
-        return testMapper.toDTO(updatedTest);
-    }
-
-    @Override
-    public void deleteTest(Long id) {
-        updateStatus(id, Test.EStatus.DELETED);
+    public TestServiceImpl(TestRepos repository) {
+        super(repository, TestMapper.INSTANCE);
     }
 
     @Override
     public void updateStatus(Long id, Test.EStatus status) {
         Test existingTest = getEntityById(id);
         existingTest.setStatus(status);
-        testRepos.save(existingTest);
+        repository.save(existingTest);
     }
 
     @Override
-    public Test getEntityById(Long id) {
-        return testRepos.findById(id)
-                .orElseThrow(() -> new RuntimeException("Could not find any tests with id=" + id));
+    public TestDTO update(Long id, TestDTO dto) {
+        Test existingTest = getEntityById(dto.getId());
+
+        existingTest.setStatus(dto.getStatus());
+        existingTest.setTitle(dto.getTitle());
+        existingTest.setDescription(dto.getDescription());
+        existingTest.setOrdinalNumber(dto.getOrdinalNumber());
+        existingTest.setDurationInMilis(dto.getDurationInMilis());
+        existingTest.setStartDate(dto.getStartDate());
+        existingTest.setEndDate(dto.getEndDate());
+
+        Test updatedTest = repository.save(existingTest);
+        return mapper.toDTO(updatedTest);
+    }
+
+    @Override
+    public void softDelete(Long id) {
+        super.softDelete(id);
+
+        updateStatus(id, Test.EStatus.DELETED);
+    }
+
+    @Override
+    protected void throwNotFoundException(Long id) {
+        throw new RuntimeException("Could not find any tests with id=" + id);
     }
 }
