@@ -1,4 +1,4 @@
-package com.universityweb.useranswer;
+package com.universityweb.useranswer.entity;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.testquestion.entity.TestQuestion;
@@ -29,10 +29,6 @@ public class UserAnswer implements Serializable {
 
     @Column(name = "is_correct")
     private Boolean isCorrect;
-
-    @ManyToOne
-    @JoinColumn(name = "username", referencedColumnName = "username")
-    private User user;
 
     @ManyToOne
     @JoinColumn(name = "test_question_id", referencedColumnName = "id")

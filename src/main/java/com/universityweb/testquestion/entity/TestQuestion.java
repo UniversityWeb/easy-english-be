@@ -1,7 +1,7 @@
 package com.universityweb.testquestion.entity;
 
 import com.universityweb.questiongroup.QuestionGroup;
-import com.universityweb.useranswer.UserAnswer;
+import com.universityweb.useranswer.entity.UserAnswer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

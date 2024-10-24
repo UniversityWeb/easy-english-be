@@ -11,7 +11,6 @@ public record TestResultDTO(
         Integer takingDuration,
         LocalDateTime startedAt,
         LocalDateTime finishedAt,
-
         String username,
         Long testId
 ) {}

@@ -1,7 +1,8 @@
 package com.universityweb.testresult.entity;
 
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.test.entity.Test;
-import com.universityweb.useranswer.UserAnswer;
+import com.universityweb.useranswer.entity.UserAnswer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +38,10 @@ public class TestResult implements Serializable {
 
     @Column(name = "finished_at")
     private LocalDateTime finishedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "username", referencedColumnName = "username")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "test_id", referencedColumnName = "id")

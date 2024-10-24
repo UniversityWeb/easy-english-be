@@ -13,15 +13,18 @@ import java.util.List;
 public interface TestResultMapper {
     TestResultMapper INSTANCE = Mappers.getMapper(TestResultMapper.class);
 
+    @Mapping(source = "user.username", target = "username")
     @Mapping(source = "test.id", target = "testId")
     TestResultDTO toDTO(TestResult entity);
     List<TestResultDTO> toDTOs(List<TestResult> entities);
 
+    @Mapping(target = "user", ignore = true)
     @Mapping(target = "test", ignore = true)
     TestResult toEntity(TestResultDTO dto);
     List<TestResult> toEntities(List<TestResultDTO> dtos);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
     @Mapping(target = "test", ignore = true)
     TestResult toEntity(AddTestResultRequest addTestResultRequest);
 }
