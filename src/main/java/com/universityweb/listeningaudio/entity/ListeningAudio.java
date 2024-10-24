@@ -1,11 +1,8 @@
-package com.universityweb.listeningaudio;
+package com.universityweb.listeningaudio.entity;
 
 import com.universityweb.test.entity.Test;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.*;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
