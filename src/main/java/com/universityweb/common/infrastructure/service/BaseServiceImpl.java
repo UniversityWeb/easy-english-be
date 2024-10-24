@@ -19,13 +19,11 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<D> getAll() {
         return mapper.toDTOs(repository.findAll());
     }
 
     @Override
-    @Transactional(readOnly = true)
     public D getById(ID id) {
         E entity = getEntityById(id);
         if (entity == null) {
@@ -35,7 +33,6 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     }
 
     @Override
-    @Transactional(readOnly = true)
     public E getEntityById(ID id) {
         return repository.findById(id)
                 .orElse(null);

@@ -1,6 +1,5 @@
 package com.universityweb.testpart.dto;
 
-import com.universityweb.questiongroup.QuestionGroup;
 import com.universityweb.questiongroup.dto.QuestionGroupDTO;
 
 import java.util.List;
