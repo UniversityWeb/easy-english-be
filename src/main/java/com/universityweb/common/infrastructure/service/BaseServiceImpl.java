@@ -42,6 +42,7 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     @Transactional
     public D create(D dto) {
         E entity = mapper.toEntity(dto);
+        setEntityRelationshipsBeforeSave(entity, dto);
         E savedEntity = repository.save(entity);
         return mapper.toDTO(savedEntity);
     }
@@ -51,4 +52,5 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     }
 
     protected abstract void throwNotFoundException(ID id);
+    protected abstract void setEntityRelationshipsBeforeSave(E entity, D dto);
 }

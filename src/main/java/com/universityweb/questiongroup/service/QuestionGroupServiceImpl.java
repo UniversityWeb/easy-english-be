@@ -5,6 +5,8 @@ import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.questiongroup.QuestionGroupRepos;
 import com.universityweb.questiongroup.dto.QuestionGroupDTO;
+import com.universityweb.testpart.entity.TestPart;
+import com.universityweb.testpart.service.TestPartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +15,12 @@ public class QuestionGroupServiceImpl
         extends BaseServiceImpl<QuestionGroup, QuestionGroupDTO, Long, QuestionGroupRepos, QuestionGroupMapper>
         implements QuestionGroupService {
 
+    private TestPartService testPartService;
+
     @Autowired
-    public QuestionGroupServiceImpl(QuestionGroupRepos repository) {
+    public QuestionGroupServiceImpl(QuestionGroupRepos repository, TestPartService testPartService) {
         super(repository, QuestionGroupMapper.INSTANCE);
+        this.testPartService = testPartService;
     }
 
     @Override
@@ -48,5 +53,11 @@ public class QuestionGroupServiceImpl
     @Override
     protected void throwNotFoundException(Long id) {
         throw new RuntimeException("QuestionGroup not found with ID: " + id);
+    }
+
+    @Override
+    protected void setEntityRelationshipsBeforeSave(QuestionGroup entity, QuestionGroupDTO dto) {
+        TestPart testPart = testPartService.getEntityById(dto.getTestPartId());
+        entity.setTestPart(testPart);
     }
 }

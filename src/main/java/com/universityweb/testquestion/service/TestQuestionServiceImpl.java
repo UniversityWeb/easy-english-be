@@ -1,6 +1,7 @@
 package com.universityweb.testquestion.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.questiongroup.service.QuestionGroupService;
 import com.universityweb.testquestion.TestQuestionMapper;
 import com.universityweb.testquestion.TestQuestionRepos;
 import com.universityweb.testquestion.dto.TestQuestionDTO;
@@ -13,14 +14,22 @@ public class TestQuestionServiceImpl
         extends BaseServiceImpl<TestQuestion, TestQuestionDTO, Long, TestQuestionRepos, TestQuestionMapper>
         implements TestQuestionService {
 
+    private final QuestionGroupService questionGroupService;
+
     @Autowired
-    public TestQuestionServiceImpl(TestQuestionRepos repository) {
+    public TestQuestionServiceImpl(TestQuestionRepos repository, QuestionGroupService questionGroupService) {
         super(repository, TestQuestionMapper.INSTANCE);
+        this.questionGroupService = questionGroupService;
     }
 
     @Override
     protected void throwNotFoundException(Long id) {
         throw new RuntimeException("TestQuestion Not Found with id=" + id);
+    }
+
+    @Override
+    protected void setEntityRelationshipsBeforeSave(TestQuestion entity, TestQuestionDTO dto) {
+        entity.setQuestionGroup(questionGroupService.getEntityById(dto.questionGroupId()));
     }
 
     @Override

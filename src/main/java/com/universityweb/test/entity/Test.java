@@ -47,7 +47,7 @@ public class Test implements Serializable {
     private List<TestPart> parts;
 
     @ManyToOne
-    @JoinColumn(name = "course_section_id", referencedColumnName = "id")
+    @JoinColumn(name = "course_section_id", referencedColumnName = "id", nullable = false)
     private Section section;
 
     public enum EStatus {

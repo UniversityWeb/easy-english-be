@@ -1,6 +1,8 @@
 package com.universityweb.test.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.section.entity.Section;
+import com.universityweb.section.service.SectionService;
 import com.universityweb.test.TestMapper;
 import com.universityweb.test.TestRepos;
 import com.universityweb.test.dto.TestDTO;
@@ -8,16 +10,16 @@ import com.universityweb.test.entity.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class TestServiceImpl extends BaseServiceImpl<Test, TestDTO, Long, TestRepos, TestMapper>
         implements TestService {
 
+    private final SectionService sectionService;
 
     @Autowired
-    public TestServiceImpl(TestRepos repository) {
+    public TestServiceImpl(TestRepos repository, SectionService sectionService) {
         super(repository, TestMapper.INSTANCE);
+        this.sectionService = sectionService;
     }
 
     @Override
@@ -53,5 +55,13 @@ public class TestServiceImpl extends BaseServiceImpl<Test, TestDTO, Long, TestRe
     @Override
     protected void throwNotFoundException(Long id) {
         throw new RuntimeException("Could not find any tests with id=" + id);
+    }
+
+    @Override
+    protected void setEntityRelationshipsBeforeSave(Test entity, TestDTO dto) {
+        entity.setSection(
+                sectionService.getSectionById(dto.getSectionId())
+                        .orElseThrow(() -> new RuntimeException("Could not find section with id=" + dto.getSectionId()))
+        );
     }
 }

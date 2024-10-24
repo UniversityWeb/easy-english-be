@@ -1,6 +1,7 @@
 package com.universityweb.testpart.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.test.service.TestService;
 import com.universityweb.testpart.TestPartRepos;
 import com.universityweb.testpart.dto.TestPartDTO;
 import com.universityweb.testpart.entity.TestPart;
@@ -16,9 +17,12 @@ public class TestPartServiceImpl
         extends BaseServiceImpl<TestPart, TestPartDTO, Long, TestPartRepos, TestPartMapper> 
         implements TestPartService {
 
+    private final TestService testService;
+
     @Autowired
-    protected TestPartServiceImpl(TestPartRepos repository) {
+    protected TestPartServiceImpl(TestPartRepos repository, TestService testService) {
         super(repository, TestPartMapper.INSTANCE);
+        this.testService = testService;
     }
 
     @Override
@@ -52,5 +56,10 @@ public class TestPartServiceImpl
     @Override
     protected void throwNotFoundException(Long id) {
         throw new RuntimeException("Could not find any test parts with id" + id);
+    }
+
+    @Override
+    protected void setEntityRelationshipsBeforeSave(TestPart entity, TestPartDTO dto) {
+        entity.setTest(testService.getEntityById(dto.testId()));
     }
 }

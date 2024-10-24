@@ -5,6 +5,8 @@ import com.universityweb.listeningaudio.ListeningAudioMapper;
 import com.universityweb.listeningaudio.ListeningAudioRepos;
 import com.universityweb.listeningaudio.dto.ListeningAudioDTO;
 import com.universityweb.listeningaudio.entity.ListeningAudio;
+import com.universityweb.test.entity.Test;
+import com.universityweb.test.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +15,23 @@ public class ListeningAudioServiceImpl
         extends BaseServiceImpl<ListeningAudio, ListeningAudioDTO, Long, ListeningAudioRepos, ListeningAudioMapper>
         implements ListeningAudioService {
 
+    private TestService testService;
+
     @Autowired
-    public ListeningAudioServiceImpl(ListeningAudioRepos repository) {
+    public ListeningAudioServiceImpl(ListeningAudioRepos repository, TestService testService) {
         super(repository, ListeningAudioMapper.INSTANCE);
+        this.testService = testService;
     }
 
     @Override
     protected void throwNotFoundException(Long id) {
         throw new RuntimeException("Could not find any listening audio with id: " + id);
+    }
+
+    @Override
+    protected void setEntityRelationshipsBeforeSave(ListeningAudio entity, ListeningAudioDTO dto) {
+        Test test = testService.getEntityById(dto.getTestId());
+        entity.setTest(test);
     }
 
     @Override

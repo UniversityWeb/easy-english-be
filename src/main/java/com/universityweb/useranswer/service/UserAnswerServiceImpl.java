@@ -1,6 +1,9 @@
 package com.universityweb.useranswer.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.testquestion.service.TestQuestionService;
+import com.universityweb.testresult.entity.TestResult;
+import com.universityweb.testresult.service.TestResultService;
 import com.universityweb.useranswer.UserAnswerMapper;
 import com.universityweb.useranswer.UserAnswerRepos;
 import com.universityweb.useranswer.entity.UserAnswer;
@@ -12,14 +15,25 @@ import org.springframework.stereotype.Service;
 public class UserAnswerServiceImpl extends BaseServiceImpl<UserAnswer, UserAnswerDTO, Long, UserAnswerRepos, UserAnswerMapper>
         implements UserAnswerService {
 
+    private final TestQuestionService testQuestionService;
+    private final TestResultService testResultService;
+
     @Autowired
-    public UserAnswerServiceImpl(UserAnswerRepos repository) {
+    public UserAnswerServiceImpl(UserAnswerRepos repository, TestQuestionService testQuestionService, TestResultService testResultService) {
         super(repository, UserAnswerMapper.INSTANCE);
+        this.testQuestionService = testQuestionService;
+        this.testResultService = testResultService;
     }
 
     @Override
     protected void throwNotFoundException(Long id) {
         throw new RuntimeException("Could not find user answer with id " + id);
+    }
+
+    @Override
+    protected void setEntityRelationshipsBeforeSave(UserAnswer entity, UserAnswerDTO dto) {
+        entity.setTestQuestion( testQuestionService.getEntityById(dto.getTestQuestionId()) );
+        entity.setTestResult( testResultService.getEntityById(dto.getTestResultId()) );
     }
 
     @Override
