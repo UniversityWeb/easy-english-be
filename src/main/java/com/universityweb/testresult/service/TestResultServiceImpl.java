@@ -48,8 +48,7 @@ public class TestResultServiceImpl implements TestResultService {
     @Override
     public Page<TestResultDTO> getTestResultsByUsername(int page, int size, String username) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startedAt"));
-        Page<TestResult> testResultsPage = new PageImpl<>(new ArrayList<>());
-//        testResultRepos.findByUser_Username(username, pageable);
+        Page<TestResult> testResultsPage = testResultRepos.findByUser_Username(username, pageable);
         return testResultsPage.map(testResultMapper::toDTO);
     }
 

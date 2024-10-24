@@ -49,5 +49,9 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
         return mapper.toDTO(savedEntity);
     }
 
+    @Override
+    public void softDelete(ID id) {
+    }
+
     protected abstract void throwNotFoundException(ID id);
 }

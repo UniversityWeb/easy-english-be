@@ -32,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -58,6 +59,7 @@ public class PaymentServiceImpl implements PaymentService {
     private OrderRepos orderRepos;
 
     @Override
+    @Transactional
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
         String paymentUrl;
         String username = paymentRequest.username();
@@ -91,6 +93,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public PaymentResponse processPaymentResult(
             HttpServletRequest req, Map<String,
             String> params
@@ -144,6 +147,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public PaymentResponse simulateSuccess(Long orderId) {
         Order order = orderService.getOrderEntityById(orderId);
         LocalDateTime paymentTime = LocalDateTime.now();

@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TestResultRepos extends JpaRepository<TestResult, Long> {
-//    Page<TestResult> findByUser_Username(String username, Pageable pageable);
+    Page<TestResult> findByUser_Username(String username, Pageable pageable);
 }

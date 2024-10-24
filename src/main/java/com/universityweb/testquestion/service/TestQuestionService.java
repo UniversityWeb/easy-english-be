@@ -1,4 +1,8 @@
 package com.universityweb.testquestion.service;
 
-public interface TestQuestionService {
+import com.universityweb.common.infrastructure.service.BaseService;
+import com.universityweb.testquestion.dto.TestQuestionDTO;
+import com.universityweb.testquestion.entity.TestQuestion;
+
+public interface TestQuestionService extends BaseService<TestQuestion, TestQuestionDTO, Long> {
 }

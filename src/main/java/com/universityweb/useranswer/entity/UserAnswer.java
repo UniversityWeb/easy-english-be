@@ -1,6 +1,5 @@
 package com.universityweb.useranswer.entity;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.testquestion.entity.TestQuestion;
 import com.universityweb.testresult.entity.TestResult;
 import jakarta.persistence.*;

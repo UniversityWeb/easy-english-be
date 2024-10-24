@@ -1,6 +1,5 @@
 package com.universityweb.useranswer.service;
 
-import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.useranswer.UserAnswerMapper;
 import com.universityweb.useranswer.UserAnswerRepos;
@@ -13,12 +12,9 @@ import org.springframework.stereotype.Service;
 public class UserAnswerServiceImpl extends BaseServiceImpl<UserAnswer, UserAnswerDTO, Long, UserAnswerRepos, UserAnswerMapper>
         implements UserAnswerService {
 
-    private AuthService authService;
-
     @Autowired
-    public UserAnswerServiceImpl(UserAnswerRepos repository, AuthService authService) {
+    public UserAnswerServiceImpl(UserAnswerRepos repository) {
         super(repository, UserAnswerMapper.INSTANCE);
-        this.authService = authService;
     }
 
     @Override
@@ -27,12 +23,13 @@ public class UserAnswerServiceImpl extends BaseServiceImpl<UserAnswer, UserAnswe
     }
 
     @Override
-    public UserAnswerDTO update(UserAnswerDTO dto) {
-        return null;
-    }
+    public UserAnswerDTO update(Long id, UserAnswerDTO dto) {
+        UserAnswer userAnswer = getEntityById(id);
 
-    @Override
-    public void softDelete(Long aLong) {
+        userAnswer.setAnswers(dto.getAnswers());
+        userAnswer.setIsCorrect(dto.getIsCorrect());
 
+        UserAnswer saved = repository.save(userAnswer);
+        return mapper.toDTO(saved);
     }
 }

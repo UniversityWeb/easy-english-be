@@ -7,6 +7,6 @@ public interface BaseService<E, D, ID> {
     D getById(ID id);
     E getEntityById(ID id);
     D create(D dto);
-    D update(D dto);
+    D update(ID id, D dto);
     void softDelete(ID id);
 }
