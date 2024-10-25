@@ -1,6 +1,7 @@
 package com.universityweb.topic.service;
 
 import com.universityweb.topic.entity.Topic;
+import com.universityweb.topic.mapper.TopicMapper;
 import com.universityweb.topic.request.TopicRequest;
 import com.universityweb.topic.response.TopicResponse;
 import com.universityweb.topic.TopicRepository;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Service
 public class TopicService {
+    private TopicMapper topicMapper = TopicMapper.INSTANCE;
     @Autowired
     private TopicRepository topicRepository;
 

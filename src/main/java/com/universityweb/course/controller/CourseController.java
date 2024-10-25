@@ -1,5 +1,7 @@
 package com.universityweb.course.controller;
 
+import com.universityweb.course.entity.Course;
+import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
@@ -7,12 +9,14 @@ import com.universityweb.file.UploadFileService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @CrossOrigin
@@ -22,6 +26,7 @@ import java.util.List;
 public class CourseController {
     @Autowired
     private CourseService courseService;
+
 
     @Autowired
     private UploadFileService uploadFileService;
@@ -103,6 +108,11 @@ public class CourseController {
     @PostMapping("check-course-in-favorite")
     public ResponseEntity<Boolean> checkCourseInFavorite(@RequestBody CourseRequest courseRequest) {
         return ResponseEntity.ok(courseService.checkCourseInFavorite(courseRequest));
+    }
+
+    @PostMapping("/get-course-by-filter")
+    public ResponseEntity<Page<CourseResponse>> filterCourses(@RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(courseService.getCourseByFilter(courseRequest));
     }
 
 
