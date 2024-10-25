@@ -42,7 +42,7 @@ public class Payment implements Serializable {
     @Enumerated(EnumType.STRING)
     private ECurrency currency;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 

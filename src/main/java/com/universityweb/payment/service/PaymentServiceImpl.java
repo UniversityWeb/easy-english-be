@@ -11,6 +11,7 @@ import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
+import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
@@ -25,11 +26,13 @@ import com.universityweb.payment.vnpay.VNPayConfig;
 import com.universityweb.payment.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -53,10 +56,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private EnrollmentService enrollmentService;
     @Autowired
-    private CourseService courseService;
+    private OrderRepos orderRepos;
 
     @Override
-    public String createPayment(PaymentRequest paymentRequest) {
+    @Transactional
+    public PaymentResponse createPayment(PaymentRequest paymentRequest) {
         String paymentUrl;
         String username = paymentRequest.username();
         Payment.EMethod method = paymentRequest.method();
@@ -77,16 +81,19 @@ public class PaymentServiceImpl implements PaymentService {
                 int amount = savedOrder.getTotalAmount().intValue();
                 paymentUrl = vnPayService.createOrder(
                         amount,
-                        String.valueOf(payment.getId()),
+                        String.valueOf(savedOrder.getId()),
                         paymentRequest.urlReturn());
             }
             default -> throw new UnsupportedPaymentMethodException("Payment method " + method + " is not supported.");
         }
 
-        return paymentUrl;
+        PaymentResponse paymentResponse = paymentMapper.toDTO(payment);
+        paymentResponse.setPaymentUrl(paymentUrl);
+        return paymentResponse;
     }
 
     @Override
+    @Transactional
     public PaymentResponse processPaymentResult(
             HttpServletRequest req, Map<String,
             String> params
@@ -96,8 +103,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         switch (method) {
             case VN_PAY -> {
-                String paymentIdStr = params.get("vnp_OrderInfo");
-                Long paymentId = Long.parseLong(paymentIdStr);
+                String orderIdStr = params.get("vnp_OrderInfo");
+                Long orderId = Long.parseLong(orderIdStr);
                 String paymentTimeStrInMillis = params.get("vnp_PayDate");
                 LocalDateTime paymentTime = Utils.convertMillisToLocalDateTime(paymentTimeStrInMillis);
                 String transactionNoStr = params.get("vnp_TransactionNo");
@@ -105,7 +112,8 @@ public class PaymentServiceImpl implements PaymentService {
                 String totalAmountStr = params.get("vnp_Amount");
                 BigDecimal totalAmount = new BigDecimal(Long.parseLong(totalAmountStr) / VNPayConfig.VND_MULTIPLIER);
 
-                Payment payment = getPaymentById(paymentId);
+                Order order = orderService.getOrderEntityById(orderId);
+                Payment payment = order.getPayment();
 
                 int paymentStatus = vnPayService.orderReturn(req);
                 payment.setStatus(paymentStatus == 1 ? Payment.EStatus.SUCCESS : Payment.EStatus.FAILED);
@@ -139,16 +147,15 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public PaymentResponse simulateSuccess(Long orderId) {
         Order order = orderService.getOrderEntityById(orderId);
-
-        Payment payment = order.getPayments().stream()
-                .filter(p -> p.getStatus() == Payment.EStatus.PENDING)
-                .max(Comparator.comparing(Payment::getPaymentTime))
-                .orElseThrow(() -> new IllegalStateException("No valid payment found for order"));
-
         LocalDateTime paymentTime = LocalDateTime.now();
         Long transactionNo = PaymentUtils.generateTransactionNo();
+        Payment payment = order.getPayment();
+
+        order.setUpdatedAt(paymentTime);
+        order.setStatus(Order.EStatus.PAID);
 
         payment.setStatus(Payment.EStatus.SUCCESS);
         payment.setPaymentTime(paymentTime);
@@ -156,17 +163,12 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmountPaid(order.getTotalAmount());
         payment.setCurrency(ECurrency.VND);
 
+        orderRepos.save(order);
         Payment savedPayment = paymentRepos.save(payment);
 
         addEnrollmentsByOrderId(orderId);
 
         return paymentMapper.toDTO(savedPayment);
-    }
-
-    private Payment getPaymentById(Long paymentId) {
-        String msg = "Could not find any payment with id=" + paymentId;
-        return paymentRepos.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException(msg));
     }
 
     private Pageable createPageable(int page, int size) {
@@ -197,5 +199,11 @@ public class PaymentServiceImpl implements PaymentService {
             );
             enrollmentService.addNewEnrollment(addEnrollmentRequest);
         }
+    }
+
+    private Payment getPaymentById(Long paymentId) {
+        String msg = "Could not find any payment with id=" + paymentId;
+        return paymentRepos.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(msg));
     }
 }

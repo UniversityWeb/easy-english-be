@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  easy-english-db:
+    image: postgres:latest
+    container_name: easy-english-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: EasyEnglish
+    ports:
+      - "5432:5432"
+    volumes:
+      - easy-english-data:/var/lib/postgresql
+    networks:
+      - pgnetwork
+
+volumes:
+  easy-english-data:
+
+networks:
+  pgnetwork:
+    driver: bridge

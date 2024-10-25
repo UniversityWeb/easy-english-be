@@ -9,9 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "cart_items", uniqueConstraints = {
-        @UniqueConstraint(name = "UniqueCourseCard", columnNames = {"course_id", "cart_id"})
-})
+@Table(name = "cart_items")
 @Getter
 @Setter
 @AllArgsConstructor

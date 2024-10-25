@@ -1,7 +1,7 @@
 package com.universityweb.test.entity;
 
-import com.universityweb.course.entity.Course;
 import com.universityweb.section.entity.Section;
+import com.universityweb.testpart.entity.TestPart;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,12 +21,18 @@ public class Test implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private EStatus status;
+
     private String title;
 
     private String description;
 
+    @Column(name = "ordinal_number")
+    private Integer ordinalNumber;
+
     @Column(name = "duration_in_milis")
-    private int durationInMilis;
+    private Integer durationInMilis;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -37,10 +43,32 @@ public class Test implements Serializable {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id", referencedColumnName = "id")
-    private Course course;
-
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Section> sections;
+    private List<TestPart> parts;
+
+    @ManyToOne
+    @JoinColumn(name = "course_section_id", referencedColumnName = "id", nullable = false)
+    private Section section;
+
+    public enum EStatus {
+        /**
+         * The test is currently visible and available to students.
+         */
+        DISPLAY,
+
+        /**
+         * The test is hidden from students, possibly during preparation.
+         */
+        HIDE,
+
+        /**
+         * The test is still in the creation phase and not ready for student access.
+         */
+        DRAFT,
+
+        /**
+         * The test has been deleted from the system and is no longer accessible.
+         */
+        DELETED
+    }
 }

@@ -26,4 +26,9 @@ public interface CourseService {
     List<CourseResponse> getAllCourseFavoriteOfStudent(CourseRequest courseRequest);
     Course getEntityById(Long courseId);
     CourseResponse getById(Long courseId);
+    public void addCourseToFavorite(CourseRequest courseRequest);
+
+    void removeCourseFromFavorite(CourseRequest courseRequest);
+
+    public Boolean checkCourseInFavorite(CourseRequest courseRequest);
 }

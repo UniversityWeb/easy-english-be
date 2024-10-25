@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseRequest {
+    private Long favoriteId;
     private Long id;
     private String title;
     private Long levelId;

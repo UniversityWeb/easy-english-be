@@ -89,6 +89,13 @@ public class CartController {
         return ResponseEntity.ok("Cart cleared.");
     }
 
+    @GetMapping("/can-add-to-cart/{courseId}")
+    public ResponseEntity<Boolean> canAddToCart(@PathVariable Long courseId) {
+        String username = authService.getCurrentUsername();
+        boolean isValid = cartService.canAddToCart(username, courseId);
+        return ResponseEntity.ok(isValid);
+    }
+
     private void checkAuthorization(Long cartItemId) {
         Cart cart = cartService.getCartByCartItemId(cartItemId);
         String targetUsername = cart.getUser().getUsername();

@@ -49,6 +49,7 @@ public class CourseServiceImpl implements CourseService {
     private final ReviewRepository reviewRepository;
     private final UserService userService;
 
+
     @Override
     public Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest) {
         int pageNumber = courseRequest.getPageNumber();
@@ -59,11 +60,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndOwner(true,user, pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
@@ -149,11 +146,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndTopicId(true, topicId, pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
@@ -166,11 +159,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndLevelId(true, levelId, pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
@@ -183,11 +172,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = courseRepository.findByIsActiveAndCategoriesId(true, categoryIds.get(0), pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = new CourseResponse();
-            BeanUtils.copyProperties(course, courseResponse);
-            return courseResponse;
-        });
+        return coursePage.map(courseMapper::toDTO);
     }
 
     @Override
@@ -295,5 +280,36 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse getById(Long courseId) {
         Course course = getEntityById(courseId);
         return courseMapper.toDTO(course);
+    }
+
+    @Override
+    public void addCourseToFavorite(CourseRequest courseRequest) {
+        User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
+        Course course = courseRepository.findById(courseRequest.getId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        Favourite favourite = Favourite.builder()
+                .user(user)
+                .course(course)
+                .build();
+        favouriteRepository.save(favourite);
+    }
+
+    @Override
+    public void removeCourseFromFavorite(CourseRequest courseRequest) {
+        User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
+        Course course = courseRepository.findById(courseRequest.getId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        Favourite favourite = favouriteRepository.findByUserAndCourse(user, course);
+        favouriteRepository.delete(favourite);
+    }
+
+    @Override
+    public Boolean checkCourseInFavorite(CourseRequest courseRequest) {
+        User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
+
+        Course course = courseRepository.findById(courseRequest.getId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        Favourite favourite = favouriteRepository.findByUserAndCourse(user, course);
+        return favourite != null;
     }
 }

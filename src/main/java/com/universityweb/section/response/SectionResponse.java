@@ -11,5 +11,5 @@ public class SectionResponse {
     private String title;
     private String createdBy;
     private String createdAt;
-
+    private int ordinalNumber;
 }

@@ -25,4 +25,7 @@ public interface CartItemRepos extends JpaRepository<CartItem, Long> {
 
     @Query("SELECT Count(ci) FROM CartItem ci WHERE ci.cart.id = :cartId AND (ci.status = 'ACTIVE' OR ci.status = 'OUT_OF_STOCK')")
     Integer countByCartId(Long cartId);
+
+    @Query("SELECT ci FROM CartItem ci JOIN ci.cart c WHERE ci.course.id = :courseId AND c.user.username = :username")
+    List<CartItem> findByUsernameAndCourseId(String username, Long courseId);
 }

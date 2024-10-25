@@ -2,6 +2,7 @@ package com.universityweb.cart.service;
 
 import com.universityweb.cart.entity.Cart;
 import com.universityweb.cart.entity.CartItem;
+import com.universityweb.cart.exception.CartItemAlreadyExistsException;
 import com.universityweb.cart.exception.CartItemNotFoundException;
 import com.universityweb.cart.mapper.CartItemMapper;
 import com.universityweb.cart.mapper.CartMapper;
@@ -13,6 +14,9 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.order.entity.Order;
+import com.universityweb.order.entity.OrderItem;
+import com.universityweb.order.repository.OrderItemRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +43,16 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private OrderItemRepos orderItemRepos;
 
     @Override
     public CartItemResponse addItemToCart(String username, Long courseId) {
+        boolean isValid = canAddToCart(username, courseId);
+        if (!isValid) {
+           throw new CartItemAlreadyExistsException("Item already exists");
+        }
+
         Cart cart = getOrCreateCart(username);
         Course course = courseService.getCourseById(courseId);
 
@@ -156,6 +167,22 @@ public class CartServiceImpl implements CartService {
             totalAmount = totalAmount.add(itemPrice);
         }
         return totalAmount;
+    }
+
+    @Override
+    public boolean canAddToCart(String username, Long courseId) {
+        List<CartItem> cartItems = cartItemRepos.findByUsernameAndCourseId(username, courseId);
+        boolean isValidCart = cartItems.stream()
+                .noneMatch(cartItem -> cartItem.getStatus() == CartItem.EStatus.ACTIVE);
+
+        List<OrderItem> orderItems = orderItemRepos.findByUsernameAndCourseId(username, courseId);
+        boolean isValidOrder = orderItems.stream()
+                .noneMatch(orderItem -> {
+                    Order order = orderItem.getOrder();
+                    return order.getStatus() == Order.EStatus.PAID;
+                });
+
+        return isValidCart && isValidOrder;
     }
 
     private List<CartItem> getCartItemsToDisplay(String username) {
