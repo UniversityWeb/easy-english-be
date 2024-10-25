@@ -31,4 +31,6 @@ public interface CourseService {
     void removeCourseFromFavorite(CourseRequest courseRequest);
 
     public Boolean checkCourseInFavorite(CourseRequest courseRequest);
+
+    Page<CourseResponse> getCourseByFilter(CourseRequest courseRequest);
 }

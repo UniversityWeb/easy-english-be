@@ -1,5 +1,7 @@
 package com.universityweb.review.service;
 
+import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.repository.CourseRepository;
@@ -26,18 +28,20 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private CourseRepository courseRepository;
 
+    @Autowired
+    private UserRepos userRepos;
+
     @Override
     public void createReview(ReviewRequest reviewRequest) {
         Review review = new Review();
         Optional<Course> courseOptional = courseRepository.findById(reviewRequest.getCourseId());
-
+        Optional<User> userOptional = userRepos.findById(reviewRequest.getUser());
         if (courseOptional.isPresent()) {
             Course course = courseOptional.get();
-
             review.setCourse(course);
             review.setRating(reviewRequest.getRating());
             review.setComment(reviewRequest.getComment());
-
+            review.setUser(userOptional.get());
             reviewRepository.save(review);
             courseRepository.save(course);
         } else {
@@ -66,6 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviews.forEach(review -> {
             ReviewResponse reviewResponse = new ReviewResponse();
             BeanUtils.copyProperties(review, reviewResponse);
+            reviewResponse.setOwner(review.getUser().getUsername());
             reviewResponses.add(reviewResponse);
         });
         return reviewResponses;

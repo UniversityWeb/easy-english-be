@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.*;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -11,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseRequest {
+    private String username;
     private Long favoriteId;
     private Long id;
     private String title;
@@ -26,7 +28,8 @@ public class CourseRequest {
     private String createdAt;
     private Boolean isActive;
     private String ownerUsername;
-
+    private BigDecimal price;
+    private Double rating;
     private List<Long> categoryIds;
 
     private int pageNumber = 0;
