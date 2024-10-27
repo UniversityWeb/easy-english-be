@@ -34,25 +34,34 @@ public class LessonService {
         return lessonResponses;
     }
 
-    public void createLesson(LessonRequest lessonRequest) {
+    public LessonResponse createLesson(LessonRequest lessonRequest) {
         Lesson lesson = new Lesson();
         Optional<Section> sectionOptional = sectionService.getSectionById(lessonRequest.getSectionId());
         if (sectionOptional.isPresent()) {
             Section section = sectionOptional.get();
             lesson.setSection(section);
             BeanUtils.copyProperties(lessonRequest, lesson);
-            lessonRepository.save(lesson);
+            LessonResponse lessonResponse = new LessonResponse();
+            BeanUtils.copyProperties(lessonRepository.save(lesson), lessonResponse);
+            lessonResponse.setSectionId(lesson.getSection().getId());
+
+            return lessonResponse;
+
         } else {
             throw new RuntimeException("Section not found");
         }
+
     }
 
-    public void updateLesson(LessonRequest lessonRequest) {
+    public LessonResponse updateLesson(LessonRequest lessonRequest) {
         Optional<Lesson> currentLessonOptional = lessonRepository.findById(lessonRequest.getId());
         if (currentLessonOptional.isPresent()) {
             Lesson currentLesson = currentLessonOptional.get();
             BeanUtils.copyProperties(lessonRequest, currentLesson);
-            lessonRepository.save(currentLesson);
+            LessonResponse lessonResponse = new LessonResponse();
+            BeanUtils.copyProperties(lessonRepository.save(currentLesson), lessonResponse);
+            lessonResponse.setSectionId(currentLesson.getSection().getId());
+            return lessonResponse;
         } else {
             throw new RuntimeException("Lesson not found");
         }
@@ -70,4 +79,5 @@ public class LessonService {
         BeanUtils.copyProperties(lesson, lessonResponse);
         return lessonResponse;
     }
+
 }

@@ -129,7 +129,23 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(courseRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        return courseMapper.toDTO(course);
+
+        CourseResponse courseResponse = courseMapper.toDTO(course);
+        List<Review> reviews = reviewRepository.findByCourseId(course.getId());
+        double averageRating = reviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0);
+
+// Định dạng số với một chữ số thập phân
+        DecimalFormat df = new DecimalFormat("#.#");
+        String formattedRating = df.format(averageRating);
+
+        courseResponse.setRating(Double.parseDouble(formattedRating));
+        courseResponse.setRatingCount((long) reviews.size());
+        courseResponse.setCountStudent(enrollmentRepos.countSalesByCourseId(course.getId()));
+        courseResponse.setCountSection((long) course.getSections().size());
+        return courseResponse;
     }
 
     @Override
@@ -213,7 +229,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest) {
-        User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
+        User user = userService.loadUserByUsername(courseRequest.getUsername());
         List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
         List<CourseResponse> courseResponses = new ArrayList<>();
         for (Enrollment enrollment : enrollments) {

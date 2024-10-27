@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findByPriceGreaterThanAndTitleContaining(int price, String title, Pageable pageable);
 
-    Page<Course> findByOwner(String createdBy, Pageable pageable);
+    Page<Course> findByOwner(User user, Pageable pageable);
 
     Page<Course> findByIsActiveAndOwner(Boolean isActive, User user, Pageable pageable);
 
