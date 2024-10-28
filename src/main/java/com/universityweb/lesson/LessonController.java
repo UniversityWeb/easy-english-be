@@ -25,19 +25,26 @@ public class LessonController {
     private UploadFileService uploadFileService;
 
     @PostMapping("/create-lesson")
-    public String createLesson(@ModelAttribute LessonRequest lessonRequest,@RequestParam("file") MultipartFile file) throws IOException {
-        String url = uploadFileService.uploadFile(file);
-        lessonRequest.setContentUrl(url);
-        lessonService.createLesson(lessonRequest);
-        return "Lesson added successfully";
+    public ResponseEntity<LessonResponse> createLesson(@ModelAttribute LessonRequest lessonRequest,
+                                                       @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+        if (file != null && !file.isEmpty()) {
+            String url = uploadFileService.uploadFile(file);
+            lessonRequest.setContentUrl(url);
+        }
+        return ResponseEntity.ok().body( lessonService.createLesson(lessonRequest));
+
     }
+
     @PostMapping("/update-lesson")
-    public ResponseEntity<String> updateLesson(@ModelAttribute LessonRequest lessonRequest,@RequestParam("file") MultipartFile file) throws IOException {
-        String url = uploadFileService.uploadFile(file);
-        lessonRequest.setContentUrl(url);
-        lessonService.updateLesson(lessonRequest);
-        return ResponseEntity.status(HttpStatus.OK).body("Lesson updated successfully");
+    public ResponseEntity<LessonResponse> updateLesson(@ModelAttribute LessonRequest lessonRequest,
+                                               @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+        if (file != null && !file.isEmpty()) {
+            String url = uploadFileService.uploadFile(file);
+            lessonRequest.setContentUrl(url);
+        }
+        return ResponseEntity.ok().body(lessonService.updateLesson(lessonRequest));
     }
+
     @PostMapping("")
     public ResponseEntity<String> deleteLesson(@RequestBody LessonRequest lessonRequest) {
         lessonService.deleteLesson(lessonRequest);

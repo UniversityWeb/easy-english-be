@@ -18,15 +18,13 @@ public class SectionController {
     @Autowired
     private SectionService sectionService;
     @PostMapping("/create-section")
-    public String createSection(@RequestBody SectionRequest sectionRequest) {
-        sectionService.createSection(sectionRequest);
-        return "Section added successfully";
+    public ResponseEntity<SectionResponse> createSection(@RequestBody SectionRequest sectionRequest) {
+        return  ResponseEntity.ok().body(sectionService.createSection(sectionRequest));
     }
 
     @PostMapping("/update-section")
-    public String updateSection(@RequestBody SectionRequest sectionRequest) {
-        sectionService.updateSection(sectionRequest);
-        return "Section updated successfully";
+    public ResponseEntity<SectionResponse> updateSection(@RequestBody SectionRequest sectionRequest) {
+        return  ResponseEntity.ok().body(sectionService.updateSection(sectionRequest));
     }
     @PostMapping("/delete-section")
     public String deleteSection(@RequestBody SectionRequest sectionRequest) {

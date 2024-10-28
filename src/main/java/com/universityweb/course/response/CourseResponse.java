@@ -3,6 +3,7 @@ package com.universityweb.course.response;
 import com.universityweb.category.response.CategoryResponse;
 import com.universityweb.level.response.LevelResponse;
 import com.universityweb.price.response.PriceResponse;
+import com.universityweb.topic.response.TopicResponse;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,8 @@ public class CourseResponse {
     private String description;
     private int duration;
     private int countView;
+    private Long countStudent;
+    private Long countSection;
     private Boolean isPublish;
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
@@ -33,7 +36,7 @@ public class CourseResponse {
 
     private String ownerUsername;
     private PriceResponse price;
-    private Long topicId;
+    private TopicResponse topic;
     private LevelResponse level;
 
     private List<CategoryResponse> categories;

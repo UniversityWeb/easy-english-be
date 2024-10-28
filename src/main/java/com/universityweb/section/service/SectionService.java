@@ -25,19 +25,27 @@ public class SectionService {
         return sectionRepository.findById(id);
     }
 
-    public void createSection(SectionRequest sectionRequest) {
+    public SectionResponse createSection(SectionRequest sectionRequest) {
         Section section = new Section();
         Course course = courseRepository.findById(sectionRequest.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         BeanUtils.copyProperties(sectionRequest, section);
         section.setCourse(course);
-        sectionRepository.save(section);
+
+        SectionResponse sectionResponse = new SectionResponse();
+        BeanUtils.copyProperties(sectionRepository.save(section), sectionResponse);
+        sectionResponse.setCourseId(section.getCourse().getId());
+        return sectionResponse;
     }
-    public void updateSection(SectionRequest sectionRequest) {
+    public SectionResponse updateSection(SectionRequest sectionRequest) {
         Section section = sectionRepository.findById(sectionRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Section not found"));
         BeanUtils.copyProperties(sectionRequest, section);
-        sectionRepository.save(section);
+
+        SectionResponse sectionResponse = new SectionResponse();
+        BeanUtils.copyProperties(sectionRepository.save(section), sectionResponse);
+        sectionResponse.setCourseId(section.getCourse().getId());
+        return sectionResponse;
     }
 
     public void deleteSection(SectionRequest sectionRequest) {

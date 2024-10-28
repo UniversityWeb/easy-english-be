@@ -1,5 +1,6 @@
 package com.universityweb.lesson.response;
 
+import com.universityweb.lesson.customenum.LessonType;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -12,8 +13,9 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class LessonResponse {
     private Long id;
+    private Long sectionId;
     private String title;
-    private String type;
+    private LessonType type;
     private String content;
     private String contentUrl;
     private String description;

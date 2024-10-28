@@ -3,6 +3,8 @@ package com.universityweb.faq;
 import com.universityweb.faq.request.FAQRequest;
 import com.universityweb.faq.response.FAQResponse;
 import com.universityweb.faq.service.FAQService;
+import com.universityweb.section.request.SectionRequest;
+import com.universityweb.section.response.SectionResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +21,12 @@ public class FAQController {
     private FAQService faqService;
 
     @PostMapping("/create-faq")
-    public String createFAQ(@RequestBody FAQRequest faqRequest) {
-        faqService.createFAQ(faqRequest);
-        return "FAQ added successfully";
+    public ResponseEntity<FAQResponse> createFAQ(@RequestBody FAQRequest faqRequest) {
+        return ResponseEntity.ok().body(faqService.createFAQ(faqRequest));
     }
-
     @PostMapping("/update-faq")
-    public String updateFAQ(@RequestBody FAQRequest faqRequest) {
-        faqService.updateFAQ(faqRequest);
-        return "FAQ updated successfully";
+    public ResponseEntity<FAQResponse>  updateFAQ(@RequestBody FAQRequest faqRequest) {
+        return ResponseEntity.ok().body(faqService.updateFAQ(faqRequest));
     }
     @PostMapping("/delete-faq")
     public String deleteFAQ(@RequestBody FAQRequest faqRequest) {

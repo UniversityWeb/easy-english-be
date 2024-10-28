@@ -22,19 +22,26 @@ public class FAQService {
     private CourseRepository courseRepository;
 
 
-    public void createFAQ(FAQRequest faqRequest) {
+    public FAQResponse createFAQ(FAQRequest faqRequest) {
         FAQ faq = new FAQ();
         Course course = courseRepository.findById(faqRequest.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         BeanUtils.copyProperties(faqRequest, faq);
         faq.setCourse(course);
-        faqRepository.save(faq);
+
+        FAQResponse faqResponse = new FAQResponse();
+        BeanUtils.copyProperties(faqRepository.save(faq), faqResponse);
+        faqResponse.setCourseId(faq.getCourse().getId());
+        return faqResponse;
     }
-    public void updateFAQ(FAQRequest faqRequest) {
+    public FAQResponse updateFAQ(FAQRequest faqRequest) {
         FAQ faq = faqRepository.findById(faqRequest.getId())
                 .orElseThrow(() -> new RuntimeException("FAQ not found"));
         BeanUtils.copyProperties(faqRequest, faq);
-        faqRepository.save(faq);
+        FAQResponse faqResponse = new FAQResponse();
+        BeanUtils.copyProperties(faqRepository.save(faq), faqResponse);
+        faqResponse.setCourseId(faq.getCourse().getId());
+        return faqResponse;
     }
 
 
