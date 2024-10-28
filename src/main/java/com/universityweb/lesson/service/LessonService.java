@@ -1,6 +1,7 @@
 package com.universityweb.lesson.service;
 
 
+import com.universityweb.lesson.customenum.LessonType;
 import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.section.entity.Section;
 import com.universityweb.lesson.request.LessonRequest;
@@ -41,6 +42,7 @@ public class LessonService {
             Section section = sectionOptional.get();
             lesson.setSection(section);
             BeanUtils.copyProperties(lessonRequest, lesson);
+            lesson.setType(LessonType.valueOf(lessonRequest.getType()));
             LessonResponse lessonResponse = new LessonResponse();
             BeanUtils.copyProperties(lessonRepository.save(lesson), lessonResponse);
             lessonResponse.setSectionId(lesson.getSection().getId());

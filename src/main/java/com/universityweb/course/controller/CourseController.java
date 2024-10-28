@@ -56,7 +56,11 @@ public class CourseController {
     }
 
     @PostMapping("/update-course")
-    public ResponseEntity<String> updateCourse( @RequestBody CourseRequest courseRequest) {
+    public ResponseEntity<String> updateCourse(@ModelAttribute CourseRequest courseRequest, @RequestParam("video") MultipartFile video,@RequestParam("image") MultipartFile image) throws IOException {
+        String videoPreview = uploadFileService.uploadFile(video);
+        String imagePreview = uploadFileService.uploadFile(image);
+        courseRequest.setImagePreview(imagePreview);
+        courseRequest.setVideoPreview(videoPreview);
         courseService.updateCourse(courseRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body("Course updated successfully");
     }

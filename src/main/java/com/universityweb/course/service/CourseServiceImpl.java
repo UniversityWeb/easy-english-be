@@ -83,6 +83,7 @@ public class CourseServiceImpl implements CourseService {
             categories.add(category);
         }
         currentCourse.setCategories(categories);
+        currentCourse.setIsActive(true);
         courseRepository.save(currentCourse);
     }
 
@@ -114,6 +115,7 @@ public class CourseServiceImpl implements CourseService {
 
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
         course.setOwner(user);
+        course.setIsActive(true);
         courseRepository.save(course);
     }
 

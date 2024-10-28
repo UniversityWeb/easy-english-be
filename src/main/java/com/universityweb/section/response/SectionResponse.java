@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SectionResponse {
+    private Long courseId;
     private Long id;
     private String title;
     private String createdBy;
