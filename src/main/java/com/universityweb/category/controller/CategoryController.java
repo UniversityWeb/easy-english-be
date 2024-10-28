@@ -1,4 +1,4 @@
-package com.universityweb.category;
+package com.universityweb.category.controller;
 
 import com.universityweb.category.service.CategoryService;
 import com.universityweb.category.request.CategoryRequest;
