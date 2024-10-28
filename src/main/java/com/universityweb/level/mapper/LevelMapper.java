@@ -1,5 +1,6 @@
 package com.universityweb.level.mapper;
 
+import com.universityweb.common.infrastructure.BaseMapper;
 import com.universityweb.level.entity.Level;
 import com.universityweb.level.request.LevelRequest;
 import com.universityweb.level.response.LevelResponse;
@@ -10,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface LevelMapper {
+public interface LevelMapper extends BaseMapper<Level, LevelResponse> {
     LevelMapper INSTANCE = Mappers.getMapper(LevelMapper.class);
 
     LevelResponse toDTO(Level entity);
