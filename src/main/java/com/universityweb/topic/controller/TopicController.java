@@ -1,4 +1,4 @@
-package com.universityweb.topic;
+package com.universityweb.topic.controller;
 
 import com.universityweb.topic.request.TopicRequest;
 import com.universityweb.topic.service.TopicService;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RequestMapping("/api/v1/topic")
 @RestController
-@Tag(name = "Course topics")
+@Tag(name = "Topics")
 public class TopicController {
 
     @Autowired
