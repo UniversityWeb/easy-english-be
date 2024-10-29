@@ -1,5 +1,6 @@
 package com.universityweb.topic.mapper;
 
+import com.universityweb.common.infrastructure.BaseMapper;
 import com.universityweb.topic.entity.Topic;
 import com.universityweb.topic.response.TopicResponse;
 import org.mapstruct.Mapper;
@@ -9,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface TopicMapper {
+public interface TopicMapper extends BaseMapper<Topic, TopicResponse> {
     TopicMapper INSTANCE = Mappers.getMapper(TopicMapper.class);
 
     TopicResponse toDTO(Topic entity);

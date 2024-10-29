@@ -1,4 +1,4 @@
-package com.universityweb.level;
+package com.universityweb.level.controller;
 
 import com.universityweb.level.request.LevelRequest;
 import com.universityweb.level.service.LevelService;
