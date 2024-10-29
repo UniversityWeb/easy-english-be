@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/question-group")
+@RequestMapping("/api/v1/question-groups")
 @Tag(name = "Question Groups")
 public class QuestionGroupServiceController
         extends BaseController<QuestionGroup, QuestionGroupDTO, Long, QuestionGroupService> {
