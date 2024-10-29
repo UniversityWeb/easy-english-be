@@ -27,6 +27,7 @@ public class CourseRequest {
     private Boolean isPublish;
     private String createdAt;
     private Boolean isActive;
+    private String notice;
     private String ownerUsername;
     private BigDecimal price;
     private Double rating;

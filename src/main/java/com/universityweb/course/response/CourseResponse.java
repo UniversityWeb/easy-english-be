@@ -29,6 +29,7 @@ public class CourseResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
     private Boolean isActive;
+    private String notice;
 
     private double progress;
     private double rating;

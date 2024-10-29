@@ -63,6 +63,9 @@ public class Course {
     @Column(name = "active")
     private Boolean isActive;
 
+    @Column(name = "notice", columnDefinition = "TEXT")
+    private String notice;
+
     @ManyToOne
     @JoinColumn(name = "username")
     private User owner;
