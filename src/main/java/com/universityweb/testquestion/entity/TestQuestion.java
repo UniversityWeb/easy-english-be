@@ -61,5 +61,6 @@ public class TestQuestion implements Serializable {
         MULTIPLE_CHOICE,
         MATCHING,
         FILL_BLANK,
+        TRUE_FALSE,
     }
 }

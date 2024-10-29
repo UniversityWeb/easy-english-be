@@ -22,7 +22,7 @@ public class TestPartController
         super(service);
     }
 
-    @GetMapping("/test/{testId}")
+    @GetMapping("/get-by-test/{testId}")
     public ResponseEntity<List<TestPartDTO>> getTestPartsByTestId(
             @PathVariable Long testId
     ) {

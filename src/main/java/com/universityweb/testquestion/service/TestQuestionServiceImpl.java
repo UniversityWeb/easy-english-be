@@ -7,7 +7,10 @@ import com.universityweb.testquestion.TestQuestionRepos;
 import com.universityweb.testquestion.dto.TestQuestionDTO;
 import com.universityweb.testquestion.entity.TestQuestion;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TestQuestionServiceImpl
@@ -38,5 +41,12 @@ public class TestQuestionServiceImpl
         testQuestion = mapper.toEntity(dto);
         TestQuestion saved = repository.save(testQuestion);
         return mapper.toDTO(saved);
+    }
+
+    @Override
+    public List<TestQuestionDTO> getByQuestionGroupId(Long questionGroupId) {
+        Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
+        List<TestQuestion> questions = repository.findByQuestionGroupId(questionGroupId, sort);
+        return mapper.toDTOs(questions);
     }
 }

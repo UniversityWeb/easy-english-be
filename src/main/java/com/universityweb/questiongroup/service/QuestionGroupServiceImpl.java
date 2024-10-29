@@ -8,7 +8,10 @@ import com.universityweb.questiongroup.dto.QuestionGroupDTO;
 import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testpart.service.TestPartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class QuestionGroupServiceImpl
@@ -59,5 +62,12 @@ public class QuestionGroupServiceImpl
     protected void setEntityRelationshipsBeforeAdd(QuestionGroup entity, QuestionGroupDTO dto) {
         TestPart testPart = testPartService.getEntityById(dto.getTestPartId());
         entity.setTestPart(testPart);
+    }
+
+    @Override
+    public List<QuestionGroupDTO> getByTestPartId(Long testPartId) {
+        Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
+        List<QuestionGroup> questionGroups = repository.findByTestPartId(testPartId, sort);
+        return mapper.toDTOs(questionGroups);
     }
 }
