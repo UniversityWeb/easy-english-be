@@ -30,8 +30,8 @@ public class TestPart {
     @Column(name = "ordinal_number")
     private Integer ordinalNumber;
 
-    @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted;
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
 
     @ManyToOne
     @JoinColumn(name = "test_id")
