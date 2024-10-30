@@ -59,9 +59,6 @@ public class TestServiceImpl extends BaseServiceImpl<Test, TestDTO, Long, TestRe
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(Test entity, TestDTO dto) {
-        entity.setSection(
-                sectionService.getSectionById(dto.getSectionId())
-                        .orElseThrow(() -> new RuntimeException("Could not find section with id=" + dto.getSectionId()))
-        );
+        entity.setSection(sectionService.getEntityById(dto.getSectionId()));
     }
 }
