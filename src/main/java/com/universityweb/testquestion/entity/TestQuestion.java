@@ -64,8 +64,6 @@ public class TestQuestion implements Serializable {
         this.imagePath = null;
         this.options = null;
         this.correctAnswers = null;
-        this.userAnswers = null;
-        this.questionGroup = null;
     }
 
     public enum EType {
