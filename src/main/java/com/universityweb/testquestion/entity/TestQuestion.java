@@ -56,6 +56,18 @@ public class TestQuestion implements Serializable {
     @OneToMany(mappedBy = "testQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserAnswer> userAnswers;
 
+    public void clearFields() {
+        this.ordinalNumber = null;
+        this.title = null;
+        this.description = null;
+        this.audioPath = null;
+        this.imagePath = null;
+        this.options = null;
+        this.correctAnswers = null;
+        this.userAnswers = null;
+        this.questionGroup = null;
+    }
+
     public enum EType {
         SINGLE_CHOICE,
         MULTIPLE_CHOICE,

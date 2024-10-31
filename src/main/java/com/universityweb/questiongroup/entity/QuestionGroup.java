@@ -31,6 +31,7 @@ public class QuestionGroup implements Serializable {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String requirement;
 
     @Column(name = "audio_path")

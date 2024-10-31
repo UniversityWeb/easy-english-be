@@ -38,6 +38,9 @@ public class TestQuestionServiceImpl
     @Override
     public TestQuestionDTO update(Long id, TestQuestionDTO dto) {
         TestQuestion testQuestion = getEntityById(id);
+        if (!testQuestion.getType().equals(dto.type())) {
+            testQuestion.clearFields();
+        }
         testQuestion = mapper.toEntity(dto);
         TestQuestion saved = repository.save(testQuestion);
         return mapper.toDTO(saved);
