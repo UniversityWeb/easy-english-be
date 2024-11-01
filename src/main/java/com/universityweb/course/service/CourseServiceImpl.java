@@ -22,7 +22,6 @@ import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
 import com.universityweb.topic.TopicRepository;
 import com.universityweb.topic.entity.Topic;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

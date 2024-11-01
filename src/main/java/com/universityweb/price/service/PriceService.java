@@ -1,11 +1,11 @@
 package com.universityweb.price.service;
 
 import com.universityweb.course.entity.Course;
+import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.price.PriceRepository;
 import com.universityweb.price.entity.Price;
 import com.universityweb.price.request.PriceRequest;
 import com.universityweb.price.response.PriceResponse;
-import com.universityweb.course.repository.CourseRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

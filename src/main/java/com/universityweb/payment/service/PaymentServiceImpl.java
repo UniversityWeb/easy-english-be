@@ -4,11 +4,10 @@ import com.universityweb.common.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.common.request.GetByUsernameRequest;
+import com.universityweb.course.entity.Course;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.request.AddEnrollmentRequest;
 import com.universityweb.enrollment.service.EnrollmentService;
-import com.universityweb.course.entity.Course;
-import com.universityweb.course.service.CourseService;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
 import com.universityweb.order.repository.OrderRepos;
@@ -26,7 +25,6 @@ import com.universityweb.payment.vnpay.VNPayConfig;
 import com.universityweb.payment.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 

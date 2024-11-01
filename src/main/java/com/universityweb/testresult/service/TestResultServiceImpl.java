@@ -6,10 +6,11 @@ import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.mapper.TestResultMapper;
 import com.universityweb.testresult.request.AddTestResultRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 @Service
 public class TestResultServiceImpl implements TestResultService {

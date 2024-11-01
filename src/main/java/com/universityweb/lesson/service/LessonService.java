@@ -1,12 +1,12 @@
 package com.universityweb.lesson.service;
 
 
+import com.universityweb.lesson.LessonRepository;
 import com.universityweb.lesson.customenum.LessonType;
 import com.universityweb.lesson.entity.Lesson;
-import com.universityweb.section.entity.Section;
 import com.universityweb.lesson.request.LessonRequest;
 import com.universityweb.lesson.response.LessonResponse;
-import com.universityweb.lesson.LessonRepository;
+import com.universityweb.section.entity.Section;
 import com.universityweb.section.service.SectionService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

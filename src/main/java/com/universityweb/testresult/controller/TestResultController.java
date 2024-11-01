@@ -1,8 +1,8 @@
 package com.universityweb.testresult.controller;
 
 import com.universityweb.common.auth.service.auth.AuthService;
-import com.universityweb.testresult.request.AddTestResultRequest;
 import com.universityweb.testresult.dto.TestResultDTO;
+import com.universityweb.testresult.request.AddTestResultRequest;
 import com.universityweb.testresult.service.TestResultService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

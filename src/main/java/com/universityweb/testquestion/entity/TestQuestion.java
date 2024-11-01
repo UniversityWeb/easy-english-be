@@ -3,10 +3,7 @@ package com.universityweb.testquestion.entity;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.useranswer.entity.UserAnswer;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.*;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;

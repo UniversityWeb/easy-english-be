@@ -5,17 +5,16 @@ import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
-import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.enrollment.EnrollmentRepos;
-import com.universityweb.enrollment.entity.Enrollment;
-import com.universityweb.enrollment.request.AddEnrollmentRequest;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
+import com.universityweb.enrollment.entity.Enrollment;
+import com.universityweb.enrollment.mapper.EnrollmentMapper;
+import com.universityweb.enrollment.request.AddEnrollmentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EnrollmentServiceImpl

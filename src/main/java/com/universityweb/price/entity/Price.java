@@ -3,6 +3,7 @@ package com.universityweb.price.entity;
 import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

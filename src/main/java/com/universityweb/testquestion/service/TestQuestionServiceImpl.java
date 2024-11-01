@@ -1,9 +1,7 @@
 package com.universityweb.testquestion.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
-import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.service.QuestionGroupService;
-import com.universityweb.review.service.ReviewServiceImpl;
 import com.universityweb.testquestion.TestQuestionMapper;
 import com.universityweb.testquestion.TestQuestionRepos;
 import com.universityweb.testquestion.dto.TestQuestionDTO;

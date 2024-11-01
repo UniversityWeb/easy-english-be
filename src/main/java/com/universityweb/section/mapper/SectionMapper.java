@@ -1,8 +1,8 @@
 package com.universityweb.section.mapper;
 
 import com.universityweb.common.infrastructure.BaseMapper;
-import com.universityweb.section.entity.Section;
 import com.universityweb.section.dto.SectionDTO;
+import com.universityweb.section.entity.Section;
 import com.universityweb.section.request.SectionRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

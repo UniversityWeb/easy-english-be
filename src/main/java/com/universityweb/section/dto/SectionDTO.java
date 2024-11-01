@@ -1,7 +1,10 @@
 package com.universityweb.section.dto;
 
 import com.universityweb.section.entity.Section;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

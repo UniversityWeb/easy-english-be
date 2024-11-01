@@ -3,8 +3,9 @@ package com.universityweb.payment.request;
 import com.universityweb.common.request.GetByUsernameRequest;
 import com.universityweb.payment.entity.Payment;
 import lombok.AllArgsConstructor;
-import lombok.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

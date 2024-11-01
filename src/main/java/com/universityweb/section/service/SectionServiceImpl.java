@@ -2,9 +2,7 @@ package com.universityweb.section.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
-import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.service.CourseService;
-import com.universityweb.review.service.ReviewServiceImpl;
 import com.universityweb.section.SectionRepository;
 import com.universityweb.section.dto.SectionDTO;
 import com.universityweb.section.entity.Section;

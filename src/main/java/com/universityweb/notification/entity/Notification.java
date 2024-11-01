@@ -2,10 +2,7 @@ package com.universityweb.notification.entity;
 
 import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.*;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
