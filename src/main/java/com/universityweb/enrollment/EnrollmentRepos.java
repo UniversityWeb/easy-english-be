@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
@@ -20,4 +21,8 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
     List<Course> findTop10CoursesBySales();
 
     List<Enrollment> findByUser(User user);
+
+    @Query("SELECT e FROM Enrollment e WHERE e.user.username = :username " +
+            "AND e.course.id = :courseId AND e.status <> 'CANCELLED'")
+    Optional<Enrollment> findByUserUsernameAndCourseId(String username, Long courseId);
 }

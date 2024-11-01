@@ -1,13 +1,16 @@
 package com.universityweb.enrollment.service;
 
-import com.universityweb.enrollment.request.AddEnrollmentRequest;
-import com.universityweb.enrollment.response.EnrollmentResponse;
+import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.course.entity.Course;
+import com.universityweb.enrollment.entity.Enrollment;
+import com.universityweb.enrollment.request.AddEnrollmentRequest;
+import com.universityweb.enrollment.dto.EnrollmentDTO;
 
 import java.util.List;
 
-public interface EnrollmentService {
-    EnrollmentResponse addNewEnrollment(AddEnrollmentRequest addRequest);
+public interface EnrollmentService extends BaseService<Enrollment, EnrollmentDTO, Long> {
+    EnrollmentDTO addNewEnrollment(AddEnrollmentRequest addRequest);
     Long countSalesByCourseId(Long courseId);
     List<Course> findTop10CoursesBySales();
+    EnrollmentDTO isEnrolled(String username, Long courseId);
 }

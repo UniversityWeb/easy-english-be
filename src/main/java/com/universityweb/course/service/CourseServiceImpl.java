@@ -368,7 +368,7 @@ public class CourseServiceImpl implements CourseService {
                     .average()
                     .orElse(0);
 
-// Định dạng số với một chữ số thập phân
+            // Định dạng số với một chữ số thập phân
             DecimalFormat df = new DecimalFormat("#.#");
             String formattedRating = df.format(averageRating);
 
