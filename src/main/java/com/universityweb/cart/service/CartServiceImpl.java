@@ -54,7 +54,7 @@ public class CartServiceImpl implements CartService {
         }
 
         Cart cart = getOrCreateCart(username);
-        Course course = courseService.getCourseById(courseId);
+        Course course = courseService.getEntityById(courseId);
 
         CartItem cartItem = CartItem.builder()
                 .status(CartItem.EStatus.ACTIVE)
@@ -76,7 +76,7 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = getCartItemByCartItemId(cartItemId);
 
         Long courseId = cartItem.getCourse().getId();
-        Course course = courseService.getCourseById(courseId);
+        Course course = courseService.getEntityById(courseId);
 
         BigDecimal discountPercent = calculateDiscount(course.getPrice().getPrice(), cartItem.getPrice());
         cartItem.setDiscountPercent(discountPercent);

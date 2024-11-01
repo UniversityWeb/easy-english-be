@@ -1,9 +1,9 @@
 package com.universityweb.lesson;
 
+import com.universityweb.file.UploadFileService;
 import com.universityweb.lesson.request.LessonRequest;
 import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.lesson.service.LessonService;
-import com.universityweb.file.UploadFileService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

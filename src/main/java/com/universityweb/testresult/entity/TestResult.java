@@ -4,10 +4,7 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.test.entity.Test;
 import com.universityweb.useranswer.entity.UserAnswer;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.*;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

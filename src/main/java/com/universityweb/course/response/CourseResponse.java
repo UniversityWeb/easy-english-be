@@ -4,7 +4,10 @@ import com.universityweb.category.response.CategoryResponse;
 import com.universityweb.level.response.LevelResponse;
 import com.universityweb.price.response.PriceResponse;
 import com.universityweb.topic.response.TopicResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;

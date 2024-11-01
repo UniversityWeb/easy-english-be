@@ -1,10 +1,10 @@
 package com.universityweb.questiongroup.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
-import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.questiongroup.QuestionGroupRepos;
 import com.universityweb.questiongroup.dto.QuestionGroupDTO;
+import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testpart.service.TestPartService;
 import org.springframework.beans.factory.annotation.Autowired;

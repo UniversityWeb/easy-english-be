@@ -1,7 +1,7 @@
 package com.universityweb.course.entity;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.category.entity.Category;
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.faq.entity.FAQ;
 import com.universityweb.level.entity.Level;
 import com.universityweb.price.entity.Price;

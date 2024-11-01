@@ -1,4 +1,4 @@
-package com.universityweb.section.request;
+package com.universityweb.section.dto;
 
 import com.universityweb.section.entity.Section;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SectionRequest {
+public class SectionDTO {
     private Long id;
     private Section.EStatus status;
     private String title;
@@ -18,7 +18,4 @@ public class SectionRequest {
     private String updatedAt;
     private int ordinalNumber;
     private Long courseId;
-
-    private int pageNumber = 0;
-    private int size = 10;
 }

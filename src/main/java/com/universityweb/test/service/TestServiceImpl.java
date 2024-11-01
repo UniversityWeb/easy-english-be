@@ -1,7 +1,6 @@
 package com.universityweb.test.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
-import com.universityweb.section.entity.Section;
 import com.universityweb.section.service.SectionService;
 import com.universityweb.test.TestMapper;
 import com.universityweb.test.TestRepos;

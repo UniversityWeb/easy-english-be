@@ -1,11 +1,11 @@
 package com.universityweb.faq.service;
 
 import com.universityweb.course.entity.Course;
+import com.universityweb.course.repository.CourseRepository;
+import com.universityweb.faq.FAQRepository;
 import com.universityweb.faq.entity.FAQ;
 import com.universityweb.faq.request.FAQRequest;
 import com.universityweb.faq.response.FAQResponse;
-import com.universityweb.course.repository.CourseRepository;
-import com.universityweb.faq.FAQRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

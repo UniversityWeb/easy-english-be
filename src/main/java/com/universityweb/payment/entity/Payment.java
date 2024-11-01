@@ -3,10 +3,7 @@ package com.universityweb.payment.entity;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.order.entity.Order;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.*;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

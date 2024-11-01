@@ -2,55 +2,48 @@ package com.universityweb.section.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
-import com.universityweb.course.repository.CourseRepository;
+import com.universityweb.course.service.CourseService;
 import com.universityweb.section.SectionRepository;
+import com.universityweb.section.dto.SectionDTO;
 import com.universityweb.section.entity.Section;
 import com.universityweb.section.mapper.SectionMapper;
 import com.universityweb.section.request.SectionRequest;
-import com.universityweb.section.response.SectionResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class SectionServiceImpl
-    extends BaseServiceImpl<Section, SectionResponse, Long, SectionRepository, SectionMapper>
+    extends BaseServiceImpl<Section, SectionDTO, Long, SectionRepository, SectionMapper>
     implements SectionService {
 
-    private final CourseRepository courseRepository;
+    private final CourseService courseService;
 
     @Autowired
-    protected SectionServiceImpl(SectionRepository repository, CourseRepository courseRepository) {
+    protected SectionServiceImpl(SectionRepository repository, CourseService courseService) {
         super(repository, SectionMapper.INSTANCE);
-        this.courseRepository = courseRepository;
+        this.courseService = courseService;
     }
 
     @Override
-    public SectionResponse createSection(SectionRequest sectionRequest) {
-        Section section = new Section();
-        Course course = courseRepository.findById(sectionRequest.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-        BeanUtils.copyProperties(sectionRequest, section);
-        section.setCourse(course);
-        return savedAndConvertToDTO(section);
+    @Transactional
+    public SectionDTO createSection(SectionRequest sectionRequest) {
+        SectionDTO sectionDTO = mapper.toDTO(sectionRequest);
+        return create(sectionDTO);
     }
 
     @Override
-    public SectionResponse updateSection(SectionRequest sectionRequest) {
+    public SectionDTO updateSection(SectionRequest sectionRequest) {
         Section section = getEntityById(sectionRequest.getId());
-        BeanUtils.copyProperties(sectionRequest, section);
+        BeanUtils.copyProperties(sectionRequest, section, "id");
         return savedAndConvertToDTO(section);
     }
 
     @Override
-    public void deleteSection(SectionRequest sectionRequest) {
-        repository.deleteById(sectionRequest.getId());
-    }
-
-    @Override
-    public List<SectionResponse> getAllSectionByCourse(SectionRequest sectionRequest) {
+    public List<SectionDTO> getAllSectionByCourse(SectionRequest sectionRequest) {
         Long courseId = sectionRequest.getCourseId();
         List<Section> sections = repository.findByCourseId(courseId);
         return mapper.toDTOs(sections);
@@ -58,20 +51,32 @@ public class SectionServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Section not found");
+        String msg = "Could not find any sections with id=" + id;
+        throw new RuntimeException(msg);
     }
 
     @Override
-    protected void setEntityRelationshipsBeforeAdd(Section entity, SectionResponse dto) {
-        Course course = courseRepository.findById(dto.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+    protected void setEntityRelationshipsBeforeAdd(Section entity, SectionDTO dto) {
+        Course course = courseService.getEntityById(dto.getCourseId());
         entity.setCourse(course);
     }
 
     @Override
-    public SectionResponse update(Long id, SectionResponse dto) {
+    public SectionDTO update(Long id, SectionDTO dto) {
         Section section = getEntityById(dto.getId());
-        BeanUtils.copyProperties(dto, section);
+
+        section.setStatus(dto.getStatus());
+        section.setTitle(dto.getTitle());
+        section.setCreatedAt(dto.getCreatedAt());
+        section.setUpdatedAt(dto.getUpdatedAt());
+        section.setOrdinalNumber(dto.getOrdinalNumber());
         return savedAndConvertToDTO(section);
+    }
+
+    @Override
+    public void softDelete(Long id) {
+        Section section = getEntityById(id);
+        section.setStatus(Section.EStatus.DELETED);
+        repository.save(section);
     }
 }

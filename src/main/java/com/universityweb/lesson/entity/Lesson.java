@@ -1,7 +1,7 @@
 package com.universityweb.lesson.entity;
 
-import com.universityweb.section.entity.Section;
 import com.universityweb.lesson.customenum.LessonType;
+import com.universityweb.section.entity.Section;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

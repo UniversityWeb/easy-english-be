@@ -1,8 +1,9 @@
 package com.universityweb.common.request;
 
 import lombok.AllArgsConstructor;
-import lombok.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor

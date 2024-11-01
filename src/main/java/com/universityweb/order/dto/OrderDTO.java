@@ -3,8 +3,9 @@ package com.universityweb.order.dto;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.order.entity.Order;
 import lombok.AllArgsConstructor;
-import lombok.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

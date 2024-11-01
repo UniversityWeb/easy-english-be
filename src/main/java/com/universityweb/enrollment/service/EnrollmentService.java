@@ -2,9 +2,9 @@ package com.universityweb.enrollment.service;
 
 import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.course.entity.Course;
+import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.request.AddEnrollmentRequest;
-import com.universityweb.enrollment.dto.EnrollmentDTO;
 
 import java.util.List;
 

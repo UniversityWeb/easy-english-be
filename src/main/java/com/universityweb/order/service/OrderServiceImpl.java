@@ -16,9 +16,9 @@ import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.order.repository.OrderItemRepos;
 import com.universityweb.order.repository.OrderRepos;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

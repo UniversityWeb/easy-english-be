@@ -3,7 +3,10 @@ package com.universityweb.cart.response;
 import com.universityweb.cart.entity.CartItem;
 import com.universityweb.course.response.CourseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
