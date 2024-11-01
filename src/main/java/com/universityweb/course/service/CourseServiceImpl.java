@@ -4,6 +4,7 @@ import com.universityweb.category.CategoryRepository;
 import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.exception.CourseNotFoundException;
 import com.universityweb.course.mapper.CourseMapper;
@@ -12,7 +13,6 @@ import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
-import com.universityweb.enrollment.service.EnrollmentService;
 import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.favourite.repository.FavouriteRepository;
 import com.universityweb.level.LevelRepository;
@@ -24,6 +24,7 @@ import com.universityweb.topic.TopicRepository;
 import com.universityweb.topic.entity.Topic;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,11 +39,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class CourseServiceImpl implements CourseService {
-    private final CourseMapper courseMapper = CourseMapper.INSTANCE;
+public class CourseServiceImpl
+        extends BaseServiceImpl<Course, CourseResponse, Long, CourseRepository, CourseMapper>
+        implements CourseService {
 
-    private final CourseRepository courseRepository;
     private final CategoryRepository categoryRepository;
     private final LevelRepository levelRepository;
     private final TopicRepository topicRepository;
@@ -50,6 +50,28 @@ public class CourseServiceImpl implements CourseService {
     private final FavouriteRepository favouriteRepository;
     private final ReviewRepository reviewRepository;
     private final UserService userService;
+
+    @Autowired
+    public CourseServiceImpl(
+            CourseRepository repository,
+            CourseMapper mapper,
+            CategoryRepository categoryRepository,
+            LevelRepository levelRepository,
+            TopicRepository topicRepository,
+            EnrollmentRepos enrollmentRepos,
+            FavouriteRepository favouriteRepository,
+            ReviewRepository reviewRepository,
+            UserService userService) {
+
+        super(repository, mapper);
+        this.categoryRepository = categoryRepository;
+        this.levelRepository = levelRepository;
+        this.topicRepository = topicRepository;
+        this.enrollmentRepos = enrollmentRepos;
+        this.favouriteRepository = favouriteRepository;
+        this.reviewRepository = reviewRepository;
+        this.userService = userService;
+    }
 
 
     @Override
@@ -60,14 +82,14 @@ public class CourseServiceImpl implements CourseService {
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = courseRepository.findByIsActiveAndOwner(true,user, pageable);
+        Page<Course> coursePage = repository.findByIsActiveAndOwner(true,user, pageable);
 
-        return coursePage.map(courseMapper::toDTO);
+        return coursePage.map(mapper::toDTO);
     }
 
     @Override
     public void updateCourse(CourseRequest courseRequest) {
-        Course currentCourse = getCourseById(courseRequest.getId());
+        Course currentCourse = getEntityById(courseRequest.getId());
         BeanUtils.copyProperties(courseRequest, currentCourse, "id", "createdAt");
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
@@ -84,7 +106,7 @@ public class CourseServiceImpl implements CourseService {
         }
         currentCourse.setCategories(categories);
         currentCourse.setIsActive(true);
-        courseRepository.save(currentCourse);
+        repository.save(currentCourse);
     }
 
     @Override
@@ -116,30 +138,30 @@ public class CourseServiceImpl implements CourseService {
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
         course.setOwner(user);
         course.setIsActive(true);
-        courseRepository.save(course);
+        repository.save(course);
     }
 
     @Override
     public void deleteCourse(CourseRequest courseRequest) {
-        Course currentCourse = getCourseById(courseRequest.getId());
+        Course currentCourse = getEntityById(courseRequest.getId());
         currentCourse.setIsActive(false);
-        courseRepository.save(currentCourse);
+        repository.save(currentCourse);
     }
 
     @Override
     public CourseResponse getMainCourse(CourseRequest courseRequest) {
-        Course course = courseRepository.findById(courseRequest.getId())
+        Course course = repository.findById(courseRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
 
-        CourseResponse courseResponse = courseMapper.toDTO(course);
+        CourseResponse courseResponse = mapper.toDTO(course);
         List<Review> reviews = reviewRepository.findByCourseId(course.getId());
         double averageRating = reviews.stream()
                 .mapToDouble(Review::getRating)
                 .average()
                 .orElse(0);
 
-// Định dạng số với một chữ số thập phân
+        // Định dạng số với một chữ số thập phân
         DecimalFormat df = new DecimalFormat("#.#");
         String formattedRating = df.format(averageRating);
 
@@ -151,12 +173,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Course getCourseById(Long courseId) {
-        String msg = "Could not find any course with id=" + courseId;
-        return courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException(msg));
-    }
-    @Override
     public Page<CourseResponse> getAllCourseByTopic(CourseRequest courseRequest) {
         Long topicId = courseRequest.getTopicId();
         int pageNumber = courseRequest.getPageNumber();
@@ -164,9 +180,9 @@ public class CourseServiceImpl implements CourseService {
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = courseRepository.findByIsActiveAndTopicId(true, topicId, pageable);
+        Page<Course> coursePage = repository.findByIsActiveAndTopicId(true, topicId, pageable);
 
-        return coursePage.map(courseMapper::toDTO);
+        return coursePage.map(mapper::toDTO);
     }
 
     @Override
@@ -177,9 +193,9 @@ public class CourseServiceImpl implements CourseService {
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = courseRepository.findByIsActiveAndLevelId(true, levelId, pageable);
+        Page<Course> coursePage = repository.findByIsActiveAndLevelId(true, levelId, pageable);
 
-        return coursePage.map(courseMapper::toDTO);
+        return coursePage.map(mapper::toDTO);
     }
 
     @Override
@@ -190,9 +206,9 @@ public class CourseServiceImpl implements CourseService {
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = courseRepository.findByIsActiveAndCategoriesId(true, categoryIds.get(0), pageable);
+        Page<Course> coursePage = repository.findByIsActiveAndCategoriesId(true, categoryIds.get(0), pageable);
 
-        return coursePage.map(courseMapper::toDTO);
+        return coursePage.map(mapper::toDTO);
     }
 
     @Override
@@ -202,10 +218,10 @@ public class CourseServiceImpl implements CourseService {
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = courseRepository.findByIsActive(true,pageable);
+        Page<Course> coursePage = repository.findByIsActive(true,pageable);
 
         return coursePage.map(course -> {
-            CourseResponse courseResponse = courseMapper.toDTO(course);
+            CourseResponse courseResponse = mapper.toDTO(course);
             List<Review> reviews = reviewRepository.findByCourseId(course.getId());
             courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
             courseResponse.setRatingCount((long) reviews.size());
@@ -215,17 +231,17 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+        return repository.findAll();
     }
 
     @Override
     public List<Course> filterCourse(int price, String name) {
-        return courseRepository.findAll();
+        return repository.findAll();
     }
 
     @Override
     public List<Course> getTop10Courses() {
-        return courseRepository.findAll();
+        return repository.findAll();
     }
 
 
@@ -236,7 +252,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponse> courseResponses = new ArrayList<>();
         for (Enrollment enrollment : enrollments) {
             Course course = enrollment.getCourse();
-            CourseResponse courseResponse = courseMapper.toDTO(course);
+            CourseResponse courseResponse = mapper.toDTO(course);
             courseResponse.setProgress(enrollment.getProgress());
             courseResponses.add(courseResponse);
         }
@@ -257,14 +273,14 @@ public class CourseServiceImpl implements CourseService {
                 .collect(Collectors.toSet());
 
         // Lấy tất cả các khóa học
-        List<Course> allCourses = courseRepository.findAll();
+        List<Course> allCourses = repository.findAll();
 
         // Lọc những khóa học mà User chưa tham gia
         List<CourseResponse> courseResponses = new ArrayList<>();
         for (Course course : allCourses) {
             if (!enrolledCourses.contains(course)) {
                 List<Review> reviews = reviewRepository.findByCourseId(course.getId());
-                CourseResponse courseResponse = courseMapper.toDTO(course);
+                CourseResponse courseResponse = mapper.toDTO(course);
                 courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
                 courseResponse.setRatingCount((long) reviews.size());
                 courseResponses.add(courseResponse);
@@ -281,7 +297,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponse> courseResponses = new ArrayList<>();
         for (Favourite favourite : favourites) {
             Course course = favourite.getCourse();
-            CourseResponse courseResponse = courseMapper.toDTO(course);
+            CourseResponse courseResponse = mapper.toDTO(course);
             List<Review> reviews = reviewRepository.findByCourseId(course.getId());
             double averageRating = reviews.stream()
                     .mapToDouble(Review::getRating)
@@ -303,20 +319,31 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course getEntityById(Long courseId) {
-        return courseRepository.findById(courseId)
+        return repository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Could not find any courses with id=" + courseId));
+    }
+
+    @Override
+    public CourseResponse update(Long id, CourseResponse dto) {
+        return null;
+    }
+
+    @Override
+    protected void throwNotFoundException(Long id) {
+        String msg = "Could not find any course with id=" + id;
+        throw new CourseNotFoundException(msg);
     }
 
     @Override
     public CourseResponse getById(Long courseId) {
         Course course = getEntityById(courseId);
-        return courseMapper.toDTO(course);
+        return mapper.toDTO(course);
     }
 
     @Override
     public void addCourseToFavorite(CourseRequest courseRequest) {
         User user = userService.loadUserByUsername(courseRequest.getUsername());
-        Course course = courseRepository.findById(courseRequest.getId())
+        Course course = repository.findById(courseRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         Favourite favourite = Favourite.builder()
                 .user(user)
@@ -328,7 +355,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void removeCourseFromFavorite(CourseRequest courseRequest) {
         User user = userService.loadUserByUsername(courseRequest.getUsername());
-        Course course = courseRepository.findById(courseRequest.getId())
+        Course course = repository.findById(courseRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         Favourite favourite = favouriteRepository.findByUserAndCourse(user, course);
         favouriteRepository.delete(favourite);
@@ -338,7 +365,7 @@ public class CourseServiceImpl implements CourseService {
     public Boolean checkCourseInFavorite(CourseRequest courseRequest) {
         User user = userService.loadUserByUsername(courseRequest.getUsername());
 
-        Course course = courseRepository.findById(courseRequest.getId())
+        Course course = repository.findById(courseRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         Favourite favourite = favouriteRepository.findByUserAndCourse(user, course);
         return favourite != null;
@@ -358,10 +385,10 @@ public class CourseServiceImpl implements CourseService {
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = courseRepository.findCourseByFilter(categoryIds,topicId,levelId,price,rating,title,pageable);
+        Page<Course> coursePage = repository.findCourseByFilter(categoryIds,topicId,levelId,price,rating,title,pageable);
 
         return coursePage.map(course -> {
-            CourseResponse courseResponse = courseMapper.toDTO(course);
+            CourseResponse courseResponse = mapper.toDTO(course);
             List<Review> reviews = reviewRepository.findByCourseId(course.getId());
             double averageRating = reviews.stream()
                     .mapToDouble(Review::getRating)

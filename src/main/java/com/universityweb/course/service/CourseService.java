@@ -1,5 +1,6 @@
 package com.universityweb.course.service;
 
+import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
@@ -7,13 +8,12 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface CourseService {
+public interface CourseService extends BaseService<Course, CourseResponse, Long> {
     Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest);
     void updateCourse(CourseRequest courseRequest);
     void createCourse(CourseRequest courseRequest);
     void deleteCourse(CourseRequest courseRequest);
     CourseResponse getMainCourse(CourseRequest courseRequest);
-    Course getCourseById(Long courseId);
     Page<CourseResponse> getAllCourseByTopic(CourseRequest courseRequest);
     Page<CourseResponse> getAllCourseByLevel(CourseRequest courseRequest);
     Page<CourseResponse> getAllCourseByListCategory(CourseRequest courseRequest);
@@ -24,13 +24,11 @@ public interface CourseService {
     List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest);
     List<CourseResponse> getAllCourseNotOfStudent(CourseRequest courseRequest);
     List<CourseResponse> getAllCourseFavoriteOfStudent(CourseRequest courseRequest);
-    Course getEntityById(Long courseId);
-    CourseResponse getById(Long courseId);
-    public void addCourseToFavorite(CourseRequest courseRequest);
+    void addCourseToFavorite(CourseRequest courseRequest);
 
     void removeCourseFromFavorite(CourseRequest courseRequest);
 
-    public Boolean checkCourseInFavorite(CourseRequest courseRequest);
+    Boolean checkCourseInFavorite(CourseRequest courseRequest);
 
     Page<CourseResponse> getCourseByFilter(CourseRequest courseRequest);
 }

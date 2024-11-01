@@ -35,7 +35,7 @@ public class EnrollmentServiceImpl
     @Override
     public EnrollmentDTO addNewEnrollment(AddEnrollmentRequest addRequest) {
         User user = userService.loadUserByUsername(addRequest.username());
-        Course course = courseService.getCourseById(addRequest.courseId());
+        Course course = courseService.getEntityById(addRequest.courseId());
 
         Enrollment enrollment = Enrollment.builder()
                 .progress(0)
@@ -62,24 +62,28 @@ public class EnrollmentServiceImpl
 
     @Override
     public EnrollmentDTO isEnrolled(String username, Long courseId) {
-        Optional<Enrollment> enrollmentOpt = repository.findByUserUsernameAndCourseId(username, courseId);
-
-        if (enrollmentOpt.isPresent()) {
-            Enrollment enrollment = enrollmentOpt.get();
-            return mapper.toDTO(enrollment);
-        } else {
-            return null;
-        }
+        String errMsg = String.format("Could not find any enrollments with username=%s, courseId=%s", username, courseId);
+        Enrollment enrollment = repository.findByUserUsernameAndCourseId(username, courseId)
+                .orElseThrow(() -> new RuntimeException(errMsg));
+        return mapper.toDTO(enrollment);
     }
 
     @Override
-    public EnrollmentDTO update(Long aLong, EnrollmentDTO dto) {
-        return null;
+    public EnrollmentDTO update(Long id, EnrollmentDTO dto) {
+        Enrollment enrollment = getEntityById(id);
+
+        enrollment.setProgress(dto.progress());
+        enrollment.setStatus(dto.status());
+        enrollment.setType(dto.type());
+        enrollment.setCreatedAt(dto.createdAt());
+        enrollment.setLastAccessed(dto.lastAccessed());
+
+        return savedAndConvertToDTO(enrollment);
     }
 
     @Override
-    protected void throwNotFoundException(Long aLong) {
-        throw new RuntimeException("Enrollment not found");
+    protected void throwNotFoundException(Long id) {
+        throw new RuntimeException("Could not find any enrollments with id=" + id);
     }
 
     @Override
@@ -87,14 +91,16 @@ public class EnrollmentServiceImpl
         super.setEntityRelationshipsBeforeAdd(entity, dto);
 
         User user = userService.loadUserByUsername(dto.username());
-        Course course = courseService.getCourseById(dto.courseId());
+        Course course = courseService.getEntityById(dto.courseId());
 
         entity.setUser(user);
         entity.setCourse(course);
     }
 
     @Override
-    public void softDelete(Long aLong) {
-        super.softDelete(aLong);
+    public void softDelete(Long id) {
+        Enrollment enrollment = getEntityById(id);
+        enrollment.setStatus(Enrollment.EStatus.CANCELLED);
+        repository.save(enrollment);
     }
 }

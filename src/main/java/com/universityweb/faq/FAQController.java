@@ -3,8 +3,6 @@ package com.universityweb.faq;
 import com.universityweb.faq.request.FAQRequest;
 import com.universityweb.faq.response.FAQResponse;
 import com.universityweb.faq.service.FAQService;
-import com.universityweb.section.request.SectionRequest;
-import com.universityweb.section.response.SectionResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

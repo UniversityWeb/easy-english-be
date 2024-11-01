@@ -25,12 +25,11 @@ public class Section {
     @Column(name = "id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private EStatus status;
+
     @Column(name = "title")
     private String title;
-
-    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Lesson> lessons;
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -40,13 +39,25 @@ public class Section {
     @Column(name = "updated_at")
     private String updatedAt;
 
+    @Column(name = "ordinal_number")
+    private int ordinalNumber;
+
     @ManyToOne
     @JoinColumn(name = "course_id")
     @JsonBackReference
     private Course course;
 
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Lesson> lessons;
+
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Test> tests;
 
-    private int ordinalNumber;
+    public enum EStatus {
+        DISPLAY,
+        HIDE,
+        DELETED
+    }
 }
