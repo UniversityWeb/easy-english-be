@@ -8,7 +8,9 @@ spring:
   application:
     name: easy-english-app
   servlet:
-    multipart: max-file-size=500MB, max-request-size=500MB
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   devtools:
     livereload:
       enabled: true

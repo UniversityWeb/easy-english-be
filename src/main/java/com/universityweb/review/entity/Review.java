@@ -28,6 +28,9 @@ public class Review {
     @Column(name = "comment")
     private String comment;
 
+    @Column(name = "response")
+    private String response;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
