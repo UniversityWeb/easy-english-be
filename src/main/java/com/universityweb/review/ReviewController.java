@@ -26,11 +26,14 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/create-review")
-    public ResponseEntity<String> createReview(@RequestBody ReviewRequest reviewRequest) {
-        reviewService.createReview(reviewRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Review added successfully");
+    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest reviewRequest) {
+        return ResponseEntity.ok().body(reviewService.createReview(reviewRequest));
     }
 
+    @PostMapping("/create-response")
+    public ResponseEntity<ReviewResponse> createResponse(@RequestBody ReviewRequest reviewRequest) {
+        return ResponseEntity.ok().body(reviewService.createResponse(reviewRequest));
+    }
     @PostMapping("/get-all-review-5-star-by-course")
     public ResponseEntity<List<ReviewResponse>> getReview5StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,5));

@@ -10,4 +10,5 @@ public class ReviewResponse {
     private double rating;
     private String comment;
     private String owner;
+    private String response;
 }

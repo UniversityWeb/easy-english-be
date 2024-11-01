@@ -32,7 +32,7 @@ public class ReviewServiceImpl implements ReviewService {
     private UserRepos userRepos;
 
     @Override
-    public void createReview(ReviewRequest reviewRequest) {
+    public ReviewResponse createReview(ReviewRequest reviewRequest) {
         Review review = new Review();
         Optional<Course> courseOptional = courseRepository.findById(reviewRequest.getCourseId());
         Optional<User> userOptional = userRepos.findById(reviewRequest.getUser());
@@ -42,11 +42,24 @@ public class ReviewServiceImpl implements ReviewService {
             review.setRating(reviewRequest.getRating());
             review.setComment(reviewRequest.getComment());
             review.setUser(userOptional.get());
-            reviewRepository.save(review);
+            Review reviewSave = reviewRepository.save(review);
             courseRepository.save(course);
+            ReviewResponse reviewResponse = new ReviewResponse();
+            BeanUtils.copyProperties(reviewSave, reviewResponse);
+            return reviewResponse;
         } else {
             throw new RuntimeException("Course not found");
         }
+    }
+
+    @Override
+    public ReviewResponse createResponse(ReviewRequest reviewRequest) {
+        Review review = reviewRepository.findById(reviewRequest.getId()).orElseThrow(() -> new RuntimeException("Review not found"));
+        review.setResponse(reviewRequest.getResponse());
+        Review reviewSave = reviewRepository.save(review);
+        ReviewResponse reviewResponse = new ReviewResponse();
+        BeanUtils.copyProperties(reviewSave, reviewResponse);
+        return reviewResponse;
     }
 
     @Override

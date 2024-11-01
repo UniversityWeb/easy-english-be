@@ -7,8 +7,10 @@ import com.universityweb.review.response.ReviewResponse;
 import java.util.List;
 
 public interface ReviewService {
-    void createReview(ReviewRequest reviewRequest);
+    ReviewResponse createReview(ReviewRequest reviewRequest);
     List<ReviewResponse> getReviewStarByCourse(ReviewRequest reviewRequest, int star);
     List<ReviewResponse> getReviewByCourse(ReviewRequest reviewRequest);
     List<CourseResponse> getTop10CoursesByRating();
+
+    ReviewResponse createResponse(ReviewRequest reviewRequest);
 }
