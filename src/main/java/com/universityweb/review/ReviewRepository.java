@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByCourseId(Long courseId);
@@ -16,4 +17,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "c.isActive, c.isPublish, c.level.id, c.owner.username, c.price.id, c.title, c.topic.id, c.updatedAt, c.videoPreview " +
             "ORDER BY AVG(r.rating) DESC")
     List<Object[]> getTop10CoursesByRating();
+
+    @Query("SELECT r FROM Review r WHERE r.parentReview.id = :parentReviewId")
+    Optional<Review> findByParentReviewId(Long parentReviewId);
 }

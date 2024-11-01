@@ -3,11 +3,14 @@ package com.universityweb.questiongroup;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface QuestionGroupRepos extends JpaRepository<QuestionGroup, Long> {
+    @Query("SELECT qg FROM QuestionGroup qg " +
+            "WHERE qg.testPart.id = :testPartId AND qg.isDeleted = false")
     List<QuestionGroup> findByTestPartId(Long testPartId, Sort sort);
 }

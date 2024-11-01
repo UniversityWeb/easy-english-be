@@ -1,8 +1,8 @@
 package com.universityweb.review;
 
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.review.dto.ReviewDTO;
 import com.universityweb.review.request.ReviewRequest;
-import com.universityweb.review.response.ReviewResponse;
 import com.universityweb.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.logging.log4j.LogManager;
@@ -26,39 +26,40 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/create-review")
-    public ResponseEntity<String> createReview(@RequestBody ReviewRequest reviewRequest) {
-        reviewService.createReview(reviewRequest);
+    public ResponseEntity<String> createReview(@RequestBody ReviewDTO reviewDTO) {
+        reviewService.create(reviewDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body("Review added successfully");
     }
 
     @PostMapping("/get-all-review-5-star-by-course")
-    public ResponseEntity<List<ReviewResponse>> getReview5StarByCourse(@RequestBody ReviewRequest reviewRequest) {
+    public ResponseEntity<List<ReviewDTO>> getReview5StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,5));
     }
 
     @PostMapping("/get-all-review-4-star-by-course")
-    public ResponseEntity<List<ReviewResponse>> getReview4StarByCourse(@RequestBody ReviewRequest reviewRequest) {
+    public ResponseEntity<List<ReviewDTO>> getReview4StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,4));
     }
 
     @PostMapping("/get-all-review-3-star-by-course")
-    public ResponseEntity<List<ReviewResponse>> getReview3StarByCourse(@RequestBody ReviewRequest reviewRequest) {
+    public ResponseEntity<List<ReviewDTO>> getReview3StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,3));
     }
 
     @PostMapping("/get-all-review-2-star-by-course")
-    public ResponseEntity<List<ReviewResponse>> getReview2StarByCourse(@RequestBody ReviewRequest reviewRequest) {
+    public ResponseEntity<List<ReviewDTO>> getReview2StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,2));
     }
 
     @PostMapping("/get-all-review-1-star-by-course")
-    public ResponseEntity<List<ReviewResponse>> getReview1StarByCourse(@RequestBody ReviewRequest reviewRequest) {
+    public ResponseEntity<List<ReviewDTO>> getReview1StarByCourse(@RequestBody ReviewRequest reviewRequest) {
         return ResponseEntity.ok().body(reviewService.getReviewStarByCourse(reviewRequest,1));
     }
 
     @PostMapping("/get-all-review-by-course")
-    public ResponseEntity<List<ReviewResponse>> getReviewByCourse(@RequestBody ReviewRequest reviewRequest) {
-        return ResponseEntity.ok().body(reviewService.getReviewByCourse(reviewRequest));
+    public ResponseEntity<List<ReviewDTO>> getReviewByCourse(@RequestBody ReviewRequest reviewRequest) {
+        List<ReviewDTO> reviewDTOs = reviewService.getReviewByCourse(reviewRequest);
+        return ResponseEntity.ok().body(reviewDTOs);
     }
 
     @GetMapping("/get-top-10-courses-by-rating")

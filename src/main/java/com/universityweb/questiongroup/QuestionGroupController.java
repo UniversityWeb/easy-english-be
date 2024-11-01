@@ -14,11 +14,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/question-groups")
 @Tag(name = "Question Groups")
-public class QuestionGroupServiceController
+public class QuestionGroupController
         extends BaseController<QuestionGroup, QuestionGroupDTO, Long, QuestionGroupService> {
 
     @Autowired
-    public QuestionGroupServiceController(QuestionGroupService service) {
+    public QuestionGroupController(QuestionGroupService service) {
         super(service);
     }
 

@@ -7,6 +7,7 @@ import com.universityweb.testpart.dto.TestPartDTO;
 import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testpart.mapper.TestPartMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,10 +28,9 @@ public class TestPartServiceImpl
 
     @Override
     public List<TestPartDTO> getTestPartsByTestId(Long testId) {
-        List<TestPart> testParts = repository.findByTestId(testId);
-        return testParts.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
+        Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
+        List<TestPart> testParts = repository.findByTestId(testId, sort);
+        return mapper.toDTOs(testParts);
     }
 
     @Override
@@ -60,6 +60,7 @@ public class TestPartServiceImpl
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(TestPart entity, TestPartDTO dto) {
+        entity.setIsDeleted(false);
         entity.setTest(testService.getEntityById(dto.testId()));
     }
 }

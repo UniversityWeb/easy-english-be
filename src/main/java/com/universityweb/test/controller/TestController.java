@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/tests")
@@ -30,5 +32,14 @@ public class TestController
         log.info("Update test status with ID: {}", id);
         service.updateStatus(id, status);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/get-by-section/{sectionId}")
+    public ResponseEntity<List<TestDTO>> getBySection(
+            @PathVariable Long sectionId
+    ) {
+        log.info("get tests by section Id: {}", sectionId);
+        List<TestDTO> testDTOs = service.getBySection(sectionId);
+        return ResponseEntity.ok(testDTOs);
     }
 }

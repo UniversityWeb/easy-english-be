@@ -68,7 +68,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void updateCourse(CourseRequest courseRequest) {
         Course currentCourse = getCourseById(courseRequest.getId());
-        BeanUtils.copyProperties(courseRequest, currentCourse, "id", "createdAt", "createdBy");
+        BeanUtils.copyProperties(courseRequest, currentCourse, "id", "createdAt");
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
                 .orElseThrow(() -> new RuntimeException("Level not found"));

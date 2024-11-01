@@ -8,10 +8,14 @@ import com.universityweb.test.TestRepos;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class TestServiceImpl extends BaseServiceImpl<Test, TestDTO, Long, TestRepos, TestMapper>
+public class TestServiceImpl
+        extends BaseServiceImpl<Test, TestDTO, Long, TestRepos, TestMapper>
         implements TestService {
 
     private final SectionService sectionService;
@@ -27,6 +31,13 @@ public class TestServiceImpl extends BaseServiceImpl<Test, TestDTO, Long, TestRe
         Test existingTest = getEntityById(id);
         existingTest.setStatus(status);
         repository.save(existingTest);
+    }
+
+    @Override
+    public List<TestDTO> getBySection(Long sectionId) {
+        Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
+        List<Test> tests = repository.findBySectionId(sectionId, sort);
+        return mapper.toDTOs(tests);
     }
 
     @Override
@@ -59,9 +70,6 @@ public class TestServiceImpl extends BaseServiceImpl<Test, TestDTO, Long, TestRe
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(Test entity, TestDTO dto) {
-        entity.setSection(
-                sectionService.getSectionById(dto.getSectionId())
-                        .orElseThrow(() -> new RuntimeException("Could not find section with id=" + dto.getSectionId()))
-        );
+        entity.setSection(sectionService.getEntityById(dto.getSectionId()));
     }
 }

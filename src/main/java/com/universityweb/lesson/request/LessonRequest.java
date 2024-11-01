@@ -34,7 +34,4 @@ public class LessonRequest {
     private LocalTime startTime;
 
     private LocalDateTime createdAt;
-
-    private String createdBy;
-
 }

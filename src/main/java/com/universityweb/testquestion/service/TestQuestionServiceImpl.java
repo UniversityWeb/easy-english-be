@@ -1,7 +1,9 @@
 package com.universityweb.testquestion.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.service.QuestionGroupService;
+import com.universityweb.review.service.ReviewServiceImpl;
 import com.universityweb.testquestion.TestQuestionMapper;
 import com.universityweb.testquestion.TestQuestionRepos;
 import com.universityweb.testquestion.dto.TestQuestionDTO;
@@ -38,9 +40,20 @@ public class TestQuestionServiceImpl
     @Override
     public TestQuestionDTO update(Long id, TestQuestionDTO dto) {
         TestQuestion testQuestion = getEntityById(id);
-        testQuestion = mapper.toEntity(dto);
-        TestQuestion saved = repository.save(testQuestion);
-        return mapper.toDTO(saved);
+        if (!testQuestion.getType().equals(dto.type())) {
+            testQuestion.clearFields();
+        }
+
+        testQuestion.setType(dto.type());
+        testQuestion.setOrdinalNumber(dto.ordinalNumber());
+        testQuestion.setTitle(dto.title());
+        testQuestion.setDescription(dto.description());
+        testQuestion.setAudioPath(dto.audioPath());
+        testQuestion.setImagePath(dto.imagePath());
+        testQuestion.setOptions(dto.options());
+        testQuestion.setCorrectAnswers(dto.correctAnswers());
+
+        return savedAndConvertToDTO(testQuestion);
     }
 
     @Override
@@ -48,5 +61,10 @@ public class TestQuestionServiceImpl
         Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
         List<TestQuestion> questions = repository.findByQuestionGroupId(questionGroupId, sort);
         return mapper.toDTOs(questions);
+    }
+
+    @Override
+    public void softDelete(Long id) {
+        repository.deleteById(id);
     }
 }

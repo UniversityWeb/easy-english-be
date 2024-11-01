@@ -28,7 +28,7 @@ public class QuestionGroupServiceImpl
 
     @Override
     public QuestionGroupDTO update(Long id, QuestionGroupDTO dto) {
-        QuestionGroup existingQuestionGroup = getEntityById(dto.getId());
+        QuestionGroup existingQuestionGroup = getEntityById(id);
 
         existingQuestionGroup.setTitle(dto.getTitle());
         existingQuestionGroup.setOrdinalNumber(dto.getOrdinalNumber());
@@ -60,6 +60,7 @@ public class QuestionGroupServiceImpl
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(QuestionGroup entity, QuestionGroupDTO dto) {
+        entity.setIsDeleted(false);
         TestPart testPart = testPartService.getEntityById(dto.getTestPartId());
         entity.setTestPart(testPart);
     }

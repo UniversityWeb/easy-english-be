@@ -37,22 +37,15 @@ public class LessonService {
 
     public LessonResponse createLesson(LessonRequest lessonRequest) {
         Lesson lesson = new Lesson();
-        Optional<Section> sectionOptional = sectionService.getSectionById(lessonRequest.getSectionId());
-        if (sectionOptional.isPresent()) {
-            Section section = sectionOptional.get();
-            lesson.setSection(section);
-            BeanUtils.copyProperties(lessonRequest, lesson);
-            lesson.setType(LessonType.valueOf(lessonRequest.getType()));
-            LessonResponse lessonResponse = new LessonResponse();
-            BeanUtils.copyProperties(lessonRepository.save(lesson), lessonResponse);
-            lessonResponse.setSectionId(lesson.getSection().getId());
+        Section section = sectionService.getEntityById(lessonRequest.getSectionId());
+        lesson.setSection(section);
+        BeanUtils.copyProperties(lessonRequest, lesson);
+        lesson.setType(LessonType.valueOf(lessonRequest.getType()));
+        LessonResponse lessonResponse = new LessonResponse();
+        BeanUtils.copyProperties(lessonRepository.save(lesson), lessonResponse);
+        lessonResponse.setSectionId(lesson.getSection().getId());
 
-            return lessonResponse;
-
-        } else {
-            throw new RuntimeException("Section not found");
-        }
-
+        return lessonResponse;
     }
 
     public LessonResponse updateLesson(LessonRequest lessonRequest) {
