@@ -1,84 +1,70 @@
 package com.universityweb.review.service;
 
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.repos.UserRepos;
+import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.mapper.CourseMapper;
-import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.course.service.CourseService;
 import com.universityweb.review.ReviewRepository;
+import com.universityweb.review.dto.ReviewDTO;
 import com.universityweb.review.entity.Review;
+import com.universityweb.review.mapper.ReviewMapper;
 import com.universityweb.review.request.ReviewRequest;
-import com.universityweb.review.response.ReviewResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class ReviewServiceImpl implements ReviewService {
+public class ReviewServiceImpl
+    extends BaseServiceImpl<Review, ReviewDTO, Long, ReviewRepository, ReviewMapper>
+    implements ReviewService {
+
     private final CourseMapper courseMapper = CourseMapper.INSTANCE;
+    private final CourseService courseService;
+    private final UserService userService;
 
     @Autowired
-    private ReviewRepository reviewRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private UserRepos userRepos;
-
-    @Override
-    public void createReview(ReviewRequest reviewRequest) {
-        Review review = new Review();
-        Optional<Course> courseOptional = courseRepository.findById(reviewRequest.getCourseId());
-        Optional<User> userOptional = userRepos.findById(reviewRequest.getUser());
-        if (courseOptional.isPresent()) {
-            Course course = courseOptional.get();
-            review.setCourse(course);
-            review.setRating(reviewRequest.getRating());
-            review.setComment(reviewRequest.getComment());
-            review.setUser(userOptional.get());
-            reviewRepository.save(review);
-            courseRepository.save(course);
-        } else {
-            throw new RuntimeException("Course not found");
-        }
+    public ReviewServiceImpl(ReviewRepository repository, CourseService courseService, UserService userService) {
+        super(repository, ReviewMapper.INSTANCE);
+        this.courseService = courseService;
+        this.userService = userService;
     }
 
     @Override
-    public List<ReviewResponse> getReviewStarByCourse(ReviewRequest reviewRequest, int star) {
+    public List<ReviewDTO> getReviewStarByCourse(ReviewRequest reviewRequest, int star) {
         Long courseId = reviewRequest.getCourseId();
-        List<Review> reviews = reviewRepository.findByCourseIdAndRating(courseId, star);
-        List<ReviewResponse> reviewResponses = new ArrayList<>();
+        List<Review> reviews = repository.findByCourseIdAndRating(courseId, star);
+        List<ReviewDTO> reviewRespons = new ArrayList<>();
         reviews.forEach(review -> {
-            ReviewResponse reviewResponse = new ReviewResponse();
-            BeanUtils.copyProperties(review, reviewResponse);
-            reviewResponses.add(reviewResponse);
+            ReviewDTO reviewDTO = new ReviewDTO();
+            BeanUtils.copyProperties(review, reviewDTO);
+            reviewRespons.add(reviewDTO);
         });
-        return reviewResponses;
+        return reviewRespons;
     }
 
     @Override
-    public List<ReviewResponse> getReviewByCourse(ReviewRequest reviewRequest) {
+    public List<ReviewDTO> getReviewByCourse(ReviewRequest reviewRequest) {
         Long courseId = reviewRequest.getCourseId();
-        List<Review> reviews = reviewRepository.findByCourseId(courseId);
-        List<ReviewResponse> reviewResponses = new ArrayList<>();
+        List<Review> reviews = repository.findByCourseId(courseId);
+        List<ReviewDTO> reviewRespons = new ArrayList<>();
         reviews.forEach(review -> {
-            ReviewResponse reviewResponse = new ReviewResponse();
-            BeanUtils.copyProperties(review, reviewResponse);
-            reviewResponse.setOwner(review.getUser().getUsername());
-            reviewResponses.add(reviewResponse);
+            ReviewDTO reviewDTO = new ReviewDTO();
+            BeanUtils.copyProperties(review, reviewDTO);
+            reviewDTO.setOwner(review.getUser().getUsername());
+            reviewRespons.add(reviewDTO);
         });
-        return reviewResponses;
+        return reviewRespons;
     }
 
     @Override
     public List<CourseResponse> getTop10CoursesByRating() {
-        List<Object[]> results = reviewRepository.getTop10CoursesByRating();
+        List<Object[]> results = repository.getTop10CoursesByRating();
         return results.stream()
                 .map(result -> {
                     Course course = (Course) result[0];
@@ -92,5 +78,44 @@ public class ReviewServiceImpl implements ReviewService {
                     return courseResponse;
                 })
                 .toList();
+    }
+
+    @Override
+    protected void throwNotFoundException(Long id) {
+        throw new RuntimeException("Could not find any review with id" + id);
+    }
+
+    @Override
+    protected void setEntityRelationshipsBeforeAdd(Review entity, ReviewDTO dto) {
+        super.setEntityRelationshipsBeforeAdd(entity, dto);
+
+        Course course = courseService.getCourseById(dto.getCourseId());
+        User user = userService.loadUserByUsername(dto.getOwner());
+        Review parentView = repository.findById(dto.getParentReviewId())
+                .orElse(null);
+
+        entity.setDeleted(false);
+        entity.setCourse(course);
+        entity.setUser(user);
+        entity.setParentReview(parentView);
+    }
+
+    @Override
+    public ReviewDTO update(Long id, ReviewDTO dto) {
+        Review review = getEntityById(id);
+        Review parentView = repository.findById(dto.getParentReviewId())
+                .orElse(null);
+
+        review.setRating(dto.getRating());
+        review.setComment(dto.getComment());
+        review.setParentReview(parentView);
+        return savedAndConvertToDTO(review);
+    }
+
+    @Override
+    public void softDelete(Long id) {
+        Review review = getEntityById(id);
+        review.setDeleted(true);
+        repository.save(review);
     }
 }
