@@ -51,7 +51,6 @@ public class Enrollment implements Serializable {
         ACTIVE,
         COMPLETED,
         CANCELLED,
-        PENDING
     }
 
     public enum EType {

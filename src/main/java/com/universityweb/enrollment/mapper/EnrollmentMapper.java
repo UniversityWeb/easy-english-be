@@ -1,21 +1,22 @@
 package com.universityweb.enrollment.mapper;
 
+import com.universityweb.common.infrastructure.BaseMapper;
 import com.universityweb.enrollment.entity.Enrollment;
-import com.universityweb.enrollment.response.EnrollmentResponse;
+import com.universityweb.enrollment.dto.EnrollmentDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface EnrollmentMapper {
+public interface EnrollmentMapper extends BaseMapper<Enrollment, EnrollmentDTO> {
     EnrollmentMapper INSTANCE = Mappers.getMapper(EnrollmentMapper.class);
 
-    EnrollmentResponse toDTO(Enrollment entity);
+    EnrollmentDTO toDTO(Enrollment entity);
 
-    List<EnrollmentResponse> toDTOs(List<Enrollment> entities);
+    List<EnrollmentDTO> toDTOs(List<Enrollment> entities);
 
-    Enrollment toEntity(EnrollmentResponse dto);
+    Enrollment toEntity(EnrollmentDTO dto);
 
-    List<Enrollment> toEntities(List<EnrollmentResponse> dtos);
+    List<Enrollment> toEntities(List<EnrollmentDTO> dtos);
 }
