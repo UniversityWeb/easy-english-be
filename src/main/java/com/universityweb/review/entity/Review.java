@@ -5,8 +5,6 @@ import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -30,17 +28,7 @@ public class Review {
     @Column(name = "comment")
     private String comment;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "parent_review_id")
-    private Review parentReview;
-
-    @OneToMany(mappedBy = "parentReview")
-    private List<Review> childReviews;
 }
