@@ -44,6 +44,7 @@ public class TestServiceImpl
     public TestDTO update(Long id, TestDTO dto) {
         Test existingTest = getEntityById(dto.getId());
 
+        existingTest.setType(dto.getType());
         existingTest.setStatus(dto.getStatus());
         existingTest.setTitle(dto.getTitle());
         existingTest.setDescription(dto.getDescription());

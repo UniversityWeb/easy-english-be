@@ -16,6 +16,7 @@ import java.util.List;
 @Setter
 public class TestDTO {
     private Long id;
+    private Test.EType type;
     private Test.EStatus status;
     private String title;
     private String description;

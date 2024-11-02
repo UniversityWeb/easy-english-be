@@ -1,6 +1,6 @@
 package com.universityweb.lesson;
 
-import com.universityweb.file.UploadFileService;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.lesson.request.LessonRequest;
 import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.lesson.service.LessonService;
@@ -22,13 +22,13 @@ public class LessonController {
     @Autowired
     private LessonService lessonService;
     @Autowired
-    private UploadFileService uploadFileService;
+    private MediaService mediaService;
 
     @PostMapping("/create-lesson")
     public ResponseEntity<LessonResponse> createLesson(@ModelAttribute LessonRequest lessonRequest,
                                                        @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         if (file != null && !file.isEmpty()) {
-            String url = uploadFileService.uploadFile(file);
+            String url = mediaService.uploadFile(file);
             lessonRequest.setContentUrl(url);
         }
         return ResponseEntity.ok().body( lessonService.createLesson(lessonRequest));
@@ -39,7 +39,7 @@ public class LessonController {
     public ResponseEntity<LessonResponse> updateLesson(@ModelAttribute LessonRequest lessonRequest,
                                                @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         if (file != null && !file.isEmpty()) {
-            String url = uploadFileService.uploadFile(file);
+            String url = mediaService.uploadFile(file);
             lessonRequest.setContentUrl(url);
         }
         return ResponseEntity.ok().body(lessonService.updateLesson(lessonRequest));

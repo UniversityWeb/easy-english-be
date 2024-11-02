@@ -22,6 +22,9 @@ public class Test implements Serializable {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    private EType type;
+
+    @Enumerated(EnumType.STRING)
     private EStatus status;
 
     private String title;
@@ -47,6 +50,11 @@ public class Test implements Serializable {
     @ManyToOne
     @JoinColumn(name = "course_section_id", referencedColumnName = "id", nullable = false)
     private Section section;
+
+    public enum EType {
+        QUIZ,
+        CUSTOM
+    }
 
     public enum EStatus {
         /**
