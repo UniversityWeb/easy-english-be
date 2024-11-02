@@ -41,13 +41,14 @@ public class PaymentController {
                 .body(paymentResponse);
     }
 
-    @PutMapping("/result")
+    @PutMapping("/result/{method}")
     public ResponseEntity<PaymentResponse> handlePaymentResult(
             HttpServletRequest req,
-            @RequestParam Map<String, String> params
+            @RequestParam Map<String, String> params,
+            @PathVariable Payment.EMethod method
     ) {
         log.info("Received payment result with params: {}", params);
-        PaymentResponse paymentResponse = paymentService.processPaymentResult(req, params);
+        PaymentResponse paymentResponse = paymentService.processPaymentResult(method, req, params);
         log.info("Processed payment result successfully: {}", paymentResponse);
         return ResponseEntity.ok(paymentResponse);
     }

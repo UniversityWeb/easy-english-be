@@ -18,4 +18,5 @@ public interface OrderService {
     OrderItemDTO getOrderItem(Long orderItemId);
     Page<OrderItemDTO> getOrderItems(Long orderItemId, Pageable pageable);
     OrderItem getOrderItemEntityById(Long orderItemId);
+    Order updateOrder(Order order);
 }

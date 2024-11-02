@@ -26,6 +26,7 @@ public class Lesson {
 
     @Enumerated(EnumType.STRING)
     private LessonType type;
+    @Column(columnDefinition = "TEXT")
     private String content;
     private String contentUrl;
     private String description;

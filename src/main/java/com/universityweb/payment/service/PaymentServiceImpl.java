@@ -14,7 +14,6 @@ import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
-import com.universityweb.payment.exception.PaymentNotFoundException;
 import com.universityweb.payment.exception.UnsupportedPaymentMethodException;
 import com.universityweb.payment.mapper.PaymentMapper;
 import com.universityweb.payment.request.GetPaymentsByUsernameAndStatusRequest;
@@ -92,12 +91,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentResponse processPaymentResult(
-            HttpServletRequest req, Map<String,
-            String> params
+            Payment.EMethod method,
+            HttpServletRequest req,
+            Map<String, String> params
     ) {
-        String methodStr = params.get("method");
-        Payment.EMethod method = Payment.EMethod.valueOf(methodStr);
-
         switch (method) {
             case VN_PAY -> {
                 String orderIdStr = params.get("vnp_OrderInfo");
@@ -113,13 +110,19 @@ public class PaymentServiceImpl implements PaymentService {
                 Payment payment = order.getPayment();
 
                 int paymentStatus = vnPayService.orderReturn(req);
-                payment.setStatus(paymentStatus == 1 ? Payment.EStatus.SUCCESS : Payment.EStatus.FAILED);
+                boolean isPaymentSuccess = paymentStatus == 1;
+                payment.setStatus(isPaymentSuccess ? Payment.EStatus.SUCCESS : Payment.EStatus.FAILED);
                 payment.setPaymentTime(paymentTime);
                 payment.setTransactionNo(transactionNo);
                 payment.setAmountPaid(totalAmount);
                 payment.setCurrency(ECurrency.VND);
 
+                order.setStatus(isPaymentSuccess ? Order.EStatus.PAID : Order.EStatus.FAILED);
+                order.setUpdatedAt(paymentTime);
+
                 Payment savedPayment = paymentRepos.save(payment);
+                orderService.updateOrder(order);
+                addEnrollmentsByOrderId(orderId);
                 return paymentMapper.toDTO(savedPayment);
             }
             default -> throw new UnsupportedPaymentMethodException("Payment method " + method + " is not supported.");
@@ -191,16 +194,12 @@ public class PaymentServiceImpl implements PaymentService {
             AddEnrollmentRequest addEnrollmentRequest = new AddEnrollmentRequest(
                     Enrollment.EStatus.ACTIVE,
                     enrollmentType,
+                    order.getUpdatedAt(),
+                    order.getUpdatedAt(),
                     user.getUsername(),
                     course.getId()
             );
             enrollmentService.addNewEnrollment(addEnrollmentRequest);
         }
-    }
-
-    private Payment getPaymentById(Long paymentId) {
-        String msg = "Could not find any payment with id=" + paymentId;
-        return paymentRepos.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException(msg));
     }
 }

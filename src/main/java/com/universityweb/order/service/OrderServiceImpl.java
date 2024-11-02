@@ -15,6 +15,8 @@ import com.universityweb.order.exception.OrderNotFoundException;
 import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.order.repository.OrderItemRepos;
 import com.universityweb.order.repository.OrderRepos;
+import com.universityweb.payment.PaymentRepos;
+import com.universityweb.payment.entity.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +30,7 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    private static final long EXPIRATION_CHECK_RATE_MS = 60000; // 60 seconds
+    private static final long EXPIRATION_CHECK_RATE_MS = 3_600_000; // 1 hour
     private static final OrderMapper orderMapper = OrderMapper.INSTANCE;
 
     @Autowired
@@ -36,6 +38,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderItemRepos orderItemRepos;
+
+    @Autowired
+    private PaymentRepos paymentRepos;
 
     @Autowired
     private CartService cartService;
@@ -134,6 +139,11 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new OrderItemNotFoundException("Order item not found with ID: " + orderItemId));
     }
 
+    @Override
+    public Order updateOrder(Order order) {
+        return null;
+    }
+
     @Scheduled(fixedRate = EXPIRATION_CHECK_RATE_MS)
     private void updateExpiredOrders() {
         LocalDateTime currentTime = LocalDateTime.now();
@@ -143,9 +153,14 @@ public class OrderServiceImpl implements OrderService {
                 .findAllByCreatedAtBeforeAndStatusNot(fiveMinutesAgo, Order.EStatus.EXPIRED);
 
         for (Order order : expiredOrders) {
-            order.setStatus(Order.EStatus.EXPIRED);
-        }
+            if (order.getStatus() == Order.EStatus.PENDING_PAYMENT) {
+                order.setStatus(Order.EStatus.EXPIRED);
+                Payment payment = order.getPayment();
+                payment.setStatus(Payment.EStatus.FAILED);
 
-        orderRepos.saveAll(expiredOrders);
+                orderRepos.save(order);
+                paymentRepos.save(payment);
+            }
+        }
     }
 }

@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Enrollment implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private double progress;
