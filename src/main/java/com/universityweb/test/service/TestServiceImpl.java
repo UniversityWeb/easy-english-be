@@ -6,6 +6,7 @@ import com.universityweb.test.TestMapper;
 import com.universityweb.test.TestRepos;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
+import com.universityweb.test.exception.TestNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -48,11 +49,9 @@ public class TestServiceImpl
         existingTest.setDescription(dto.getDescription());
         existingTest.setOrdinalNumber(dto.getOrdinalNumber());
         existingTest.setDurationInMilis(dto.getDurationInMilis());
-        existingTest.setStartDate(dto.getStartDate());
-        existingTest.setEndDate(dto.getEndDate());
+        existingTest.setPassingGrade(dto.getPassingGrade());
 
-        Test updatedTest = repository.save(existingTest);
-        return mapper.toDTO(updatedTest);
+        return savedAndConvertToDTO(existingTest);
     }
 
     @Override
@@ -64,7 +63,8 @@ public class TestServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find any tests with id=" + id);
+        String msg = String.format("Could not find any tests with id=%s", id);
+        throw new TestNotFoundException(msg);
     }
 
     @Override

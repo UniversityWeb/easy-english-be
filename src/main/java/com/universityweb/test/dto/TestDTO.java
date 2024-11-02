@@ -21,8 +21,7 @@ public class TestDTO {
     private String description;
     private Integer ordinalNumber;
     private Integer durationInMilis;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private Double passingGrade;
     private LocalDateTime createdAt;
     private List<TestPartDTO> parts;
     private Long sectionId;

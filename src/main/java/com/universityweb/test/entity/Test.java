@@ -26,6 +26,7 @@ public class Test implements Serializable {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "ordinal_number")
@@ -34,11 +35,8 @@ public class Test implements Serializable {
     @Column(name = "duration_in_milis")
     private Integer durationInMilis;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
-
-    @Column(name = "end_date")
-    private LocalDateTime endDate;
+    @Column(name = "passing_grade")
+    private Double passingGrade;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
