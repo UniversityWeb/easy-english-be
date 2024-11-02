@@ -60,8 +60,8 @@ public class CourseController {
     @PostMapping("/update-course")
     public ResponseEntity<String> updateCourse(
             @ModelAttribute CourseRequest courseRequest,
-            @RequestParam("video") MultipartFile video,
-            @RequestParam("image") MultipartFile image
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "image", required = false) MultipartFile image
     ) {
         Long courseId = courseRequest.getId();
         Course course = courseService.getEntityById(courseId);
@@ -77,8 +77,8 @@ public class CourseController {
     @PostMapping("/create-course")
     public ResponseEntity<String> createCourse(
             @ModelAttribute CourseRequest courseRequest,
-            @RequestParam("video") MultipartFile video,
-            @RequestParam("image") MultipartFile image
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "image", required = false) MultipartFile image
     ) {
         processCourseMedia(courseRequest, video, image);
 
@@ -138,10 +138,15 @@ public class CourseController {
     }
 
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {
-        String videoPreview = mediaService.uploadFile(video);
-        String imagePreview = mediaService.uploadFile(image);
-        courseRequest.setImagePreview(imagePreview);
-        courseRequest.setVideoPreview(videoPreview);
+        if (video != null && !video.isEmpty()) {
+            String videoPreview = mediaService.uploadFile(video);
+            courseRequest.setVideoPreview(videoPreview);
+        }
+
+        if (image != null && !image.isEmpty()) {
+            String imagePreview = mediaService.uploadFile(image);
+            courseRequest.setImagePreview(imagePreview);
+        }
     }
 
     private Page<CourseResponse> constructMediaUrl(Page<CourseResponse> courseResponses) {
