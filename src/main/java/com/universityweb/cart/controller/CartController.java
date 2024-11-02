@@ -1,4 +1,4 @@
-package com.universityweb.cart;
+package com.universityweb.cart.controller;
 
 import com.universityweb.cart.entity.Cart;
 import com.universityweb.cart.response.CartItemResponse;
@@ -6,7 +6,6 @@ import com.universityweb.cart.response.CartResponse;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.service.MediaService;
-import com.universityweb.course.entity.Course;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import io.swagger.v3.oas.annotations.tags.Tag;
