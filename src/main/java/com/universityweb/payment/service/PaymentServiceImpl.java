@@ -8,6 +8,9 @@ import com.universityweb.course.entity.Course;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.request.AddEnrollmentRequest;
 import com.universityweb.enrollment.service.EnrollmentService;
+import com.universityweb.notification.request.AddNotificationRequest;
+import com.universityweb.notification.service.NotificationService;
+import com.universityweb.notification.util.PaymentContentNotification;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
 import com.universityweb.order.repository.OrderRepos;
@@ -51,8 +54,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private EnrollmentService enrollmentService;
+
     @Autowired
     private OrderRepos orderRepos;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     @Transactional
@@ -123,6 +130,10 @@ public class PaymentServiceImpl implements PaymentService {
                 Payment savedPayment = paymentRepos.save(payment);
                 orderService.updateOrder(order);
                 addEnrollmentsByOrderId(orderId);
+
+                String username = order.getUser().getUsername();
+                sendNotification(isPaymentSuccess, username, orderIdStr, transactionNoStr, totalAmountStr, paymentTime);
+
                 return paymentMapper.toDTO(savedPayment);
             }
             default -> throw new UnsupportedPaymentMethodException("Payment method " + method + " is not supported.");
@@ -169,6 +180,18 @@ public class PaymentServiceImpl implements PaymentService {
         addEnrollmentsByOrderId(orderId);
 
         return paymentMapper.toDTO(savedPayment);
+    }
+
+    private void sendNotification(boolean isPaymentSuccess, String username,
+                                  String orderIdStr, String transactionNoStr, String totalAmountStr, LocalDateTime paymentTime) {
+        String msg = isPaymentSuccess
+                ? PaymentContentNotification.paymentSuccess(username, orderIdStr, transactionNoStr, totalAmountStr)
+                : PaymentContentNotification.paymentFailed(username, orderIdStr, totalAmountStr);
+        AddNotificationRequest notificationRequest = new AddNotificationRequest(
+                msg,
+                username,
+                paymentTime);
+        notificationService.sendRealtimeNotification(notificationRequest);
     }
 
     private Pageable createPageable(int page, int size) {
