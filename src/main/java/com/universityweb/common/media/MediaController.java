@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/api/v1/media")
 @Tag(name = "Media")
@@ -32,13 +30,10 @@ public class MediaController {
                 .body(fileContent);
     }
 
-    @Operation(summary = "Upload an image file", description = "Allows the user to upload an image.")
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(
             @Parameter(description = "Image file to upload", required = true)
-            @RequestParam("file") MultipartFile file,
-            @Parameter(description = "Custom file name", required = true)
-            @RequestParam("customFileName") String customFileName
+            @RequestParam("file") MultipartFile file
     ) {
         try {
             if (file.isEmpty()) {
@@ -47,13 +42,10 @@ public class MediaController {
             }
 
             // Upload the file using mediaService
-            mediaService.uploadFile(customFileName, file);
-            log.info("File uploaded successfully: {}", customFileName);
+            String suffixPath = mediaService.uploadFile(file);
+            log.info("File uploaded successfully: {}", suffixPath);
 
-            return ResponseEntity.ok("File uploaded successfully: " + customFileName);
-        } catch (IOException e) {
-            log.error("File upload failed due to I/O error.", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed due to I/O error.");
+            return ResponseEntity.ok("File uploaded successfully: " + suffixPath);
         } catch (Exception e) {
             log.error("File upload failed: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed: " + e.getMessage());

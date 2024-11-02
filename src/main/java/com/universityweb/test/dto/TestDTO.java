@@ -16,13 +16,13 @@ import java.util.List;
 @Setter
 public class TestDTO {
     private Long id;
+    private Test.EType type;
     private Test.EStatus status;
     private String title;
     private String description;
     private Integer ordinalNumber;
     private Integer durationInMilis;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private Double passingGrade;
     private LocalDateTime createdAt;
     private List<TestPartDTO> parts;
     private Long sectionId;

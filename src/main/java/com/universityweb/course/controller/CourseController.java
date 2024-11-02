@@ -1,9 +1,10 @@
 package com.universityweb.course.controller;
 
+import com.universityweb.common.media.service.MediaService;
+import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
-import com.universityweb.file.UploadFileService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RequestMapping("/api/v1/course")
@@ -23,52 +24,68 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-
     @Autowired
-    private UploadFileService uploadFileService;
+    private MediaService mediaService;
+
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourseOfTeacher(courseRequest));
+        Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("/get-all-course-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseOfStudent(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourseOfStudent(courseRequest));
+        List<CourseResponse> courseResponses = courseService.getAllCourseOfStudent(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("/get-all-course-not-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseNotOfStudent(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourseNotOfStudent(courseRequest));
+        List<CourseResponse> courseResponses = courseService.getAllCourseNotOfStudent(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("/get-all-course-favorite-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseFavoriteOfStudent(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourseFavoriteOfStudent(courseRequest));
+        List<CourseResponse> courseResponses = courseService.getAllCourseFavoriteOfStudent(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("/get-all-course")
     public ResponseEntity<Page<CourseResponse>> getAllCourse(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourse(courseRequest));
+        Page<CourseResponse> courseResponses = courseService.getAllCourse(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("/update-course")
-    public ResponseEntity<String> updateCourse(@ModelAttribute CourseRequest courseRequest, @RequestParam("video") MultipartFile video,@RequestParam("image") MultipartFile image) throws IOException {
-        String videoPreview = uploadFileService.uploadFile(video);
-        String imagePreview = uploadFileService.uploadFile(image);
-        courseRequest.setImagePreview(imagePreview);
-        courseRequest.setVideoPreview(videoPreview);
+    public ResponseEntity<String> updateCourse(
+            @ModelAttribute CourseRequest courseRequest,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        Long courseId = courseRequest.getId();
+        Course course = courseService.getEntityById(courseId);
+        mediaService.deleteFile(course.getVideoPreview());
+        mediaService.deleteFile(course.getImagePreview());
+
+        processCourseMedia(courseRequest, video, image);
+
         courseService.updateCourse(courseRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body("Course updated successfully");
     }
+
     @PostMapping("/create-course")
-    public ResponseEntity<String> createCourse(@ModelAttribute CourseRequest courseRequest, @RequestParam("video") MultipartFile video,@RequestParam("image") MultipartFile image) throws IOException {
-        String videoPreview = uploadFileService.uploadFile(video);
-        String imagePreview = uploadFileService.uploadFile(image);
-        courseRequest.setImagePreview(imagePreview);
-        courseRequest.setVideoPreview(videoPreview);
+    public ResponseEntity<String> createCourse(
+            @ModelAttribute CourseRequest courseRequest,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        processCourseMedia(courseRequest, video, image);
+
         courseService.createCourse(courseRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body("Course added successfully");
     }
+
     @PostMapping("/delete-course")
     public ResponseEntity<String> deleteCourse(@RequestBody CourseRequest courseRequest) {
         courseService.deleteCourse(courseRequest);
@@ -76,21 +93,25 @@ public class CourseController {
     }
     @PostMapping("/get-main-course")
     public ResponseEntity<CourseResponse> getMainCourse(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok( courseService.getMainCourse(courseRequest));
+        CourseResponse courseResponse = courseService.getMainCourse(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponse));
     }
     @PostMapping("/get-all-course-by-list-category")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByListCategory(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourseByListCategory(courseRequest));
+        Page<CourseResponse> courseResponses = courseService.getAllCourseByListCategory(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("/get-all-course-by-topic")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByTopic(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourseByTopic(courseRequest));
+        Page<CourseResponse> courseResponses = courseService.getAllCourseByTopic(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("/get-all-course-by-level")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByLevel(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getAllCourseByLevel(courseRequest));
+        Page<CourseResponse> courseResponses = courseService.getAllCourseByLevel(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
     @PostMapping("add-course-to-favorite")
@@ -112,10 +133,41 @@ public class CourseController {
 
     @PostMapping("/get-course-by-filter")
     public ResponseEntity<Page<CourseResponse>> filterCourses(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.getCourseByFilter(courseRequest));
+        Page<CourseResponse> courseResponses = courseService.getCourseByFilter(courseRequest);
+        return ResponseEntity.ok(constructMediaUrl(courseResponses));
     }
 
+    private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {
+        if (video != null && !video.isEmpty()) {
+            String videoPreview = mediaService.uploadFile(video);
+            courseRequest.setVideoPreview(videoPreview);
+        }
 
+        if (image != null && !image.isEmpty()) {
+            String imagePreview = mediaService.uploadFile(image);
+            courseRequest.setImagePreview(imagePreview);
+        }
+    }
+
+    private Page<CourseResponse> constructMediaUrl(Page<CourseResponse> courseResponses) {
+        return courseResponses.map(this::setMediaUrls);
+    }
+
+    private List<CourseResponse> constructMediaUrl(List<CourseResponse> courseResponses) {
+        return courseResponses.stream()
+                .map(this::setMediaUrls)
+                .collect(Collectors.toList());
+    }
+
+    private CourseResponse constructMediaUrl(CourseResponse courseResponse) {
+        return setMediaUrls(courseResponse);
+    }
+
+    private CourseResponse setMediaUrls(CourseResponse response) {
+        response.setVideoPreview(mediaService.constructFileUrl(response.getVideoPreview()));
+        response.setImagePreview(mediaService.constructFileUrl(response.getImagePreview()));
+        return response;
+    }
 
 //    @GetMapping("")
 //    public ResponseEntity<List<Course>> getAllCourse() {

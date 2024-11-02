@@ -22,10 +22,14 @@ public class Test implements Serializable {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    private EType type;
+
+    @Enumerated(EnumType.STRING)
     private EStatus status;
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "ordinal_number")
@@ -34,11 +38,8 @@ public class Test implements Serializable {
     @Column(name = "duration_in_milis")
     private Integer durationInMilis;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
-
-    @Column(name = "end_date")
-    private LocalDateTime endDate;
+    @Column(name = "passing_grade")
+    private Double passingGrade;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -49,6 +50,11 @@ public class Test implements Serializable {
     @ManyToOne
     @JoinColumn(name = "course_section_id", referencedColumnName = "id", nullable = false)
     private Section section;
+
+    public enum EType {
+        QUIZ,
+        CUSTOM
+    }
 
     public enum EStatus {
         /**
