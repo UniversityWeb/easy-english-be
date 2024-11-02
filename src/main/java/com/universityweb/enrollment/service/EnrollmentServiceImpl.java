@@ -11,8 +11,10 @@ import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.enrollment.request.AddEnrollmentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,13 +42,17 @@ public class EnrollmentServiceImpl
                 .progress(0)
                 .status(addRequest.status())
                 .type(addRequest.type())
-                .createdAt(LocalDateTime.now())
-                .lastAccessed(LocalDateTime.now())
+                .createdAt(addRequest.createdAt())
+                .lastAccessed(addRequest.lastAccessed())
                 .user(user)
                 .course(course)
                 .build();
-        Enrollment saved = repository.save(enrollment);
-        return mapper.toDTO(saved);
+        try {
+            Enrollment saved = repository.save(enrollment);
+            return mapper.toDTO(saved);
+        } catch (Throwable e) {
+            return null;
+        }
     }
 
     @Override

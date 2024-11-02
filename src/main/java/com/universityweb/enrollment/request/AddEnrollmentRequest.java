@@ -2,6 +2,9 @@ package com.universityweb.enrollment.request;
 
 import com.universityweb.enrollment.entity.Enrollment;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDateTime;
 
 public record AddEnrollmentRequest(
         @Schema(description = "Status of the enrollment", example = "ACTIVE")
@@ -9,6 +12,10 @@ public record AddEnrollmentRequest(
 
         @Schema(description = "Type of enrollment", example = "PAID")
         Enrollment.EType type,
+
+        LocalDateTime createdAt,
+
+        LocalDateTime lastAccessed,
 
         @Schema(description = "Username of the user to be enrolled", example = "jane.doe")
         String username,

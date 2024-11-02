@@ -16,4 +16,8 @@ public interface TestPartRepos extends JpaRepository<TestPart, Long> {
 
     @Query("SELECT tp FROM TestPart tp WHERE tp.id = :id AND tp.isDeleted = false")
     Optional<TestPart> findByIdAndNotDeleted(Long id);
+
+    @Query("SELECT tp FROM TestPart tp " +
+            "WHERE tp.test.id = :testId ORDER BY tp.ordinalNumber ASC")
+    TestPart getFirstTestPartByTestId(Long testId);
 }

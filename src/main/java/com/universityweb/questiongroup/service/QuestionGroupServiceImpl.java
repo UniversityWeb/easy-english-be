@@ -7,6 +7,7 @@ import com.universityweb.questiongroup.dto.QuestionGroupDTO;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testpart.service.TestPartService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -70,5 +71,22 @@ public class QuestionGroupServiceImpl
         Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
         List<QuestionGroup> questionGroups = repository.findByTestPartId(testPartId, sort);
         return mapper.toDTOs(questionGroups);
+    }
+
+    @Override
+    public @NotNull QuestionGroup getFirstOrCreateGroupByTestPartId(Long testPartId) {
+        QuestionGroup questionGroup = repository.getFirstGroupByTestPartId(testPartId);
+        if (questionGroup != null) {
+            return questionGroup;
+        }
+
+        TestPart testPart = testPartService.getEntityById(testPartId);
+        QuestionGroup newQuestionGroup = QuestionGroup.builder()
+                .title("Default Title")
+                .ordinalNumber(1)
+                .isDeleted(false)
+                .testPart(testPart)
+                .build();
+        return repository.save(newQuestionGroup);
     }
 }

@@ -13,4 +13,8 @@ public interface QuestionGroupRepos extends JpaRepository<QuestionGroup, Long> {
     @Query("SELECT qg FROM QuestionGroup qg " +
             "WHERE qg.testPart.id = :testPartId AND qg.isDeleted = false")
     List<QuestionGroup> findByTestPartId(Long testPartId, Sort sort);
+
+    @Query("SELECT qg FROM QuestionGroup qg " +
+            "WHERE qg.testPart.id = :testPartId ORDER BY qg.ordinalNumber ASC")
+    QuestionGroup getFirstGroupByTestPartId(Long testPartId);
 }

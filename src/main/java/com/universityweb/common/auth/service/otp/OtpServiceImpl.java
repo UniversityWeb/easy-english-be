@@ -97,7 +97,7 @@ public class OtpServiceImpl implements OtpService {
         return email + "_" + purpose;
     }
 
-    @Scheduled(fixedRate = 120_000)
+    @Scheduled(fixedRate = 3_600_000)
     private void removeExpiredOtp() {
         Iterator<String> iterator = otpCache.keySet().iterator();
 

@@ -27,4 +27,8 @@ public interface TestQuestionMapper extends BaseMapper<TestQuestion, TestQuestio
 
     @Override
     List<TestQuestion> toEntities(List<TestQuestionDTO> dtos);
+
+    @Mapping(target = "questionGroup", ignore = true)
+    @Mapping(target = "userAnswers", ignore = true)
+    TestQuestion toEntity(AddQuizQuestionRequest dto);
 }

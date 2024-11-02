@@ -80,7 +80,7 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public String constructFileUrl(String suffixPath) {
-        if (suffixPath.startsWith("http://") || suffixPath.startsWith("https://")) {
+        if (suffixPath == null || suffixPath.startsWith("http://") || suffixPath.startsWith("https://")) {
             return suffixPath; // Return the original suffix path as is
         }
         return minioUrl + "/" + bucketName + suffixPath;

@@ -1,10 +1,13 @@
-package com.universityweb.cart;
+package com.universityweb.cart.controller;
 
 import com.universityweb.cart.entity.Cart;
 import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.response.CartResponse;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.service.MediaService;
+import com.universityweb.course.response.CourseResponse;
+import com.universityweb.course.service.CourseService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +25,8 @@ public class CartController {
 
     private final AuthService authService;
     private final CartService cartService;
+    private final CourseService courseService;
+    private final MediaService mediaService;
 
     @GetMapping("/")
     public ResponseEntity<CartResponse> getCart() {
@@ -29,6 +34,14 @@ public class CartController {
         log.info("Retrieving cart items for user: {}", username);
         CartResponse cart = cartService.getCartByUsername(username);
         log.info("Successfully retrieved cart items for user: {}", username);
+
+        cart.getItems().forEach(item -> {
+            Long courseId = item.getCourse().getId();
+            CourseResponse course = courseService.getById(courseId);
+            course = setMediaUrls(course);
+            item.setCourse(course);
+        });
+
         return ResponseEntity.ok(cart);
     }
 
@@ -100,5 +113,11 @@ public class CartController {
         Cart cart = cartService.getCartByCartItemId(cartItemId);
         String targetUsername = cart.getUser().getUsername();
         authService.checkAuthorization(targetUsername);
+    }
+
+    private CourseResponse setMediaUrls(CourseResponse response) {
+        response.setVideoPreview(mediaService.constructFileUrl(response.getVideoPreview()));
+        response.setImagePreview(mediaService.constructFileUrl(response.getImagePreview()));
+        return response;
     }
 }
