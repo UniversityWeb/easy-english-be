@@ -1,8 +1,5 @@
 package com.universityweb.notification.util;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 public class PaymentContentNotification {
     public static String paymentSuccess(String username, String orderId, String transactionId, String amount) {
         return String.format("Hello %s! Your payment of %s for the order '%s' was successful. Transaction ID: %s.",
