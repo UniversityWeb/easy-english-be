@@ -44,6 +44,9 @@ public class Test implements Serializable {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "audio_path")
+    private String audioPath;
+
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TestPart> parts;
 
