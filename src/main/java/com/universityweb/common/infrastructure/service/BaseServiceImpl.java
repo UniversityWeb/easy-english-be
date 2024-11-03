@@ -59,6 +59,11 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     public void softDelete(ID id) {
     }
 
+    @Override
+    public E save(E entity) {
+        return repository.save(entity);
+    }
+
     protected abstract void throwNotFoundException(ID id);
 
     protected void setEntityRelationshipsBeforeAdd(E entity, D dto) {

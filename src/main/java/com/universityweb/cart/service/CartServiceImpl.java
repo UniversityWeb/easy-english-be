@@ -50,7 +50,7 @@ public class CartServiceImpl implements CartService {
     public CartItemResponse addItemToCart(String username, Long courseId) {
         boolean isValid = canAddToCart(username, courseId);
         if (!isValid) {
-           throw new CartItemAlreadyExistsException("Item already exists");
+            throw new CartItemAlreadyExistsException("Item already exists");
         }
 
         Cart cart = getOrCreateCart(username);
@@ -96,7 +96,7 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new CartItemNotFoundException(cartItemNotFoundMsg));
 
         CartItem.EStatus status = cartItem.getStatus();
-        if (status == CartItem.EStatus.ACTIVE || status == CartItem.EStatus.OUT_OF_STOCK) {
+        if (status == CartItem.EStatus.ACTIVE) {
             cartItem.setStatus(CartItem.EStatus.DELETED);
             cartItem.setUpdatedAt(LocalDateTime.now());
         }

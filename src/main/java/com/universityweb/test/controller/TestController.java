@@ -30,15 +30,25 @@ public class TestController
         this.mediaService = mediaService;
     }
 
+    @Override
+    public ResponseEntity<TestDTO> getById(Long id) {
+        TestDTO testDTO = service.getById(id);
+        return ResponseEntity.ok(setMediaUrls(testDTO));
+    }
+
     @PutMapping("/{testId}/upload-audio")
     public ResponseEntity<String> updateAudioFile(
             @PathVariable Long testId,
             @RequestParam("audio") MultipartFile audio
     ) {
         Test test = service.getEntityById(testId);
+        mediaService.deleteFile(test.getAudioPath());
+
         String suffixPath = mediaService.uploadFile(audio);
+
         test.setAudioPath(suffixPath);
-        return ResponseEntity.ok(mediaService.constructFileUrl(suffixPath));
+        Test saved = service.save(test);
+        return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAudioPath()));
     }
 
     @PutMapping("/update-status/{id}")
