@@ -24,6 +24,7 @@ public class TestDTO {
     private Integer durationInMilis;
     private Double passingGrade;
     private LocalDateTime createdAt;
+    private String audioPath;
     private List<TestPartDTO> parts;
     private Long sectionId;
 }

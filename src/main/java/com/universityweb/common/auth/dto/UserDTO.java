@@ -75,4 +75,6 @@ public class UserDTO {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private LocalDateTime createdAt;
+
+    private String avatarPath;
 }

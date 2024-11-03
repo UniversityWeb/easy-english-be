@@ -54,6 +54,9 @@ public class User implements UserDetails, Serializable {
     @Enumerated(EnumType.STRING)
     private EStatus status;
 
+    @Column(name = "avatar_path")
+    private String avatarPath;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
 

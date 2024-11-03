@@ -107,8 +107,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String getCurrentUsername() {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userDetails.getUsername();
+        User user = getCurUser();
+        return user.getUsername();
     }
 
     @Override
@@ -233,6 +233,12 @@ public class AuthServiceImpl implements AuthService {
         otpService.generateAndSendOtp(email, OtpService.EPurpose.ACTIVE_ACCOUNT);
 
         return saveUserAndConvertToDTO(user);
+    }
+
+    @Override
+    public User getCurUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userService.loadUserByUsername(username);
     }
 
     private UserDTO saveUserAndConvertToDTO(User user) {

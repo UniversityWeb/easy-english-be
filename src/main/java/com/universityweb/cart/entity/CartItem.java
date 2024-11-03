@@ -43,9 +43,6 @@ public class CartItem implements Serializable {
 
     public enum EStatus {
         ACTIVE,
-        OUT_OF_STOCK,
         DELETED,
-        PAYMENT_PENDING,
-        PAYMENT_COMPLETED
     }
 }

@@ -38,7 +38,8 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public byte[] getFile(String suffixPath) {
-        validateSuffixPath(suffixPath);
+        if (suffixPath == null || suffixPath.isEmpty()) return null;
+
         String uniqueFileName = extractFileName(suffixPath);
         try (InputStream inputStream = minioClient.getObject(
                 GetObjectArgs.builder()
@@ -62,8 +63,9 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public void deleteFile(String suffixPath) {
+        if (suffixPath == null || suffixPath.isEmpty()) return;
+
         try {
-            validateSuffixPath(suffixPath);
             String uniqueFileName = extractFileName(suffixPath);
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -116,12 +118,6 @@ public class MediaServiceImpl implements MediaService {
             throw new RuntimeException("Failed to read file input stream", e);
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
             throw new RuntimeException("Error while uploading file to MinIO", e);
-        }
-    }
-
-    private void validateSuffixPath(String suffixPath) {
-        if (suffixPath == null || suffixPath.isEmpty()) {
-            throw new IllegalArgumentException("Suffix path cannot be null or empty");
         }
     }
 
