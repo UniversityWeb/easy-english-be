@@ -1,10 +1,13 @@
 package com.universityweb.common.auth.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
+import com.universityweb.test.entity.Test;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,10 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -29,6 +33,7 @@ public class UserController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final MediaService mediaService;
 
     @Operation(
             summary = "Update User Profile",
@@ -61,5 +66,19 @@ public class UserController {
         UserDTO saved = userService.update(updateProfileRequest);
         log.info("Successfully updated user with username: {}", saved.getUsername());
         return ResponseEntity.ok(saved);
+    }
+
+    @PutMapping("/upload-avatar")
+    public ResponseEntity<String> updateAudioFile(
+            @RequestParam("avatar") MultipartFile avatar
+    ) {
+        User user = authService.getCurUser();
+        mediaService.deleteFile(user.getAvatarPath());
+
+        String suffixPath = mediaService.uploadFile(avatar);
+
+        user.setAvatarPath(suffixPath);
+        User saved = userService.save(user);
+        return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAvatarPath()));
     }
 }

@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
         User user = loadUserByUsername(usernameToUpdate);
 
-        user.setFullName(usernameToUpdate);
+        user.setFullName(updateProfileRequest.getFullName());
         user.setEmail(updateProfileRequest.getEmail());
         user.setPhoneNumber(updateProfileRequest.getPhoneNumber());
         user.setBio(updateProfileRequest.getBio());
