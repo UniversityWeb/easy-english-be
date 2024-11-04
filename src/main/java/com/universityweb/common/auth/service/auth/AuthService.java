@@ -35,4 +35,8 @@ public interface AuthService {
     UserDTO resendOTPToActiveAccount(String username);
 
     User getCurUser();
+
+    void generateOtpToUpdatePassword(UpdatePasswordRequest request);
+
+    void updatePasswordWithOtp(UpdatePassWithOtpReq updatePassWithOtpReq);
 }

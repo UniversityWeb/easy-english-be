@@ -6,7 +6,8 @@ public interface OtpService {
     enum EPurpose {
         LOGIN,
         ACTIVE_ACCOUNT,
-        UPDATE_PROFILE
+        UPDATE_PROFILE,
+        UPDATE_PASS,
     }
 
     boolean validateOtp(String email, String otp, EPurpose purpose);

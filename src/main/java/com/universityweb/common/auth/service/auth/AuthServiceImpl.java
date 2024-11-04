@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -122,14 +123,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserDTO updateOwnPassword(UpdatePasswordRequest request) {
-        String usernameToUpdate = request.username();
-        checkAuthorization(usernameToUpdate);
-
         if (!request.password().equals(request.confirmPassword())) {
             throw new SecurityException("Passwords do not match");
         }
 
-        User user = userService.loadUserByUsername(usernameToUpdate);
+        User user = getCurUser();
         String encodedPassword = passwordEncoder.encode(request.password());
         user.setPassword(encodedPassword);
 
@@ -241,6 +239,32 @@ public class AuthServiceImpl implements AuthService {
         return userService.loadUserByUsername(username);
     }
 
+    @Override
+    public void generateOtpToUpdatePassword(UpdatePasswordRequest request) {
+        User user = getCurUser();
+        String email = user.getEmail();
+        if (email == null || email.isEmpty()) {
+            throw new EmailNotFoundException("Email not found");
+        }
+
+        if (isPasswordValid(request)) {
+            otpService.generateAndSendOtp(email, OtpService.EPurpose.UPDATE_PASS);
+        }
+    }
+
+    @Override
+    public void updatePasswordWithOtp(UpdatePassWithOtpReq req) {
+        User user = getCurUser();
+        String email = user.getEmail();
+
+        otpService.validateOtp(email, req.getOtp(), OtpService.EPurpose.UPDATE_PASS);
+        otpService.invalidateOtp(email, OtpService.EPurpose.UPDATE_PASS);
+
+        String encodedPass = passwordEncoder.encode(req.getNewPassword());
+        user.setPassword(encodedPass);
+        userRepos.save(user);
+    }
+
     private UserDTO saveUserAndConvertToDTO(User user) {
         User savedUser = userRepos.save(user);
         return uMapper.toDTO(savedUser);
@@ -255,5 +279,34 @@ public class AuthServiceImpl implements AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return true;
+    }
+
+    private boolean isPasswordValid(UpdatePasswordRequest request) {
+        String password = request.password();
+        String confirmPassword = request.confirmPassword();
+
+        // Password validation rules
+        if (!StringUtils.hasText(password) || password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            throw new IllegalArgumentException("Password must contain at least one uppercase letter");
+        }
+        if (!password.matches(".*[a-z].*")) {
+            throw new IllegalArgumentException("Password must contain at least one lowercase letter");
+        }
+        if (!password.matches(".*\\d.*")) {
+            throw new IllegalArgumentException("Password must contain at least one digit");
+        }
+        if (!password.matches(".*[!@#$%^&*].*")) {
+            throw new IllegalArgumentException("Password must contain at least one special character");
+        }
+
+        // Confirm that password and confirmPassword match
+        if (!password.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Password and Confirm Password do not match");
+        }
+
+        return true; // Password is valid
     }
 }

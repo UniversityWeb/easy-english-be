@@ -39,7 +39,7 @@ logging:
     root: info
 
 frontend:
-  url: ${PROD_FRONTEND_URL}
+  urls: ${PROD_FRONTEND_URL}
 
 third-party:
   sending-email:

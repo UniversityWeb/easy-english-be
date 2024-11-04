@@ -72,6 +72,10 @@ public class UserController {
     public ResponseEntity<String> updateAudioFile(
             @RequestParam("avatar") MultipartFile avatar
     ) {
+        if (avatar == null || avatar.isEmpty()) {
+            return ResponseEntity.badRequest().body("File cannot be null or empty");
+        }
+
         User user = authService.getCurUser();
         mediaService.deleteFile(user.getAvatarPath());
 
