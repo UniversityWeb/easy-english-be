@@ -12,6 +12,9 @@ public record UpdatePasswordRequest(
         @NotBlank(message = "Username is required")
         String username,
 
+        @NotBlank(message = "Password is required")
+        String oldPassword,
+
         @Schema(
                 description = "Password of the user",
                 example = "P@123456",

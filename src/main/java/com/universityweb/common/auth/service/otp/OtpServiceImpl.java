@@ -61,7 +61,19 @@ public class OtpServiceImpl implements OtpService {
             case UPDATE_PROFILE:
                 sendOtpToUpdateProfile(email, otp);
                 break;
+            case UPDATE_PASS:
+                sendOtpToUpdatePass(email, otp);
+                break;
         }
+    }
+
+    private void sendOtpToUpdatePass(String toEmail, String otp) {
+        String subject = "Update Password - Your One-Time Password (OTP)";
+        String htmlBody = "<h3>Your OTP is: " + otp + "</h3>" +
+                "<p>Please use this code to complete your password update. " +
+                "This code is valid for " + OtpService.OTP_EXPIRATION_MINUTES + " minutes.</p>";
+
+        emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
     private void sendOtpToLogin(String toEmail, String otp) {

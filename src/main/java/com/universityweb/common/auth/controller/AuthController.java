@@ -5,6 +5,7 @@ import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.ActiveAccountResponse;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +29,7 @@ public class AuthController {
     private static final Logger log = LogManager.getLogger(AuthController.class);
 
     private final AuthService authService;
+    private final MediaService mediaService;
 
     @Operation(
             summary = "Register",
@@ -186,7 +188,7 @@ public class AuthController {
             },
             security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String tokenStr) {
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String tokenStr) {
         log.info("Logout method called with token: {}", tokenStr);
         authService.logout(tokenStr);
         log.info("Logout method completed successfully");
@@ -224,6 +226,7 @@ public class AuthController {
         log.info("GetUserByTokenStr method called with token: {}", tokenStr);
         UserDTO userDTO = authService.getUserByTokenStr(tokenStr);
         log.info("GetUserByTokenStr method completed successfully with response: {}", userDTO);
+        userDTO = setMediaUrls(userDTO);
         return ResponseEntity.ok(userDTO);
     }
 
@@ -257,6 +260,7 @@ public class AuthController {
         log.info("UpdateOwnPassword method called with request: {}", updatePasswordRequest);
         UserDTO userDTO = authService.updateOwnPassword(updatePasswordRequest);
         log.info("UpdateOwnPassword method completed successfully with response: {}", userDTO);
+        userDTO = setMediaUrls(userDTO);
         return ResponseEntity.ok(userDTO);
     }
 
@@ -289,6 +293,7 @@ public class AuthController {
         log.info("Received request to resend OTP for user: {}", username);
         UserDTO userDTO = authService.resendOTPToActiveAccount(username);
         log.info("OTP resent successfully for user: {}", username);
+        userDTO = setMediaUrls(userDTO);
         return ResponseEntity.ok(userDTO);
     }
 
@@ -384,6 +389,28 @@ public class AuthController {
         log.info("Received request to update user profile with OTP: {}", updateProfileRequest);
         UserDTO userDTO = authService.updateProfileWithOTP(updateProfileRequest);
         log.info("User profile updated successfully for user: {}", updateProfileRequest.getUsername());
+        userDTO = setMediaUrls(userDTO);
         return ResponseEntity.ok(userDTO);
+    }
+
+    @PostMapping("/generate-otp-to-update-password")
+    public ResponseEntity<String> generateOtpToUpdatePassword(
+            @RequestBody UpdatePasswordRequest request
+    ) {
+        authService.generateOtpToUpdatePassword(request);
+        return ResponseEntity.ok("OTP generated successfully");
+    }
+
+    @PutMapping("/update-password-with-otp")
+    public ResponseEntity<String> updatePasswordWithOtp(
+            @RequestBody UpdatePassWithOtpReq updatePassWithOtpReq
+    ) {
+        authService.updatePasswordWithOtp(updatePassWithOtpReq);
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+    private UserDTO setMediaUrls(UserDTO dto) {
+        dto.setAvatarPath(mediaService.constructFileUrl(dto.getAvatarPath()));
+        return dto;
     }
 }
