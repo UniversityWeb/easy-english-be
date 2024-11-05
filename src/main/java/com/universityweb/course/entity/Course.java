@@ -2,6 +2,7 @@ package com.universityweb.course.entity;
 
 import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.drip.Drip;
 import com.universityweb.faq.entity.FAQ;
 import com.universityweb.level.entity.Level;
 import com.universityweb.price.entity.Price;
@@ -99,4 +100,6 @@ public class Course {
     )
     private List<Category> categories;
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Drip> drips;
 }

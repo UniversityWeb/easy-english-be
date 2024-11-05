@@ -176,6 +176,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>easy-english-be</finalName>
 	</build>
 
 </project>

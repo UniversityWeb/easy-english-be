@@ -1,21 +1,16 @@
 package com.universityweb.lesson.mapper;
 
+import com.universityweb.common.infrastructure.BaseMapper;
 import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lesson.response.LessonResponse;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
-import java.util.List;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface LessonMapper {
-    LessonMapper INSTANCE = Mappers.getMapper(LessonMapper.class);
-
+public interface LessonMapper extends BaseMapper<Lesson, LessonResponse> {
+    @Mapping(source = "section.id", target = "sectionId")
     LessonResponse toDTO(Lesson entity);
 
-    List<LessonResponse> toDTOs(List<Lesson> entities);
-
+    @Mapping(target = "section", ignore = true)
     Lesson toEntity(LessonResponse dto);
-
-    List<Lesson> toEntities(List<LessonResponse> dtos);
 }
