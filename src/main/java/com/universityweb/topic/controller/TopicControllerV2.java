@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
-@RequestMapping("/api/v2/topic")
+@RequestMapping("/api/v1/topics")
 @RestController
 @Tag(name = "Topics v2")
 public class TopicControllerV2

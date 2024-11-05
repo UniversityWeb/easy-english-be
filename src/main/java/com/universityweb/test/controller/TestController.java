@@ -1,10 +1,14 @@
 package com.universityweb.test.controller;
 
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.common.media.service.MediaService;
+import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
+import com.universityweb.testresult.entity.TestResult;
+import com.universityweb.testresult.service.TestResultService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +26,20 @@ public class TestController
         extends BaseController<Test, TestDTO, Long, TestService> {
 
     private final MediaService mediaService;
+    private final AuthService authService;
+    private final TestResultService testResultService;
 
     @Autowired
-    public TestController(TestService service, MediaService mediaService) {
+    public TestController(
+            TestService service,
+            MediaService mediaService,
+            AuthService authService,
+            TestResultService testResultService
+    ) {
         super(service);
         this.mediaService = mediaService;
+        this.authService = authService;
+        this.testResultService = testResultService;
     }
 
     @Override

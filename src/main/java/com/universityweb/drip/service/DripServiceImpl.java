@@ -17,6 +17,7 @@ import com.universityweb.test.service.TestService;
 import com.universityweb.testresult.service.TestResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,6 +144,39 @@ public class DripServiceImpl
         }
 
         return true;
+    }
+
+    @Override
+    @Transactional
+    public List<DripsOfPrevDTO> updateDrips(
+            Long courseId,
+            List<DripsOfPrevDTO> dripsUpdateRequest
+    ) {
+        repository.deleteByCourseId(courseId);
+        Course course = courseService.getEntityById(courseId);
+
+        List<Drip> drips = new ArrayList<>();
+        for (DripsOfPrevDTO dripsOfPrevDTO : dripsUpdateRequest) {
+            Drip.ESourceType prevType = dripsOfPrevDTO.getPrevType();
+            Long prevId = dripsOfPrevDTO.getPrevId();
+
+            dripsOfPrevDTO.getNextDrips().forEach(next -> {
+                Drip.ESourceType nextType = next.getNextType();
+                Long nextId = next.getNextId();
+
+                Drip drip = Drip.builder()
+                        .prevType(prevType)
+                        .prevId(prevId)
+                        .nextType(nextType)
+                        .nextId(nextId)
+                        .requiredCompletion(next.getRequiredCompletion())
+                        .course(course)
+                        .build();
+                drips.add(drip);
+            });
+        }
+        repository.saveAll(drips);
+        return dripsUpdateRequest;
     }
 
     private boolean isLearned(String username, Drip.ESourceType targetType, Long targetId) {
