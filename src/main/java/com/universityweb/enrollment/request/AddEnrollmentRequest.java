@@ -2,7 +2,6 @@ package com.universityweb.enrollment.request;
 
 import com.universityweb.enrollment.entity.Enrollment;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 

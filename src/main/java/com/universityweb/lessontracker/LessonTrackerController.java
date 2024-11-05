@@ -5,7 +5,6 @@ import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.lessontracker.dto.LessonTrackerDTO;
 import com.universityweb.lessontracker.service.LessonTrackerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.simpleframework.xml.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
