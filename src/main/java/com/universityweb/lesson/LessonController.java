@@ -1,10 +1,14 @@
 package com.universityweb.lesson;
 
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.lesson.request.LessonRequest;
 import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.lesson.service.LessonService;
+import com.universityweb.lessontracker.LessonTracker;
+import com.universityweb.lessontracker.service.LessonTrackerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -17,11 +21,12 @@ import java.util.List;
 @RequestMapping("/api/v1/lesson")
 @RestController
 @Tag(name = "Lessons")
+@RequiredArgsConstructor
 public class LessonController {
-    @Autowired
-    private LessonService lessonService;
-    @Autowired
-    private MediaService mediaService;
+    private final LessonService lessonService;
+    private final MediaService mediaService;
+    private final AuthService authService;
+    private final LessonTrackerService lessonTrackerService;
 
     @PostMapping("/create-lesson")
     public ResponseEntity<LessonResponse> createLesson(
@@ -52,13 +57,22 @@ public class LessonController {
     @PostMapping("get-lesson-by-id")
     public LessonResponse getLessonById(@RequestBody LessonRequest lessonRequest) {
         LessonResponse lessonResponse = lessonService.getById(lessonRequest.getId());
-        return constructMediaUrl(lessonResponse);
+        return populateLessonDetails(lessonResponse);
     }
 
     @PostMapping("get-all-lesson-by-section")
     public List<LessonResponse> getAllLessonBySection(@RequestBody LessonRequest lessonRequest) {
         List<LessonResponse> lessonResponses = lessonService.getAllLessonBySection(lessonRequest);
-        return constructMediaUrl(lessonResponses);
+        return lessonResponses.stream()
+                .map(this::populateLessonDetails)
+                .toList();
+    }
+
+    private LessonResponse populateLessonDetails(LessonResponse lessonResponse) {
+        String username = authService.getCurrentUsername();
+        boolean isCompleted = lessonTrackerService.isLearned(username, lessonResponse.getId());
+        lessonResponse.setCompleted(isCompleted);
+        return constructMediaUrl(lessonResponse);
     }
 
     private void handleFileUpload(LessonRequest lessonRequest, MultipartFile file) {

@@ -27,4 +27,6 @@ public class LessonResponse {
     private LocalDate startDate;
     private LocalTime startTime;
     private LocalDateTime createdAt;
+
+    private boolean isCompleted;
 }
