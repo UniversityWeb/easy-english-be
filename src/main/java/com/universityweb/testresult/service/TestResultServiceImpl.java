@@ -1,10 +1,10 @@
 package com.universityweb.testresult.service;
 
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.testresult.TestResultRepos;
 import com.universityweb.testresult.dto.TestResultDTO;
 import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.mapper.TestResultMapper;
-import com.universityweb.testresult.request.AddTestResultRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,56 +13,59 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TestResultServiceImpl implements TestResultService {
-    private final TestResultMapper testResultMapper = TestResultMapper.INSTANCE;
+public class TestResultServiceImpl
+        extends BaseServiceImpl<TestResult, TestResultDTO, Long, TestResultRepos, TestResultMapper>
+        implements TestResultService {
 
     @Autowired
-    private TestResultRepos testResultRepos;
-
-    @Override
-    public TestResultDTO createTestResult(AddTestResultRequest addTestResultRequest) {
-        TestResult testResult = testResultMapper.toEntity(addTestResultRequest);
-        TestResult savedResult = testResultRepos.save(testResult);
-        return testResultMapper.toDTO(savedResult);
-    }
-
-    @Override
-    public TestResultDTO updateTestResult(TestResultDTO testResultDTO) {
-        TestResult testResult = getEntityById(testResultDTO.id());
-
-        testResult.setResult(testResultDTO.result());
-        testResult.setStatus(testResultDTO.status());
-        testResult.setTakingDuration(testResultDTO.takingDuration());
-        testResult.setStartedAt(testResultDTO.startedAt());
-        testResult.setFinishedAt(testResultDTO.finishedAt());
-
-        TestResult updatedResult = testResultRepos.save(testResult);
-        return testResultMapper.toDTO(updatedResult);
-    }
-
-    @Override
-    public TestResultDTO getTestResultById(Long id) {
-        TestResult testResult = getEntityById(id);
-        return testResultMapper.toDTO(testResult);
+    public TestResultServiceImpl(
+            TestResultRepos repository,
+            TestResultMapper mapper
+    ) {
+        super(repository, mapper);
     }
 
     @Override
     public Page<TestResultDTO> getTestResultsByUsername(int page, int size, String username) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startedAt"));
-        Page<TestResult> testResultsPage = testResultRepos.findByUser_Username(username, pageable);
-        return testResultsPage.map(testResultMapper::toDTO);
+        Page<TestResult> testResultsPage = repository.findByUser_Username(username, pageable);
+        return testResultsPage.map(mapper::toDTO);
     }
 
     @Override
     public TestResult getEntityById(Long id) {
-        return testResultRepos.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Could not find any test results with id" + id));
+    }
+
+    @Override
+    public TestResultDTO update(Long aLong, TestResultDTO dto) {
+        TestResult testResult = getEntityById(dto.id());
+
+        testResult.setResult(dto.result());
+        testResult.setStatus(dto.status());
+        testResult.setTakingDuration(dto.takingDuration());
+        testResult.setStartedAt(dto.startedAt());
+        testResult.setFinishedAt(dto.finishedAt());
+
+        return savedAndConvertToDTO(testResult);
+    }
+
+    @Override
+    protected void throwNotFoundException(Long id) {
+        throw new RuntimeException("Could not find any test results with id=" + id);
     }
 
     @Override
     public Page<TestResultDTO> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<TestResult> testResultsPage = testResultRepos.findAll(pageable);
-        return testResultsPage.map(testResultMapper::toDTO);
+        Page<TestResult> testResultsPage = repository.findAll(pageable);
+        return testResultsPage.map(mapper::toDTO);
+    }
+
+    @Override
+    public TestResult getByUsernameAndTestId(String username, Long testId) {
+        return repository.findByUser_UsernameAndTest_Id(username, testId)
+                .orElse(null);
     }
 }

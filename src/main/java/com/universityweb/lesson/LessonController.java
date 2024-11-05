@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@CrossOrigin
 @RequestMapping("/api/v1/lesson")
 @RestController
 @Tag(name = "Lessons")
@@ -52,7 +51,7 @@ public class LessonController {
 
     @PostMapping("get-lesson-by-id")
     public LessonResponse getLessonById(@RequestBody LessonRequest lessonRequest) {
-        LessonResponse lessonResponse = lessonService.getLessonById(lessonRequest);
+        LessonResponse lessonResponse = lessonService.getById(lessonRequest.getId());
         return constructMediaUrl(lessonResponse);
     }
 

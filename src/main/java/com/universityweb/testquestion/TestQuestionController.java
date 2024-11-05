@@ -5,7 +5,6 @@ import com.universityweb.testquestion.dto.TestQuestionDTO;
 import com.universityweb.testquestion.entity.TestQuestion;
 import com.universityweb.testquestion.service.TestQuestionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,6 @@
 package com.universityweb.common.media;
 
 import com.universityweb.common.media.service.MediaService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.logging.log4j.LogManager;

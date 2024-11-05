@@ -7,7 +7,6 @@ import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
-import com.universityweb.test.entity.Test;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,9 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")

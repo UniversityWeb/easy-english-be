@@ -2,7 +2,6 @@ package com.universityweb.test.controller;
 
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.common.media.service.MediaService;
-import com.universityweb.course.response.CourseResponse;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
