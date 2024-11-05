@@ -50,6 +50,7 @@ public class LessonTrackerServiceImpl
 
         entity.setUser(user);
         entity.setLesson(lesson);
+        entity.setIsDeleted(false);
     }
 
     @Override

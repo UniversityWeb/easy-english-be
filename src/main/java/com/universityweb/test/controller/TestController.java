@@ -79,13 +79,20 @@ public class TestController
     ) {
         log.info("get tests by section Id: {}", sectionId);
         List<TestDTO> testDTOs = service.getBySection(sectionId);
-        return ResponseEntity.ok(constructMediaUrl(testDTOs));
+        return ResponseEntity.ok(populateLessonsDetails(testDTOs));
     }
 
-    private List<TestDTO> constructMediaUrl(List<TestDTO> testDTOs) {
+    private List<TestDTO> populateLessonsDetails(List<TestDTO> testDTOs) {
         return testDTOs.stream()
-                .map(this::setMediaUrls)
+                .map(this::populateLessonDetails)
                 .collect(Collectors.toList());
+    }
+
+    private TestDTO populateLessonDetails(TestDTO testDTO) {
+        String username = authService.getCurrentUsername();
+        boolean isDone = testResultService.isDone(username, testDTO.getId());
+        testDTO.setIsDone(isDone);
+        return setMediaUrls(testDTO);
     }
 
     private TestDTO setMediaUrls(TestDTO dto) {
