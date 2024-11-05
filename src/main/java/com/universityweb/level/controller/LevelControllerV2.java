@@ -2,16 +2,18 @@ package com.universityweb.level.controller;
 
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.level.entity.Level;
+import com.universityweb.level.request.LevelRequest;
 import com.universityweb.level.response.LevelResponse;
 import com.universityweb.level.service.LevelService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
-@RequestMapping("/api/v2/level")
+@RequestMapping("/api/v1/levels")
 @RestController
 @Tag(name = "Levels v2")
 public class LevelControllerV2
@@ -20,5 +22,10 @@ public class LevelControllerV2
     @Autowired
     public LevelControllerV2(LevelService service) {
         super(service);
+    }
+
+    @PostMapping("/get-all-level-by-topic")
+    public ResponseEntity<List<LevelResponse>> getLevelByTopic(@RequestBody LevelRequest levelRequest) {
+        return ResponseEntity.ok(service.getLevelByTopic(levelRequest));
     }
 }

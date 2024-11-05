@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.simpleframework.xml.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -407,6 +408,14 @@ public class AuthController {
     ) {
         authService.updatePasswordWithOtp(updatePassWithOtpReq);
         return ResponseEntity.ok("Password updated successfully");
+    }
+
+    @PostMapping("/generate-otp-to-reset-password/{email}")
+    public ResponseEntity<String> generateOtpToResetPassword(
+            @PathVariable String email
+    ) {
+        authService.generateOtpToResetPassword(email);
+        return ResponseEntity.ok("OTP generated successfully");
     }
 
     private UserDTO setMediaUrls(UserDTO dto) {
