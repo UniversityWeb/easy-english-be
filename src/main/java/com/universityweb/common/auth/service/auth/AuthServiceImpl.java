@@ -17,6 +17,7 @@ import com.universityweb.common.security.JwtGenerator;
 import com.universityweb.common.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -246,9 +248,11 @@ public class AuthServiceImpl implements AuthService {
             throw new EmailNotFoundException("Email not found");
         }
 
-        if (isPasswordValid(request)) {
-            otpService.generateAndSendOtp(email, OtpService.EPurpose.UPDATE_PASS);
+        if (!isPasswordValid(request)) {
+            throw new BadCredentialsException("Password is not valid");
         }
+
+        otpService.generateAndSendOtp(email, OtpService.EPurpose.UPDATE_PASS);
     }
 
     @Override
@@ -262,6 +266,15 @@ public class AuthServiceImpl implements AuthService {
         String encodedPass = passwordEncoder.encode(req.getNewPassword());
         user.setPassword(encodedPass);
         userRepos.save(user);
+    }
+
+    @Override
+    public void generateOtpToResetPassword(String email) {
+        if (email == null || email.isEmpty() || !isValidEmail(email)) {
+            throw new RuntimeException("Email is not valid");
+        }
+
+        otpService.generateAndSendOtp(email, OtpService.EPurpose.UPDATE_PASS);
     }
 
     private UserDTO saveUserAndConvertToDTO(User user) {
@@ -278,6 +291,12 @@ public class AuthServiceImpl implements AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return true;
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        return pattern.matcher(email).matches();
     }
 
     private boolean isPasswordValid(UpdatePasswordRequest request) {
