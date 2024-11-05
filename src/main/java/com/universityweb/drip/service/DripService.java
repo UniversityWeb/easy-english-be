@@ -11,4 +11,5 @@ public interface DripService extends BaseService<Drip, DripDTO, Long> {
     List<DripDTO> getAllDripsByPrevId(Long prevId);
     List<DripsOfPrevDTO> getAllDripsByCourseId(Long courseId);
     Boolean canLearn(Drip.ESourceType targetType, Long targetId);
+    List<DripsOfPrevDTO> updateDrips(Long courseId, List<DripsOfPrevDTO> dripsUpdateRequest);
 }

@@ -9,4 +9,5 @@ public interface TestResultService extends BaseService<TestResult, TestResultDTO
     Page<TestResultDTO> getTestResultsByUsername(int page, int size, String username);
     Page<TestResultDTO> getAll(int page, int size);
     TestResult getByUsernameAndTestId(String username, Long targetId);
+    Boolean isDone(String username, Long targetId);
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
-@RequestMapping("/api/v2/categories")
+@RequestMapping("/api/v1/categories")
 @RestController
 @Tag(name = "Categories v2")
 public class CategoryControllerV2

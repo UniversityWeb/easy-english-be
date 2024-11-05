@@ -12,4 +12,6 @@ public interface DripRepos extends JpaRepository<Drip, Long> {
     List<Drip> findAllByCourseId(Long courseId);
 
     List<Drip> findAllByNextTypeAndNextId(Drip.ESourceType targetType, Long targetId);
+
+    void deleteByCourseId(Long courseId);
 }

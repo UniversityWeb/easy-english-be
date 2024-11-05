@@ -5,6 +5,7 @@ import com.universityweb.drip.dto.DripDTO;
 import com.universityweb.drip.dto.DripsOfPrevDTO;
 import com.universityweb.drip.service.DripService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,5 +51,14 @@ public class DripController extends BaseController<Drip, DripDTO, Long, DripServ
         Boolean canLearn = service.canLearn(targetType, targetId);
         log.info("Result for canLearn: {}", canLearn);
         return ResponseEntity.ok(canLearn);
+    }
+
+    @PutMapping("/update-drips/{courseId}")
+    public ResponseEntity<List<DripsOfPrevDTO>> updateDrips(
+            @PathVariable Long courseId,
+            @RequestBody List<DripsOfPrevDTO> dripsUpdateRequest
+    ) {
+        List<DripsOfPrevDTO> updatedDrips = service.updateDrips(courseId, dripsUpdateRequest);
+        return ResponseEntity.ok(updatedDrips);
     }
 }

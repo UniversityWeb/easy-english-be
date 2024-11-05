@@ -68,4 +68,11 @@ public class TestResultServiceImpl
         return repository.findByUser_UsernameAndTest_Id(username, testId)
                 .orElse(null);
     }
+
+    @Override
+    public Boolean isDone(String username, Long testId) {
+        TestResult testResult = getByUsernameAndTestId(username, testId);
+        if (testResult == null) return false;
+        return testResult.getStatus().equals(TestResult.EStatus.DONE);
+    }
 }
