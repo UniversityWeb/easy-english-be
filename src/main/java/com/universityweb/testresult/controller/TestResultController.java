@@ -4,15 +4,13 @@ import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.testresult.dto.TestResultDTO;
 import com.universityweb.testresult.entity.TestResult;
+import com.universityweb.testresult.request.SubmitTestRequest;
 import com.universityweb.testresult.service.TestResultService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/test-results")
@@ -53,5 +51,14 @@ public class TestResultController
         Page<TestResultDTO> testResults = service.getTestResultsByUsername(page, size, username);
         log.info("all test results found for user {}: size-{}", username, testResults.getSize());
         return ResponseEntity.ok(testResults);
+    }
+
+    @PostMapping("/submit-test")
+    public ResponseEntity<TestResultDTO> submit(
+            @RequestBody SubmitTestRequest submitTestRequest
+    ) {
+        String username = authService.getCurrentUsername();
+        TestResultDTO testResultDTO = service.submit(username, submitTestRequest);
+        return ResponseEntity.ok(testResultDTO);
     }
 }

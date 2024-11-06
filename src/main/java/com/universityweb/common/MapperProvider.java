@@ -3,6 +3,7 @@ package com.universityweb.common;
 import com.universityweb.drip.DripMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
+import com.universityweb.useranswer.UserAnswerMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,5 +27,11 @@ public class MapperProvider {
     @Primary
     public LessonTrackerMapper lessonTrackerMapper() {
         return Mappers.getMapper(LessonTrackerMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public UserAnswerMapper userAnswerMapper() {
+        return Mappers.getMapper(UserAnswerMapper.class);
     }
 }

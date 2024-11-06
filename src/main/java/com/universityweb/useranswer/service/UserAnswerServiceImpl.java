@@ -11,15 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserAnswerServiceImpl extends BaseServiceImpl<UserAnswer, UserAnswerDTO, Long, UserAnswerRepos, UserAnswerMapper>
+public class UserAnswerServiceImpl
+        extends BaseServiceImpl<UserAnswer, UserAnswerDTO, Long, UserAnswerRepos, UserAnswerMapper>
         implements UserAnswerService {
 
     private final TestQuestionService testQuestionService;
     private final TestResultService testResultService;
 
     @Autowired
-    public UserAnswerServiceImpl(UserAnswerRepos repository, TestQuestionService testQuestionService, TestResultService testResultService) {
-        super(repository, UserAnswerMapper.INSTANCE);
+    public UserAnswerServiceImpl(
+            UserAnswerRepos repository,
+            UserAnswerMapper mapper,
+            TestQuestionService testQuestionService,
+            TestResultService testResultService
+    ) {
+        super(repository, mapper);
         this.testQuestionService = testQuestionService;
         this.testResultService = testResultService;
     }
