@@ -408,7 +408,7 @@ public class AuthController {
     public ResponseEntity<String> updatePasswordWithOtp(
             @RequestBody UpdatePassWithOtpReq updatePassWithOtpReq
     ) {
-        log.info("Updating password with OTP for request: {}", updatePassWithOtpReq);
+        log.info("Updating password with OTP");
         authService.updatePasswordWithOtp(updatePassWithOtpReq);
         log.info("Password updated successfully.");
         return ResponseEntity.ok("Password updated successfully");
@@ -428,10 +428,10 @@ public class AuthController {
     public ResponseEntity<String> resetPasswordWithOtp(
             @RequestBody ResetPassWithOtpReq req
     ) {
-        log.info("Reseting password with OTP for request: {}", req);
+        log.info("Resetting password with OTP for request: {}", req.getEmail());
         authService.resetPasswordWithOtp(req);
         log.info("Password reset successfully.");
-        return ResponseEntity.ok("Password updated successfully");
+        return ResponseEntity.ok("Password reset successfully");
     }
 
     private UserDTO setMediaUrls(UserDTO dto) {
