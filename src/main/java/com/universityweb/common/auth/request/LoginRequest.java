@@ -4,13 +4,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 public record LoginRequest(
+        String username,
+
         @Schema(
                 description = "Username of the user",
                 example = "john",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         @NotBlank(message = "Username is required")
-        String username,
+        String usernameOrEmail,
 
         @Schema(
                 description = "Password of the user",

@@ -80,4 +80,8 @@ public class Utils {
         // If all lines and words match, the lists are equal
         return true;
     }
+
+    public static boolean isEmail(String input) {
+        return input != null && input.contains("@");
+    }
 }

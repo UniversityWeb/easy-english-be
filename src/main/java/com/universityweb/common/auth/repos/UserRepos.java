@@ -17,5 +17,8 @@ public interface UserRepos extends JpaRepository<User, String> {
     @Query(value = "SELECT u.email FROM User u WHERE u.username = :username")
     String getEmailByUsername(@Param("username") String username);
 
+    @Query(value = "SELECT u.username FROM User u WHERE u.email = :email")
+    String getUsernameByEmail(@Param("email") String email);
+
     Optional<User> findByEmail(String email);
 }

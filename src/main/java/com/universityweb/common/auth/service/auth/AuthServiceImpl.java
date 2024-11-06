@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.service.auth;
 
+import com.universityweb.common.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.*;
@@ -74,8 +75,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        String username = loginRequest.username();
+        String usernameOrEmail = loginRequest.usernameOrEmail();
         String password = loginRequest.password();
+
+        String username;
+        if (Utils.isEmail(usernameOrEmail)) {
+            username = userRepos.getUsernameByEmail(usernameOrEmail);
+        } else {
+            username = usernameOrEmail;
+        }
+
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         username,
