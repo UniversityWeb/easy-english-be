@@ -398,7 +398,9 @@ public class AuthController {
     public ResponseEntity<String> generateOtpToUpdatePassword(
             @RequestBody UpdatePasswordRequest request
     ) {
+        log.info("Generating OTP to update password for request: {}", request);
         authService.generateOtpToUpdatePassword(request);
+        log.info("OTP generated successfully for updating password.");
         return ResponseEntity.ok("OTP generated successfully");
     }
 
@@ -406,7 +408,9 @@ public class AuthController {
     public ResponseEntity<String> updatePasswordWithOtp(
             @RequestBody UpdatePassWithOtpReq updatePassWithOtpReq
     ) {
+        log.info("Updating password with OTP for request: {}", updatePassWithOtpReq);
         authService.updatePasswordWithOtp(updatePassWithOtpReq);
+        log.info("Password updated successfully.");
         return ResponseEntity.ok("Password updated successfully");
     }
 
@@ -414,8 +418,20 @@ public class AuthController {
     public ResponseEntity<String> generateOtpToResetPassword(
             @PathVariable String email
     ) {
+        log.info("Generating OTP to reset password for email: {}", email);
         authService.generateOtpToResetPassword(email);
+        log.info("OTP generated successfully to reset password for email: {}", email);
         return ResponseEntity.ok("OTP generated successfully");
+    }
+
+    @PutMapping("/reset-password-with-otp")
+    public ResponseEntity<String> resetPasswordWithOtp(
+            @RequestBody ResetPassWithOtpReq req
+    ) {
+        log.info("Reseting password with OTP for request: {}", req);
+        authService.resetPasswordWithOtp(req);
+        log.info("Password reset successfully.");
+        return ResponseEntity.ok("Password updated successfully");
     }
 
     private UserDTO setMediaUrls(UserDTO dto) {

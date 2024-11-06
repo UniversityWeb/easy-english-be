@@ -2,10 +2,7 @@ package com.universityweb.common.auth.service.auth;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.exception.EmailNotFoundException;
-import com.universityweb.common.auth.exception.UserAlreadyActiveException;
-import com.universityweb.common.auth.exception.UserAlreadyExistsException;
-import com.universityweb.common.auth.exception.UserNotActiveException;
+import com.universityweb.common.auth.exception.*;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.*;
@@ -27,6 +24,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -274,7 +272,26 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Email is not valid");
         }
 
-        otpService.generateAndSendOtp(email, OtpService.EPurpose.UPDATE_PASS);
+        Optional<User> optionalUser = userRepos.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            throw new EmailNotFoundException("Could not find your email: " + email);
+        }
+
+        otpService.generateAndSendOtp(email, OtpService.EPurpose.RESET_PASS);
+    }
+
+    @Override
+    public void resetPasswordWithOtp(ResetPassWithOtpReq req) {
+        User user = userRepos.findByEmail(req.getEmail())
+                .orElseThrow(() -> new EmailNotFoundException("Could not find your email: " + req.getEmail()));
+        String email = user.getEmail();
+
+        otpService.validateOtp(email, req.getOtp(), OtpService.EPurpose.RESET_PASS);
+        otpService.invalidateOtp(email, OtpService.EPurpose.RESET_PASS);
+
+        String encodedPass = passwordEncoder.encode(req.getNewPassword());
+        user.setPassword(encodedPass);
+        userRepos.save(user);
     }
 
     private UserDTO saveUserAndConvertToDTO(User user) {
