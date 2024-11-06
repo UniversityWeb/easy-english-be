@@ -41,4 +41,6 @@ public interface AuthService {
     void updatePasswordWithOtp(UpdatePassWithOtpReq updatePassWithOtpReq);
 
     void generateOtpToResetPassword(String email);
+
+    void resetPasswordWithOtp(ResetPassWithOtpReq req);
 }

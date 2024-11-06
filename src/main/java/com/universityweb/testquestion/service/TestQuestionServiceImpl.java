@@ -91,6 +91,11 @@ public class TestQuestionServiceImpl
     }
 
     @Override
+    public int getNumberOfQuestions(Long testId) {
+        return repository.countByTestId(testId);
+    }
+
+    @Override
     public void softDelete(Long id) {
         repository.deleteById(id);
     }

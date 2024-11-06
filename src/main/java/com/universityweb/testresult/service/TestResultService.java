@@ -3,6 +3,7 @@ package com.universityweb.testresult.service;
 import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.testresult.dto.TestResultDTO;
 import com.universityweb.testresult.entity.TestResult;
+import com.universityweb.testresult.request.SubmitTestRequest;
 import org.springframework.data.domain.Page;
 
 public interface TestResultService extends BaseService<TestResult, TestResultDTO, Long> {
@@ -10,4 +11,5 @@ public interface TestResultService extends BaseService<TestResult, TestResultDTO
     Page<TestResultDTO> getAll(int page, int size);
     TestResult getByUsernameAndTestId(String username, Long targetId);
     Boolean isDone(String username, Long targetId);
+    TestResultDTO submit(String username, SubmitTestRequest submitTestRequest);
 }

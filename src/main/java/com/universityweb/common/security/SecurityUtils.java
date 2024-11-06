@@ -14,6 +14,8 @@ public class SecurityUtils {
             "api/v1/auth/login/**",
             "api/v1/auth/get-user-by-token/**",
             "api/v1/auth/resend-otp-to-active-account/**",
+            "api/v1/auth/generate-otp-to-reset-password/**",
+            "api/v1/auth/reset-password-with-otp/**",
             "/ws/**",
     };
 

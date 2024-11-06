@@ -8,6 +8,7 @@ public interface OtpService {
         ACTIVE_ACCOUNT,
         UPDATE_PROFILE,
         UPDATE_PASS,
+        RESET_PASS,
     }
 
     boolean validateOtp(String email, String otp, EPurpose purpose);
