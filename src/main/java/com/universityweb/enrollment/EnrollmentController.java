@@ -73,7 +73,7 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
         return ResponseEntity.ok(coursesWithMediaUrls);
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public ResponseEntity<Page<CourseResponse>> getEnrolledCoursesWithFilter(
             @RequestBody EnrolledCourseFilterReq req
     ) {
