@@ -10,4 +10,5 @@ import org.springframework.data.domain.Page;
 public interface FavouriteService extends BaseService<Favourite, FavouriteDTO, Long> {
     Page<CourseResponse> getAllFavorites(String username, int page, int size);
     Page<CourseResponse> getAllFavoritesByFilter(CourseRequest courseRequest);
+    Boolean checkCourseInFavorite(String username, Long courseId);
 }

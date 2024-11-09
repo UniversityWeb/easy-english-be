@@ -40,9 +40,13 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "AND (:topicId IS NULL OR t.id = :topicId) " +
             "AND (:title IS NULL OR c.title = :title) " +
             "AND (:levelId IS NULL OR l.id = :levelId) " +
-            "AND (:price IS NULL OR p.price > :price) " +  // Kiểm tra nếu price không null
+            "AND (:price IS NULL OR (" +
+            "  (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate " +
+            "  AND c.price.salePrice <= :price) " +
+            "  OR (c.price.price <= :price))" +
+            ") " +
             "GROUP BY c.id " +
-            "HAVING (COUNT(r) = 0 OR AVG(r.rating) > :rating OR :rating IS NULL)")  // Điều kiện rating
+            "HAVING (COUNT(r) = 0 OR AVG(r.rating) > :rating OR :rating IS NULL)")
     Page<Course> findCourseByFilter(
             @Param("categoryId") List<Long> categoryId,
             @Param("topicId") Long topicId,

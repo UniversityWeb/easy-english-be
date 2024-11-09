@@ -96,4 +96,13 @@ public class FavouriteController {
 
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
+
+    @PostMapping("/check-course-in-favorite/{courseId}")
+    public ResponseEntity<Boolean> checkCourseInFavorite(
+            @PathVariable Long courseId
+    ) {
+        String username = authService.getCurrentUsername();
+        Boolean isValid = favouriteService.checkCourseInFavorite(username, courseId);
+        return ResponseEntity.ok(isValid);
+    }
 }

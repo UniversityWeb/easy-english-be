@@ -4,24 +4,23 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
-import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
-import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.favourite.dto.FavouriteDTO;
 import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.favourite.repository.FavouriteRepository;
-import com.universityweb.review.ReviewRepository;
-import com.universityweb.review.entity.Review;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FavouriteServiceImpl
@@ -30,26 +29,17 @@ public class FavouriteServiceImpl
 
     private final UserService userService;
     private final CourseService courseService;
-    private final ReviewRepository reviewRepository;
-    private final CourseMapper courseMapper;
-    private final EnrollmentRepos enrollmentRepos;
 
     @Autowired
     public FavouriteServiceImpl(
             FavouriteRepository repository,
             FavouriteMapper mapper,
             UserService userService,
-            CourseService courseService,
-            ReviewRepository reviewRepository,
-            CourseMapper courseMapper,
-            EnrollmentRepos enrollmentRepos
+            CourseService courseService
     ) {
         super(repository, mapper);
         this.userService = userService;
         this.courseService = courseService;
-        this.reviewRepository = reviewRepository;
-        this.courseMapper = courseMapper;
-        this.enrollmentRepos = enrollmentRepos;
     }
 
     @Override
@@ -115,5 +105,11 @@ public class FavouriteServiceImpl
 
         // Map favorites to CourseResponse
         return favoritePage.map(favourite -> courseService.mapCourseToResponse(favourite.getCourse()));
+    }
+
+    @Override
+    public Boolean checkCourseInFavorite(String username, Long courseId) {
+        Optional<Favourite> optionalFavourite = repository.findByUser_UsernameAndCourse_IdAndIsDeletedFalse(username, courseId);
+        return optionalFavourite.isPresent();
     }
 }

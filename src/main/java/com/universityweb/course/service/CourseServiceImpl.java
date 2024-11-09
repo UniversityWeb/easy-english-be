@@ -13,7 +13,6 @@ import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
-import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.favourite.repository.FavouriteRepository;
 import com.universityweb.level.LevelRepository;
 import com.universityweb.level.entity.Level;
@@ -285,16 +284,6 @@ public class CourseServiceImpl
     protected void throwNotFoundException(Long id) {
         String msg = "Could not find any course with id=" + id;
         throw new CourseNotFoundException(msg);
-    }
-
-    @Override
-    public Boolean checkCourseInFavorite(CourseRequest courseRequest) {
-        User user = userService.loadUserByUsername(courseRequest.getUsername());
-
-        Course course = repository.findById(courseRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-        Favourite favourite = favouriteRepository.findByUserAndCourse(user, course);
-        return favourite != null;
     }
 
     @Override
