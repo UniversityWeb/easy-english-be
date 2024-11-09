@@ -54,6 +54,31 @@ public class Test implements Serializable {
     @JoinColumn(name = "course_section_id", referencedColumnName = "id", nullable = false)
     private Section section;
 
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now(); // Ensures createdAt is set if not already
+        }
+        if (type == null) {
+            type = EType.QUIZ; // Ensures default type is set
+        }
+        if (status == null) {
+            status = EStatus.DRAFT; // Ensures default status is set
+        }
+        if (ordinalNumber == null) {
+            ordinalNumber = 1; // Ensures default ordinalNumber is set
+        }
+        if (durationInMilis == null) {
+            durationInMilis = 3600000; // Ensures default duration is set
+        }
+        if (passingGrade == null) {
+            passingGrade = 0.0; // Ensures default passing grade is set
+        }
+        if (audioPath == null) {
+            audioPath = ""; // Ensures default audioPath is set
+        }
+    }
+
     public enum EType {
         QUIZ,
         CUSTOM

@@ -11,4 +11,6 @@ public interface FavouriteService extends BaseService<Favourite, FavouriteDTO, L
     Page<CourseResponse> getAllFavorites(String username, int page, int size);
     Page<CourseResponse> getAllFavoritesByFilter(CourseRequest courseRequest);
     Boolean checkCourseInFavorite(String username, Long courseId);
+
+    Favourite getByUsernameAndCourseId(String username, Long courseId);
 }

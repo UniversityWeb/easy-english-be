@@ -112,4 +112,10 @@ public class FavouriteServiceImpl
         Optional<Favourite> optionalFavourite = repository.findByUser_UsernameAndCourse_IdAndIsDeletedFalse(username, courseId);
         return optionalFavourite.isPresent();
     }
+
+    @Override
+    public Favourite getByUsernameAndCourseId(String username, Long courseId) {
+        return repository.findByUser_UsernameAndCourse_IdAndIsDeletedFalse(username, courseId)
+                .orElseThrow(() -> new RuntimeException("Could not find Favourite with ID " + courseId));
+    }
 }
