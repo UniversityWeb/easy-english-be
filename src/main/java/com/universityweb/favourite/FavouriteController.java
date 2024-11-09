@@ -82,7 +82,7 @@ public class FavouriteController {
                 .ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public ResponseEntity<Page<CourseResponse>> getAllFavoritesByFilter(
             @RequestBody CourseRequest courseRequest
     ) {
