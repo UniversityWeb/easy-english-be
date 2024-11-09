@@ -26,7 +26,7 @@ public class LessonTracker implements Serializable {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isDeleted;
 
     @ManyToOne

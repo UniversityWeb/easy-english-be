@@ -1,5 +1,7 @@
 package com.universityweb.order.controller;
 
+import com.universityweb.common.media.MediaUtils;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.order.entity.Order;
@@ -23,6 +25,7 @@ public class OrderController {
     private static final Logger log = LogManager.getLogger(OrderController.class);
 
     private final OrderService orderService;
+    private final MediaService mediaService;
 
     @GetMapping("/{username}")
     public ResponseEntity<Page<OrderDTO>> getOrders(
@@ -33,7 +36,7 @@ public class OrderController {
         log.info("Fetching orders page: {}, size: {}", page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderDTO> orders = orderService.getOrders(username, null, pageable);
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(MediaUtils.addMediaUrlsToOrders(mediaService, orders));
     }
 
     @GetMapping("/{username}/status/{status}")
@@ -46,7 +49,7 @@ public class OrderController {
         log.info("Fetching orders with status: {}, page: {}, size: {}", status, page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderDTO> orders = orderService.getOrders(username, status, pageable);
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(MediaUtils.addMediaUrlsToOrders(mediaService, orders));
     }
 
     @GetMapping("/{orderId}/items")
@@ -58,7 +61,7 @@ public class OrderController {
         log.info("Fetching items for order ID: {}, page: {}, size: {}", orderId, page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderItemDTO> orderItems = orderService.getOrderItems(orderId, pageable);
-        return ResponseEntity.ok(orderItems);
+        return ResponseEntity.ok(MediaUtils.addMediaUrlsToOrderItems(mediaService, orderItems));
     }
 
     @GetMapping("/get-by-id/{orderId}")
@@ -67,6 +70,6 @@ public class OrderController {
     ) {
         log.info("Fetching order details for order ID: {}", orderId);
         OrderDTO orderDTO = orderService.getOrderById(orderId);
-        return ResponseEntity.ok(orderDTO);
+        return ResponseEntity.ok(MediaUtils.addOrderMediaUrls(mediaService, orderDTO));
     }
 }

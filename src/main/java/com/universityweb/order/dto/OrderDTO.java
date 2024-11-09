@@ -2,10 +2,8 @@ package com.universityweb.order.dto;
 
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.order.entity.Order;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -16,13 +14,15 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDTO implements Serializable {
-    private Long id;
-    private BigDecimal totalAmount;
-    private ECurrency currency;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Order.EStatus status;
-    private String username;
-    private List<OrderItemDTO> items;
+    Long id;
+    BigDecimal totalAmount;
+    ECurrency currency;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    Order.EStatus status;
+    String username;
+    List<OrderItemDTO> items;
+    String previewImgPath;
 }

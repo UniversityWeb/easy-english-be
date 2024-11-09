@@ -2,12 +2,11 @@ package com.universityweb.test.controller;
 
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
+import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
-import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
-import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.service.TestResultService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class TestController
     @Override
     public ResponseEntity<TestDTO> getById(Long id) {
         TestDTO testDTO = service.getById(id);
-        return ResponseEntity.ok(setMediaUrls(testDTO));
+        return ResponseEntity.ok(MediaUtils.attachTestMediaUrls(mediaService, testDTO));
     }
 
     @PutMapping("/{testId}/upload-audio")
@@ -63,7 +62,7 @@ public class TestController
         return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAudioPath()));
     }
 
-    @PutMapping("/update-status/{id}")
+    @PutMapping("/update-status/{id}/{status}")
     public ResponseEntity<Void> updateStatus(
             @PathVariable Long id,
             @PathVariable Test.EStatus status
@@ -79,24 +78,19 @@ public class TestController
     ) {
         log.info("get tests by section Id: {}", sectionId);
         List<TestDTO> testDTOs = service.getBySection(sectionId);
-        return ResponseEntity.ok(populateLessonsDetails(testDTOs));
+        return ResponseEntity.ok(addTestMediaUrls(testDTOs));
     }
 
-    private List<TestDTO> populateLessonsDetails(List<TestDTO> testDTOs) {
+    private List<TestDTO> addTestMediaUrls(List<TestDTO> testDTOs) {
         return testDTOs.stream()
-                .map(this::populateLessonDetails)
+                .map(this::addTestMediaUrls)
                 .collect(Collectors.toList());
     }
 
-    private TestDTO populateLessonDetails(TestDTO testDTO) {
+    private TestDTO addTestMediaUrls(TestDTO testDTO) {
         String username = authService.getCurrentUsername();
         boolean isDone = testResultService.isDone(username, testDTO.getId());
         testDTO.setIsDone(isDone);
-        return setMediaUrls(testDTO);
-    }
-
-    private TestDTO setMediaUrls(TestDTO dto) {
-        dto.setAudioPath(mediaService.constructFileUrl(dto.getAudioPath()));
-        return dto;
+        return MediaUtils.attachTestMediaUrls(mediaService, testDTO);
     }
 }

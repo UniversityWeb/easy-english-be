@@ -46,7 +46,7 @@ public class QuestionGroup implements Serializable {
     @Column(name = "original_content", columnDefinition = "TEXT")
     private String originalContent;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "questionGroup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

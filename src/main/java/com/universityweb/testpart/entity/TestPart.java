@@ -27,7 +27,7 @@ public class TestPart {
     @Column(name = "ordinal_number")
     private Integer ordinalNumber;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isDeleted = false;
 
     @ManyToOne

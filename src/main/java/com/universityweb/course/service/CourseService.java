@@ -23,12 +23,9 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     List<Course> getTop10Courses();
     List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest);
     List<CourseResponse> getAllCourseNotOfStudent(CourseRequest courseRequest);
-    List<CourseResponse> getAllCourseFavoriteOfStudent(CourseRequest courseRequest);
-    void addCourseToFavorite(CourseRequest courseRequest);
-
-    void removeCourseFromFavorite(CourseRequest courseRequest);
 
     Boolean checkCourseInFavorite(CourseRequest courseRequest);
 
     Page<CourseResponse> getCourseByFilter(CourseRequest courseRequest);
+    CourseResponse mapCourseToResponse(Course course);
 }

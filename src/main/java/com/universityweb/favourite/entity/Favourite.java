@@ -26,6 +26,9 @@ public class Favourite  {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isDeleted;
+
     @ManyToOne
     @JoinColumn(name = "username")
     @JsonBackReference
@@ -35,5 +38,4 @@ public class Favourite  {
     @JoinColumn(name = "course_id")
     @JsonBackReference
     private Course course;
-
 }
