@@ -6,6 +6,7 @@ import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.favourite.dto.FavouriteDTO;
+import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.favourite.service.FavouriteService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +56,8 @@ public class FavouriteController {
         log.info("Attempting to remove course {} from favourites " +
                 "for user {}", courseId, username);
 
-        favouriteService.softDelete(courseId);
+        Favourite favourite = favouriteService.getByUsernameAndCourseId(username, courseId);
+        favouriteService.softDelete(favourite.getId());
         log.info("Course {} removed from favourites " +
                 "for user {}", courseId, username);
 
