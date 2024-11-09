@@ -108,23 +108,6 @@ public class CourseController {
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
-    @PostMapping("add-course-to-favorite")
-    public ResponseEntity<String> addCourseToFavorite(@RequestBody CourseRequest courseRequest) {
-        courseService.addCourseToFavorite(courseRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Course added to favorite successfully");
-    }
-
-    @PostMapping("remove-course-from-favorite")
-    public ResponseEntity<String> removeCourseFromFavorite(@RequestBody CourseRequest courseRequest) {
-        courseService.removeCourseFromFavorite(courseRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Course removed from favorite successfully");
-    }
-
-    @PostMapping("check-course-in-favorite")
-    public ResponseEntity<Boolean> checkCourseInFavorite(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.checkCourseInFavorite(courseRequest));
-    }
-
     @PostMapping("/get-course-by-filter")
     public ResponseEntity<Page<CourseResponse>> filterCourses(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getCourseByFilter(courseRequest);

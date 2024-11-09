@@ -4,13 +4,19 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
+import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.enrollment.request.AddEnrollmentRequest;
+import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -68,6 +74,37 @@ public class EnrollmentServiceImpl
         Enrollment enrollment = repository.findByUserUsernameAndCourseId(username, courseId)
                 .orElseThrow(() -> new RuntimeException(errMsg));
         return mapper.toDTO(enrollment);
+    }
+
+    @Override
+    public Page<CourseResponse> getEnrolledCourses(String username, int page, int size) {
+        Sort sort = Sort.by("createdAt").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Fetch paginated list of enrollments for the user with status not equal to CANCELLED
+        Page<Enrollment> enrollmentsPage = repository.findByUser_UsernameAndStatusNot(username, Enrollment.EStatus.CANCELLED, pageable);
+
+        return enrollmentsPage.map(enrollment -> courseService.mapCourseToResponse(enrollment.getCourse()));
+    }
+
+    @Override
+    public Page<CourseResponse> getEnrolledCoursesByFilter(String username, EnrolledCourseFilterReq req) {
+        Sort sort = Sort.by("createdAt").descending();
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+
+        List<Long> categoryIds = req.getCategoryIds();
+        Long levelId = req.getLevelId();
+        Long topicId = req.getTopicId();
+        Double rating = req.getRating();
+        String title = req.getTitle();
+        double progress = req.getProgress();
+        Enrollment.EStatus enrollmentStatus = req.getEnrollmentStatus();
+        Enrollment.EType enrollmentType = req.getEnrollmentType();
+        Page<Enrollment> filteredEnrollmentsPage = repository.findByUser_UsernameAndFilter(
+                username, categoryIds, topicId, levelId, rating, title, progress, enrollmentStatus, enrollmentType, pageable
+        );
+
+        return filteredEnrollmentsPage.map(enrollment -> courseService.mapCourseToResponse(enrollment.getCourse()));
     }
 
     @Override

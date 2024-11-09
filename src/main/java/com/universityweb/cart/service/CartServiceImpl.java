@@ -17,6 +17,7 @@ import com.universityweb.course.service.CourseService;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
 import com.universityweb.order.repository.OrderItemRepos;
+import com.universityweb.price.entity.Price;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,9 +57,12 @@ public class CartServiceImpl implements CartService {
         Cart cart = getOrCreateCart(username);
         Course course = courseService.getEntityById(courseId);
 
+        Price price = course.getPrice();
+        BigDecimal priceToUse = price.getApplicablePrice();
+
         CartItem cartItem = CartItem.builder()
                 .status(CartItem.EStatus.ACTIVE)
-                .price(course.getPrice().getSalePrice())
+                .price(priceToUse)
                 .discountPercent(BigDecimal.ZERO)
                 .updatedAt(LocalDateTime.now())
                 .course(course)
