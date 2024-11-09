@@ -3,6 +3,7 @@ package com.universityweb.common.auth.service.otp;
 import com.universityweb.common.auth.exception.ExpiredOtpException;
 import com.universityweb.common.auth.exception.InvalidOtpException;
 import com.universityweb.common.service.mail.EmailService;
+import com.universityweb.common.service.mail.EmailUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,43 +65,53 @@ public class OtpServiceImpl implements OtpService {
             case UPDATE_PASS:
                 sendOtpToUpdatePass(email, otp);
                 break;
+            case RESET_PASS:
+                sendOtpToResetPassword(email, otp);
+                break;
         }
+    }
+
+    private void sendOtpToResetPassword(String email, String otp) {
+        String subject = "Reset Password - Your One-Time Password (OTP)";
+        String htmlBody = EmailUtils.generateHtmlOtpTemplate("Reset Password", otp,
+                "Please use this code to reset your password. This code is valid for " +
+                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
+
+        emailService.sendHtmlContent(email, subject, htmlBody);
     }
 
     private void sendOtpToUpdatePass(String toEmail, String otp) {
         String subject = "Update Password - Your One-Time Password (OTP)";
-        String htmlBody = "<h3>Your OTP is: " + otp + "</h3>" +
-                "<p>Please use this code to complete your password update. " +
-                "This code is valid for " + OtpService.OTP_EXPIRATION_MINUTES + " minutes.</p>";
+        String htmlBody = EmailUtils.generateHtmlOtpTemplate("Update Password", otp,
+                "Please use this code to update your password. This code is valid for " +
+                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
 
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
     private void sendOtpToLogin(String toEmail, String otp) {
         String subject = "Login - Your One-Time Password (OTP)";
-        String htmlBody = "<h3>Your OTP is: " + otp + "</h3>" +
-                "<p>Please use this code to complete your login. The code is valid for " +
-                OtpService.OTP_EXPIRATION_MINUTES + " minutes.</p>";
+        String htmlBody = EmailUtils.generateHtmlOtpTemplate("Login", otp,
+                "Please use this code to complete your login. This code is valid for " +
+                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
 
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
     private void sendOtpToActiveAccount(String toEmail, String otp) {
         String subject = "Account Activation - One-Time Password (OTP)";
-        String htmlBody = "<h3>Your OTP for account activation is: " + otp + "</h3>" +
-                "<p>Please use this code to activate your account. The OTP is valid for " +
-                OtpService.OTP_EXPIRATION_MINUTES +
-                " minutes from the time of receipt.</p>";
+        String htmlBody = EmailUtils.generateHtmlOtpTemplate("Account Activation", otp,
+                "Please use this code to activate your account. The OTP is valid for " +
+                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
 
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
     private void sendOtpToUpdateProfile(String toEmail, String otp) {
         String subject = "Update Profile - One-Time Password (OTP)";
-        String htmlBody = "<h3>Your OTP for updating profile is: " + otp + "</h3>" +
-                "<p>Please use this code to update your profile. The OTP is valid for " +
-                OtpService.OTP_EXPIRATION_MINUTES +
-                " minutes from the time of receipt.</p>";
+        String htmlBody = EmailUtils.generateHtmlOtpTemplate("Update Profile", otp,
+                "Please use this code to update your profile. The OTP is valid for " +
+                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
 
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }

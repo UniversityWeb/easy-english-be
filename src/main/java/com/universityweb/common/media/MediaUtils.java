@@ -4,6 +4,7 @@ import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
+import com.universityweb.test.dto.TestDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -59,5 +60,10 @@ public class MediaUtils {
         response.setVideoPreview(mediaService.constructFileUrl(response.getVideoPreview()));
         response.setImagePreview(mediaService.constructFileUrl(response.getImagePreview()));
         return response;
+    }
+
+    public static TestDTO attachTestMediaUrls(MediaService mediaService, TestDTO dto) {
+        dto.setAudioPath(mediaService.constructFileUrl(dto.getAudioPath()));
+        return dto;
     }
 }

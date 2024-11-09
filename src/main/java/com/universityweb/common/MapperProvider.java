@@ -1,6 +1,7 @@
 package com.universityweb.common;
 
 import com.universityweb.drip.DripMapper;
+import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
@@ -33,5 +34,11 @@ public class MapperProvider {
     @Primary
     public UserAnswerMapper userAnswerMapper() {
         return Mappers.getMapper(UserAnswerMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public FavouriteMapper favouriteMapper() {
+        return Mappers.getMapper(FavouriteMapper.class);
     }
 }

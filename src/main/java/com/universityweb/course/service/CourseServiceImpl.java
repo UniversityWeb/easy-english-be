@@ -151,24 +151,7 @@ public class CourseServiceImpl
     public CourseResponse getMainCourse(CourseRequest courseRequest) {
         Course course = repository.findById(courseRequest.getId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
-
-
-        CourseResponse courseResponse = mapper.toDTO(course);
-        List<Review> reviews = reviewRepository.findByCourseId(course.getId());
-        double averageRating = reviews.stream()
-                .mapToDouble(Review::getRating)
-                .average()
-                .orElse(0);
-
-        // Định dạng số với một chữ số thập phân
-        DecimalFormat df = new DecimalFormat("#.#");
-        String formattedRating = df.format(averageRating);
-
-        courseResponse.setRating(Double.parseDouble(formattedRating));
-        courseResponse.setRatingCount((long) reviews.size());
-        courseResponse.setCountStudent(enrollmentRepos.countSalesByCourseId(course.getId()));
-        courseResponse.setCountSection((long) course.getSections().size());
-        return courseResponse;
+        return mapCourseToResponse(course);
     }
 
     @Override
@@ -243,7 +226,6 @@ public class CourseServiceImpl
         return repository.findAll();
     }
 
-
     @Override
     public List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest) {
         User user = userService.loadUserByUsername(courseRequest.getUsername());
@@ -289,34 +271,6 @@ public class CourseServiceImpl
     }
 
     @Override
-    public List<CourseResponse> getAllCourseFavoriteOfStudent(CourseRequest courseRequest) {
-        String username = courseRequest.getUsername();
-        User user = userService.loadUserByUsername(username);
-        List<Favourite> favourites = favouriteRepository.findByUser(user);
-        List<CourseResponse> courseResponses = new ArrayList<>();
-        for (Favourite favourite : favourites) {
-            Course course = favourite.getCourse();
-            CourseResponse courseResponse = mapper.toDTO(course);
-            List<Review> reviews = reviewRepository.findByCourseId(course.getId());
-            double averageRating = reviews.stream()
-                    .mapToDouble(Review::getRating)
-                    .average()
-                    .orElse(0);
-
-// Định dạng số với một chữ số thập phân
-            DecimalFormat df = new DecimalFormat("#.#");
-            String formattedRating = df.format(averageRating);
-
-            courseResponse.setRating(Double.parseDouble(formattedRating));
-            courseResponse.setRatingCount((long) reviews.size());
-            courseResponse.setCountStudent(enrollmentRepos.countSalesByCourseId(course.getId()));
-            courseResponse.setCountSection((long) course.getSections().size());
-            courseResponses.add(courseResponse);
-        }
-        return courseResponses;
-    }
-
-    @Override
     public Course getEntityById(Long courseId) {
         return repository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Could not find any courses with id=" + courseId));
@@ -331,33 +285,6 @@ public class CourseServiceImpl
     protected void throwNotFoundException(Long id) {
         String msg = "Could not find any course with id=" + id;
         throw new CourseNotFoundException(msg);
-    }
-
-    @Override
-    public CourseResponse getById(Long courseId) {
-        Course course = getEntityById(courseId);
-        return mapper.toDTO(course);
-    }
-
-    @Override
-    public void addCourseToFavorite(CourseRequest courseRequest) {
-        User user = userService.loadUserByUsername(courseRequest.getUsername());
-        Course course = repository.findById(courseRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-        Favourite favourite = Favourite.builder()
-                .user(user)
-                .course(course)
-                .build();
-        favouriteRepository.save(favourite);
-    }
-
-    @Override
-    public void removeCourseFromFavorite(CourseRequest courseRequest) {
-        User user = userService.loadUserByUsername(courseRequest.getUsername());
-        Course course = repository.findById(courseRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-        Favourite favourite = favouriteRepository.findByUserAndCourse(user, course);
-        favouriteRepository.delete(favourite);
     }
 
     @Override
@@ -386,23 +313,30 @@ public class CourseServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = repository.findCourseByFilter(categoryIds,topicId,levelId,price,rating,title,pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = mapper.toDTO(course);
-            List<Review> reviews = reviewRepository.findByCourseId(course.getId());
-            double averageRating = reviews.stream()
-                    .mapToDouble(Review::getRating)
-                    .average()
-                    .orElse(0);
+        return coursePage.map(this::mapCourseToResponse);
+    }
 
-            // Định dạng số với một chữ số thập phân
-            DecimalFormat df = new DecimalFormat("#.#");
-            String formattedRating = df.format(averageRating);
+    @Override
+    public CourseResponse mapCourseToResponse(Course course) {
+        CourseResponse courseResponse = mapper.toDTO(course);
 
-            courseResponse.setRating(Double.parseDouble(formattedRating));
-            courseResponse.setRatingCount((long) reviews.size());
-            courseResponse.setCountStudent(enrollmentRepos.countSalesByCourseId(course.getId()));
-            courseResponse.setCountSection((long) course.getSections().size());
-            return courseResponse;
-        });
+        // Fetch reviews and calculate the average rating
+        List<Review> reviews = reviewRepository.findByCourseId(course.getId());
+        double averageRating = reviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0);
+
+        // Format the rating to one decimal place
+        DecimalFormat df = new DecimalFormat("#.#");
+        String formattedRating = df.format(averageRating);
+
+        // Set rating and additional course details
+        courseResponse.setRating(Double.parseDouble(formattedRating));
+        courseResponse.setRatingCount((long) reviews.size());
+        courseResponse.setCountStudent(enrollmentRepos.countSalesByCourseId(course.getId()));
+        courseResponse.setCountSection((long) course.getSections().size());
+
+        return courseResponse;
     }
 }

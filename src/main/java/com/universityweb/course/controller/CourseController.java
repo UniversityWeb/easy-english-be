@@ -45,12 +45,6 @@ public class CourseController {
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
-    @PostMapping("/get-all-course-favorite-of-student")
-    public ResponseEntity<List<CourseResponse>> getAllCourseFavoriteOfStudent(@RequestBody CourseRequest courseRequest) {
-        List<CourseResponse> courseResponses = courseService.getAllCourseFavoriteOfStudent(courseRequest);
-        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
-    }
-
     @PostMapping("/get-all-course")
     public ResponseEntity<Page<CourseResponse>> getAllCourse(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourse(courseRequest);
