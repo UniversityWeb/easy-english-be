@@ -1,5 +1,6 @@
 package com.universityweb.course.controller;
 
+import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin
 @RequestMapping("/api/v1/course")
@@ -30,31 +30,31 @@ public class CourseController {
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("/get-all-course-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseOfStudent(@RequestBody CourseRequest courseRequest) {
         List<CourseResponse> courseResponses = courseService.getAllCourseOfStudent(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("/get-all-course-not-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseNotOfStudent(@RequestBody CourseRequest courseRequest) {
         List<CourseResponse> courseResponses = courseService.getAllCourseNotOfStudent(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("/get-all-course-favorite-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseFavoriteOfStudent(@RequestBody CourseRequest courseRequest) {
         List<CourseResponse> courseResponses = courseService.getAllCourseFavoriteOfStudent(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("/get-all-course")
     public ResponseEntity<Page<CourseResponse>> getAllCourse(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourse(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("/update-course")
@@ -94,24 +94,24 @@ public class CourseController {
     @PostMapping("/get-main-course")
     public ResponseEntity<CourseResponse> getMainCourse(@RequestBody CourseRequest courseRequest) {
         CourseResponse courseResponse = courseService.getMainCourse(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponse));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponse));
     }
     @PostMapping("/get-all-course-by-list-category")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByListCategory(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourseByListCategory(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("/get-all-course-by-topic")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByTopic(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourseByTopic(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("/get-all-course-by-level")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByLevel(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourseByLevel(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     @PostMapping("add-course-to-favorite")
@@ -134,7 +134,7 @@ public class CourseController {
     @PostMapping("/get-course-by-filter")
     public ResponseEntity<Page<CourseResponse>> filterCourses(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getCourseByFilter(courseRequest);
-        return ResponseEntity.ok(constructMediaUrl(courseResponses));
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {
@@ -147,26 +147,6 @@ public class CourseController {
             String imagePreview = mediaService.uploadFile(image);
             courseRequest.setImagePreview(imagePreview);
         }
-    }
-
-    private Page<CourseResponse> constructMediaUrl(Page<CourseResponse> courseResponses) {
-        return courseResponses.map(this::setMediaUrls);
-    }
-
-    private List<CourseResponse> constructMediaUrl(List<CourseResponse> courseResponses) {
-        return courseResponses.stream()
-                .map(this::setMediaUrls)
-                .collect(Collectors.toList());
-    }
-
-    private CourseResponse constructMediaUrl(CourseResponse courseResponse) {
-        return setMediaUrls(courseResponse);
-    }
-
-    private CourseResponse setMediaUrls(CourseResponse response) {
-        response.setVideoPreview(mediaService.constructFileUrl(response.getVideoPreview()));
-        response.setImagePreview(mediaService.constructFileUrl(response.getImagePreview()));
-        return response;
     }
 
 //    @GetMapping("")

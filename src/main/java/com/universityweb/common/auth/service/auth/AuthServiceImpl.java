@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -41,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepos userRepos;
 
     @Override
+    @Transactional
     public boolean registerStudentAccount(RegisterRequest registerRequest) {
         String username = registerRequest.username();
         boolean isExists = userService.existsByUsername(username);
@@ -74,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
         String usernameOrEmail = loginRequest.usernameOrEmail();
         String password = loginRequest.password();
