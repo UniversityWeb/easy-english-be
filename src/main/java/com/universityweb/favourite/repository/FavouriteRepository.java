@@ -19,32 +19,31 @@ public interface FavouriteRepository extends JpaRepository<Favourite, Long>{
 
     @Query("SELECT f FROM Favourite f " +
             "JOIN f.course c " +
-            "LEFT JOIN c.categories cat " +
-            "LEFT JOIN c.topic t " +
-            "LEFT JOIN c.level l " +
-            "LEFT JOIN c.price p " +
+            "JOIN c.categories cat " +
+            "JOIN c.topic t " +
+            "JOIN c.level l " +
+            "JOIN c.price p " +
+            "LEFT JOIN c.reviews r " +
             "WHERE f.user.username = :username " +
             "AND f.isDeleted = false " +
-            "AND c.isPublish = true " +
-            "AND c.isActive = true " +
-            "AND (:categoryIds IS NULL OR cat.id IN :categoryIds) " +
+            "AND (:categoryId IS NULL OR cat.id IN :categoryId) " +
             "AND (:topicId IS NULL OR t.id = :topicId) " +
+            "AND (:title IS NULL OR c.title = :title) " +
             "AND (:levelId IS NULL OR l.id = :levelId) " +
             "AND (:price IS NULL OR (" +
-            "  (p.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN p.startDate AND p.endDate " +
-            "  AND p.salePrice <= :price) " +
-            "  OR (p.price <= :price))" +
+            "  (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate " +
+            "  AND c.price.salePrice <= :price) " +
+            "  OR (c.price.price <= :price))" +
             ") " +
-            "AND (:rating IS NULL OR (SELECT AVG(r.rating) FROM Review r WHERE r.course.id = c.id) >= :rating) " +
-            "AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%')))")
+            "GROUP BY f.id " +
+            "HAVING (COUNT(r) = 0 OR AVG(r.rating) > :rating OR :rating IS NULL)")
     Page<Favourite> findByUserAndFilter(
             @Param("username") String username,
-            @Param("categoryIds") List<Long> categoryIds,
+            @Param("categoryId") List<Long> categoryId,
             @Param("topicId") Long topicId,
             @Param("levelId") Long levelId,
             @Param("price") BigDecimal price,
             @Param("rating") Double rating,
             @Param("title") String title,
-            Pageable pageable
-    );
+            Pageable pageable);
 }

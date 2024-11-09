@@ -3,7 +3,9 @@ package com.universityweb.course.entity;
 import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.drip.Drip;
+import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.faq.entity.FAQ;
+import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.level.entity.Level;
 import com.universityweb.price.entity.Price;
 import com.universityweb.review.entity.Review;
@@ -102,4 +104,10 @@ public class Course {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Drip> drips;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Enrollment> enrollments;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Favourite> favourites;
 }
