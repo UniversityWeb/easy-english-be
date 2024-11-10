@@ -27,6 +27,15 @@ public class TestServiceImpl
     }
 
     @Override
+    public TestDTO getById(Long id) {
+        TestDTO testDTO = super.getById(id);
+
+        Long courseId = repository.findCourseIdByTestId(id);
+        testDTO.setCourseId(courseId);
+        return testDTO;
+    }
+
+    @Override
     public void updateStatus(Long id, Test.EStatus status) {
         Test existingTest = getEntityById(id);
         existingTest.setStatus(status);

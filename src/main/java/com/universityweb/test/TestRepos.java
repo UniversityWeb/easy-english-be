@@ -13,4 +13,7 @@ public interface TestRepos extends JpaRepository<Test, Long> {
     @Query("SELECT t FROM Test t " +
             "WHERE t.section.id = :sectionId AND t.status <> 'DELETED'")
     List<Test> findBySectionId(Long sectionId, Sort sort);
+
+    @Query("SELECT c.id FROM Test t JOIN t.section s JOIN s.course c WHERE t.id = :id")
+    Long findCourseIdByTestId(Long id);
 }

@@ -100,11 +100,11 @@ public class EnrollmentServiceImpl
         double progress = req.getProgress();
         Enrollment.EStatus enrollmentStatus = req.getEnrollmentStatus();
         Enrollment.EType enrollmentType = req.getEnrollmentType();
-        Page<Enrollment> filteredEnrollmentsPage = repository.findByUser_UsernameAndFilter(
+        Page<Course> filteredEnrollmentsPage = repository.findByUser_UsernameAndFilter(
                 username, categoryIds, topicId, levelId, rating, title, progress, enrollmentStatus, enrollmentType, pageable
         );
 
-        return filteredEnrollmentsPage.map(enrollment -> courseService.mapCourseToResponse(enrollment.getCourse()));
+        return filteredEnrollmentsPage.map(courseService::mapCourseToResponse);
     }
 
     @Override

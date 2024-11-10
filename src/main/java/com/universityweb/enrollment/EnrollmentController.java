@@ -57,7 +57,7 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
         return ResponseEntity.ok(enrollmentDTO);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<Page<CourseResponse>> getEnrolledCourses(
             @RequestParam int page,
             @RequestParam int size
