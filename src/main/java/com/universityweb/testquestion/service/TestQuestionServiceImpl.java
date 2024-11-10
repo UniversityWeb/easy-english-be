@@ -57,8 +57,6 @@ public class TestQuestionServiceImpl
         testQuestion.setOrdinalNumber(dto.ordinalNumber());
         testQuestion.setTitle(dto.title());
         testQuestion.setDescription(dto.description());
-        testQuestion.setAudioPath(dto.audioPath());
-        testQuestion.setImagePath(dto.imagePath());
         testQuestion.setOptions(dto.options());
         testQuestion.setCorrectAnswers(dto.correctAnswers());
 

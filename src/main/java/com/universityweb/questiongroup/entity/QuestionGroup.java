@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -39,12 +40,6 @@ public class QuestionGroup implements Serializable {
     @Column(name = "image_path")
     private String imagePath;
 
-    @Column(name = "content_to_display", columnDefinition = "TEXT")
-    private String contentToDisplay;
-
-    @Column(name = "original_content", columnDefinition = "TEXT")
-    private String originalContent;
-
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isDeleted;
 
@@ -54,4 +49,11 @@ public class QuestionGroup implements Serializable {
     @ManyToOne
     @JoinColumn(name = "test_part_id", referencedColumnName = "id")
     private TestPart testPart;
+
+    @PostLoad
+    private void postLoad() {
+        if (this.questions != null) {
+            this.questions.sort(Comparator.comparingInt(TestQuestion::getOrdinalNumber));
+        }
+    }
 }

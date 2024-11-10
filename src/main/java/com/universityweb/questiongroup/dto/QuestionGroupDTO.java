@@ -20,8 +20,6 @@ public class QuestionGroupDTO {
     private String title;
     private String requirement;
     private String imagePath;
-    private String contentToDisplay;
-    private String originalContent;
     private List<TestQuestionDTO> questions;
     private Long testPartId;
 }

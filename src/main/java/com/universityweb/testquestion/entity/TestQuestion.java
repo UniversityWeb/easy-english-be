@@ -30,12 +30,6 @@ public class TestQuestion implements Serializable {
 
     private String description;
 
-    @Column(name = "audio_path", nullable = true)
-    private String audioPath;
-
-    @Column(name = "image_path", nullable = true)
-    private String imagePath;
-
     @ElementCollection
     @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
     @Column(name = "option")
@@ -57,8 +51,6 @@ public class TestQuestion implements Serializable {
         this.ordinalNumber = null;
         this.title = null;
         this.description = null;
-        this.audioPath = null;
-        this.imagePath = null;
         this.options = null;
         this.correctAnswers = null;
     }
