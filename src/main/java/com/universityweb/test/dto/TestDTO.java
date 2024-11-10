@@ -27,6 +27,7 @@ public class TestDTO {
     private String audioPath;
     private List<TestPartDTO> parts;
     private Long sectionId;
+    private Long courseId;
 
     private Boolean isDone;
 }

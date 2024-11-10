@@ -31,7 +31,7 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
 
     Page<Enrollment> findByUser_UsernameAndStatusNot(String username, Enrollment.EStatus eStatus, Pageable pageable);
 
-    @Query("SELECT e FROM Enrollment e " +
+    @Query("SELECT c FROM Enrollment e " +
             "JOIN e.course c " +
             "JOIN c.categories cat " +
             "JOIN c.topic t " +
@@ -41,12 +41,13 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             "AND (:categoryIds IS NULL OR cat.id IN :categoryIds) " +
             "AND (:levelId IS NULL OR l.id = :levelId) " +
             "AND (:topicId IS NULL OR t.id = :topicId) " +
-            "AND (:rating IS NULL OR (c.reviews IS EMPTY AND :rating = 0) OR (SIZE(c.reviews) = :rating)) " +
-            "AND (:title IS NULL OR c.title LIKE CONCAT('%', :title, '%')) " +
-            "AND (:progress IS NULL OR e.progress = :progress) " +
+            "AND (:rating IS NULL OR (c.reviews IS EMPTY AND :rating = 0) OR (SIZE(c.reviews) >= :rating)) " +
+            "AND (:title IS NULL OR c.title LIKE ('%' || CAST(:title AS text) || '%')) " +
+//            "AND (:title IS NULL OR c.title = :title) " +
+            "AND (:progress IS NULL OR :progress = 0 OR e.progress = :progress) " +
             "AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) " +
             "AND (:enrollmentType IS NULL OR e.type = :enrollmentType)")
-    Page<Enrollment> findByUser_UsernameAndFilter(
+    Page<Course> findByUser_UsernameAndFilter(
             @Param("username") String username,
             @Param("categoryIds") List<Long> categoryIds,
             @Param("levelId") Long levelId,
