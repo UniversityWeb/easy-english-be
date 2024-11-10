@@ -30,5 +30,5 @@ public class EnrolledCourseFilterReq {
     Enrollment.EType enrollmentType;
 
     int page = 0;
-    int size = 10;
+    int size = 8;
 }

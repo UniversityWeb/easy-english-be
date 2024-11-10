@@ -37,16 +37,18 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             "JOIN c.topic t " +
             "JOIN c.level l " +
             "JOIN c.price p " +
+            "LEFT JOIN c.reviews r " +
             "WHERE e.user.username = :username " +
+            "AND e.status <> 'CANCELLED' " +
             "AND (:categoryIds IS NULL OR cat.id IN :categoryIds) " +
             "AND (:levelId IS NULL OR l.id = :levelId) " +
             "AND (:topicId IS NULL OR t.id = :topicId) " +
-            "AND (:rating IS NULL OR (c.reviews IS EMPTY AND :rating = 0) OR (SIZE(c.reviews) >= :rating)) " +
-            "AND (:title IS NULL OR c.title LIKE ('%' || CAST(:title AS text) || '%')) " +
-//            "AND (:title IS NULL OR c.title = :title) " +
+            "AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) " +
             "AND (:progress IS NULL OR :progress = 0 OR e.progress = :progress) " +
             "AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) " +
-            "AND (:enrollmentType IS NULL OR e.type = :enrollmentType)")
+            "AND (:enrollmentType IS NULL OR e.type = :enrollmentType) " +
+            "GROUP BY c.id, e.createdAt " +
+            "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)")
     Page<Course> findByUser_UsernameAndFilter(
             @Param("username") String username,
             @Param("categoryIds") List<Long> categoryIds,
