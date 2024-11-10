@@ -5,6 +5,7 @@ import com.universityweb.course.entity.Course;
 import com.universityweb.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@Where(clause = "status != 'DELETED'")
 public class User implements UserDetails, Serializable {
     @Id
     private String username;

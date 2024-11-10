@@ -328,4 +328,12 @@ public class CourseServiceImpl
 
         return courseResponse;
     }
+
+    @Override
+    public void softDelete(Long id) {
+        Course course = getEntityById(id);
+        course.setIsDeleted(true);
+        course.setIsActive(false);
+        repository.save(course);
+    }
 }

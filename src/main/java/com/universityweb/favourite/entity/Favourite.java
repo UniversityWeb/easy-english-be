@@ -6,6 +6,7 @@ import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@Where(clause = "is_deleted = false")
 public class Favourite  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

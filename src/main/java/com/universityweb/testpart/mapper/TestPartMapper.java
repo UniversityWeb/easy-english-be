@@ -11,14 +11,12 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface TestPartMapper extends BaseMapper<TestPart, TestPartDTO> {
-    TestPartMapper INSTANCE = Mappers.getMapper(TestPartMapper.class);
-
     @Mapping(source = "test.id", target = "testId")
+    @Override
     TestPartDTO toDTO(TestPart entity);
-    List<TestPartDTO> toDTOs(List<TestPart> entities);
 
     @Mapping(target = "test", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
+    @Override
     TestPart toEntity(TestPartDTO dto);
-    List<TestPart> toEntities(List<TestPartDTO> dtos);
 }

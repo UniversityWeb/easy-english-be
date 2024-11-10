@@ -75,4 +75,11 @@ public class LevelServiceImpl
         Level saved = repository.save(currentLevel);
         return mapper.toDTO(saved);
     }
+
+    @Override
+    public void softDelete(Long id) {
+        Level level = getEntityById(id);
+        level.setIsDeleted(true);
+        repository.save(level);
+    }
 }

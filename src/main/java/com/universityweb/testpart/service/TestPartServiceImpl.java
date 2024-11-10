@@ -21,13 +21,15 @@ public class TestPartServiceImpl
         implements TestPartService {
 
     private final TestService testService;
-    private final ReviewServiceImpl reviewServiceImpl;
 
     @Autowired
-    protected TestPartServiceImpl(TestPartRepos repository, TestService testService, ReviewServiceImpl reviewServiceImpl) {
-        super(repository, TestPartMapper.INSTANCE);
+    protected TestPartServiceImpl(
+            TestPartRepos repository,
+            TestPartMapper mapper,
+            TestService testService
+    ) {
+        super(repository, mapper);
         this.testService = testService;
-        this.reviewServiceImpl = reviewServiceImpl;
     }
 
     @Override

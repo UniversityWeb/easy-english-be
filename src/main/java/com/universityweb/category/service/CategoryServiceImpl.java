@@ -56,4 +56,11 @@ public class CategoryServiceImpl
         currentCategory.setName(dto.getName());
         return savedAndConvertToDTO(currentCategory);
     }
+
+    @Override
+    public void softDelete(Long id) {
+        Category cate = getEntityById(id);
+        cate.setIsDeleted(true);
+        repository.save(cate);
+    }
 }

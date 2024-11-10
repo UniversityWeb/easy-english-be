@@ -7,6 +7,8 @@ import com.universityweb.common.media.service.MediaService;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
+import com.universityweb.testpart.dto.TestPartDTO;
+import com.universityweb.testpart.service.TestPartService;
 import com.universityweb.testresult.service.TestResultService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -22,8 +22,12 @@ public class QuestionGroupServiceImpl
     private TestPartService testPartService;
 
     @Autowired
-    public QuestionGroupServiceImpl(QuestionGroupRepos repository, TestPartService testPartService) {
-        super(repository, QuestionGroupMapper.INSTANCE);
+    public QuestionGroupServiceImpl(
+            QuestionGroupRepos repository,
+            QuestionGroupMapper mapper,
+            TestPartService testPartService
+    ) {
+        super(repository, mapper);
         this.testPartService = testPartService;
     }
 
@@ -36,7 +40,6 @@ public class QuestionGroupServiceImpl
         existingQuestionGroup.setFrom(dto.getFrom());
         existingQuestionGroup.setTo(dto.getTo());
         existingQuestionGroup.setRequirement(dto.getRequirement());
-        existingQuestionGroup.setAudioPath(dto.getAudioPath());
         existingQuestionGroup.setImagePath(dto.getImagePath());
         existingQuestionGroup.setContentToDisplay(dto.getContentToDisplay());
         existingQuestionGroup.setOriginalContent(dto.getOriginalContent());
