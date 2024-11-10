@@ -14,6 +14,7 @@ import com.universityweb.lesson.service.LessonService;
 import com.universityweb.lessontracker.service.LessonTrackerService;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
+import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.service.TestResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -184,7 +185,8 @@ public class DripServiceImpl
             case LESSON:
                 return lessonTrackerService.getByUsernameAndLessonId(username, targetId) != null;
             case TEST:
-                return testResultService.getByUsernameAndTestId(username, targetId) != null;
+                List<TestResult> results = testResultService.getByUsernameAndTestId(username, targetId);
+                return results != null && !results.isEmpty();
             default:
                 return false;
         }

@@ -4,6 +4,7 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.lesson.entity.Lesson;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@Where(clause = "is_deleted = false")
 public class LessonTracker implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -7,6 +7,9 @@ import com.universityweb.test.TestRepos;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.exception.TestNotFoundException;
+import com.universityweb.testpart.TestPartRepos;
+import com.universityweb.testpart.entity.TestPart;
+import com.universityweb.testpart.service.TestPartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,10 @@ public class TestServiceImpl
     private final SectionService sectionService;
 
     @Autowired
-    public TestServiceImpl(TestRepos repository, SectionService sectionService) {
+    public TestServiceImpl(
+            TestRepos repository,
+            SectionService sectionService
+    ) {
         super(repository, TestMapper.INSTANCE);
         this.sectionService = sectionService;
     }
@@ -29,7 +35,6 @@ public class TestServiceImpl
     @Override
     public TestDTO getById(Long id) {
         TestDTO testDTO = super.getById(id);
-
         Long courseId = repository.findCourseIdByTestId(id);
         testDTO.setCourseId(courseId);
         return testDTO;

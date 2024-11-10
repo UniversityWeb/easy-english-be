@@ -56,4 +56,11 @@ public class TopicServiceImpl
         currentTopic.setName(dto.getName());
         return savedAndConvertToDTO(currentTopic);
     }
+
+    @Override
+    public void softDelete(Long id) {
+        Topic topic = getEntityById(id);
+        topic.setIsDeleted(true);
+        repository.save(topic);
+    }
 }

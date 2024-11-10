@@ -3,6 +3,7 @@ package com.universityweb.notification.entity;
 import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@Where(clause = "is_deleted = false")
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +27,9 @@ public class Notification {
     private LocalDateTime createdDate;
 
     private boolean read;
+
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isDeleted;
 
     @ManyToOne
     @JoinColumn(name = "username")

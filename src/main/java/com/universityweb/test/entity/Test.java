@@ -4,6 +4,7 @@ import com.universityweb.section.entity.Section;
 import com.universityweb.testpart.entity.TestPart;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@Where(clause = "status != 'DELETED'")
 public class Test implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

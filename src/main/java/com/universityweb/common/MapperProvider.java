@@ -4,7 +4,11 @@ import com.universityweb.drip.DripMapper;
 import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
+import com.universityweb.notification.NotificationMapper;
+import com.universityweb.questiongroup.QuestionGroupMapper;
+import com.universityweb.testpart.mapper.TestPartMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
+import org.aspectj.weaver.patterns.TypePatternQuestions;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,5 +44,23 @@ public class MapperProvider {
     @Primary
     public FavouriteMapper favouriteMapper() {
         return Mappers.getMapper(FavouriteMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public TestPartMapper testPartMapper() {
+        return Mappers.getMapper(TestPartMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public QuestionGroupMapper questionGroupMapper() {
+        return Mappers.getMapper(QuestionGroupMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public NotificationMapper notificationMapper() {
+        return Mappers.getMapper(NotificationMapper.class);
     }
 }

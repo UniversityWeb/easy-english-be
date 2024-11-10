@@ -4,6 +4,7 @@ import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testquestion.entity.TestQuestion;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@Where(clause = "is_deleted = false")
 public class QuestionGroup implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +35,6 @@ public class QuestionGroup implements Serializable {
 
     @Column(columnDefinition = "TEXT")
     private String requirement;
-
-    @Column(name = "audio_path")
-    private String audioPath;
 
     @Column(name = "image_path")
     private String imagePath;

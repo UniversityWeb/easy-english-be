@@ -19,7 +19,6 @@ public class QuestionGroupDTO {
     private Integer to;
     private String title;
     private String requirement;
-    private String audioPath;
     private String imagePath;
     private String contentToDisplay;
     private String originalContent;

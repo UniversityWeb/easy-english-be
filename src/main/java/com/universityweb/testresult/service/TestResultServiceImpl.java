@@ -92,16 +92,23 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public TestResult getByUsernameAndTestId(String username, Long testId) {
-        return repository.findByUser_UsernameAndTest_Id(username, testId)
-                .orElse(null);
+    public Page<TestResultDTO> getByUsernameAndTestId(String username, Long testId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TestResult> results = repository.findByUser_UsernameAndTest_Id(username, testId, pageable);
+        return mapper.mapPageToPageDTO(results);
+    }
+
+    @Override
+    public List<TestResult> getByUsernameAndTestId(String username, Long testId) {
+        return repository.findByUser_UsernameAndTest_Id(username, testId);
     }
 
     @Override
     public Boolean isDone(String username, Long testId) {
-        TestResult testResult = getByUsernameAndTestId(username, testId);
-        if (testResult == null) return false;
-        return testResult.getStatus().equals(TestResult.EStatus.DONE);
+        List<TestResult> testResults = getByUsernameAndTestId(username, testId);
+        if (testResults == null || testResults.isEmpty()) return false;
+        return testResults.stream()
+                .anyMatch(testResult -> testResult.getStatus().equals(TestResult.EStatus.DONE));
     }
 
     @Override

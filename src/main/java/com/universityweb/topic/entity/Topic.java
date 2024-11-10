@@ -4,6 +4,7 @@ import com.universityweb.course.entity.Course;
 import com.universityweb.level.entity.Level;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.util.List;
 
@@ -14,12 +15,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "topics")
+@Where(clause = "is_deleted = false")
 public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
+
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "topic")
     private List<Course> courses;

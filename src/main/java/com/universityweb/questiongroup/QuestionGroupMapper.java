@@ -9,12 +9,12 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface QuestionGroupMapper extends BaseMapper<QuestionGroup, QuestionGroupDTO> {
-    QuestionGroupMapper INSTANCE = Mappers.getMapper(QuestionGroupMapper.class);
-
     @Mapping(source = "testPart.id", target = "testPartId")
+    @Override
     QuestionGroupDTO toDTO(QuestionGroup questionGroup);
 
     @Mapping(target = "testPart", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
+    @Override
     QuestionGroup toEntity(QuestionGroupDTO questionGroupDTO);
 }
