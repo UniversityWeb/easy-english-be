@@ -28,7 +28,7 @@ public interface FavouriteRepository extends JpaRepository<Favourite, Long>{
             "AND f.isDeleted = false " +
             "AND (:categoryId IS NULL OR cat.id IN :categoryId) " +
             "AND (:topicId IS NULL OR t.id = :topicId) " +
-            "AND (:title IS NULL OR c.title = :title) " +
+            "AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) " +
             "AND (:levelId IS NULL OR l.id = :levelId) " +
             "AND (:price IS NULL OR (" +
             "  (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate " +
@@ -36,7 +36,7 @@ public interface FavouriteRepository extends JpaRepository<Favourite, Long>{
             "  OR (c.price.price <= :price))" +
             ") " +
             "GROUP BY f.id " +
-            "HAVING (COUNT(r) = 0 OR AVG(r.rating) > :rating OR :rating IS NULL)")
+            "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)")
     Page<Favourite> findByUserAndFilter(
             @Param("username") String username,
             @Param("categoryId") List<Long> categoryId,

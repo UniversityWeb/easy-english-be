@@ -35,5 +35,5 @@ public class CourseRequest {
     private List<Long> categoryIds;
 
     private int pageNumber = 0;
-    private int size = 10;
+    private int size = 8;
 }

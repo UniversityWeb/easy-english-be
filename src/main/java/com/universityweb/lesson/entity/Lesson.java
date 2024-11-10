@@ -28,6 +28,7 @@ public class Lesson {
     private LessonType type;
     @Column(columnDefinition = "TEXT")
     private String content;
+    @Column(columnDefinition = "TEXT")
     private String contentUrl;
     private String description;
     private int duration;
