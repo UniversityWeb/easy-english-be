@@ -10,8 +10,6 @@ public record TestQuestionDTO(
         Integer ordinalNumber,
         String title,
         String description,
-        String audioPath,
-        String imagePath,
         List<String> options,
         List<String> correctAnswers,
         Long questionGroupId

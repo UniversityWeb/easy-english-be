@@ -41,8 +41,6 @@ public class QuestionGroupServiceImpl
         existingQuestionGroup.setTo(dto.getTo());
         existingQuestionGroup.setRequirement(dto.getRequirement());
         existingQuestionGroup.setImagePath(dto.getImagePath());
-        existingQuestionGroup.setContentToDisplay(dto.getContentToDisplay());
-        existingQuestionGroup.setOriginalContent(dto.getOriginalContent());
 
         QuestionGroup updatedQuestionGroup = repository.save(existingQuestionGroup);
         return mapper.toDTO(updatedQuestionGroup);

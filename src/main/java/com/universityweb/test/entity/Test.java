@@ -2,12 +2,14 @@ package com.universityweb.test.entity;
 
 import com.universityweb.section.entity.Section;
 import com.universityweb.testpart.entity.TestPart;
+import com.universityweb.testquestion.entity.TestQuestion;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -78,6 +80,13 @@ public class Test implements Serializable {
         }
         if (audioPath == null) {
             audioPath = ""; // Ensures default audioPath is set
+        }
+    }
+
+    @PostLoad
+    private void postLoad() {
+        if (this.parts != null) {
+            this.parts.sort(Comparator.comparingInt(TestPart::getOrdinalNumber));
         }
     }
 
