@@ -39,6 +39,7 @@ public class TestPart {
     private Test test;
 
     @OneToMany(mappedBy = "testPart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("ordinalNumber ASC")
     private List<QuestionGroup> questionGroups;
 
     @PostLoad

@@ -1,5 +1,6 @@
 package com.universityweb.testquestion;
 
+import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.testquestion.entity.TestQuestion;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +20,6 @@ public interface TestQuestionRepos extends JpaRepository<TestQuestion, Long> {
             "JOIN g.testPart p " +
             "WHERE p.test.id = :testId")
     int countByTestId(@Param("testId") Long testId);
+
+    List<TestQuestion> findByQuestionGroupOrderByOrdinalNumberAsc(QuestionGroup questionGroup);
 }
