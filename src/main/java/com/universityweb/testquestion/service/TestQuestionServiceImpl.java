@@ -12,7 +12,6 @@ import com.universityweb.testquestion.dto.TestQuestionDTO;
 import com.universityweb.testquestion.entity.TestQuestion;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +53,6 @@ public class TestQuestionServiceImpl
         }
 
         testQuestion.setType(dto.type());
-        testQuestion.setOrdinalNumber(dto.ordinalNumber());
         testQuestion.setTitle(dto.title());
         testQuestion.setDescription(dto.description());
         testQuestion.setOptions(dto.options());
@@ -65,8 +63,7 @@ public class TestQuestionServiceImpl
 
     @Override
     public List<TestQuestionDTO> getByQuestionGroupId(Long questionGroupId) {
-        Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
-        List<TestQuestion> questions = repository.findByQuestionGroupId(questionGroupId, sort);
+        List<TestQuestion> questions = repository.findByQuestionGroupId(questionGroupId);
         return mapper.toDTOs(questions);
     }
 

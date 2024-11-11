@@ -1,5 +1,6 @@
 package com.universityweb.testpart;
 
+import com.universityweb.test.entity.Test;
 import com.universityweb.testpart.entity.TestPart;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,6 @@ public interface TestPartRepos extends JpaRepository<TestPart, Long> {
     @Query("SELECT tp FROM TestPart tp " +
             "WHERE tp.test.id = :testId ORDER BY tp.ordinalNumber ASC")
     TestPart getFirstTestPartByTestId(Long testId);
+
+    List<TestPart> findByTestOrderByOrdinalNumberAsc(Test test);
 }

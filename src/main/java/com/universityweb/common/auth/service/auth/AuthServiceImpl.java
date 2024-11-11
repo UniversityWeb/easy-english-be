@@ -81,12 +81,9 @@ public class AuthServiceImpl implements AuthService {
         String usernameOrEmail = loginRequest.usernameOrEmail();
         String password = loginRequest.password();
 
-        String username;
-        if (Utils.isEmail(usernameOrEmail)) {
-            username = userRepos.getUsernameByEmail(usernameOrEmail);
-        } else {
-            username = usernameOrEmail;
-        }
+        String username = Utils.isEmail(usernameOrEmail)
+                ? userRepos.getUsernameByEmail(usernameOrEmail)
+                : usernameOrEmail;
 
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

@@ -13,7 +13,7 @@ import java.util.List;
 public interface QuestionGroupRepos extends JpaRepository<QuestionGroup, Long> {
     @Query("SELECT qg FROM QuestionGroup qg " +
             "WHERE qg.testPart.id = :testPartId AND qg.isDeleted = false")
-    List<QuestionGroup> findByTestPartId(Long testPartId, Sort sort);
+    List<QuestionGroup> findByTestPartId(Long testPartId);
 
     @Query("SELECT qg FROM QuestionGroup qg " +
             "WHERE qg.testPart.id = :testPartId ORDER BY qg.ordinalNumber ASC")

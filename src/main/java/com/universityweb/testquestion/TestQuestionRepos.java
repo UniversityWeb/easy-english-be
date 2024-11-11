@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface TestQuestionRepos extends JpaRepository<TestQuestion, Long> {
-    List<TestQuestion> findByQuestionGroupId(Long questionGroupId, Sort sort);
+    List<TestQuestion> findByQuestionGroupId(Long questionGroupId);
 
     @Query("SELECT COUNT(q) " +
             "FROM TestQuestion q " +

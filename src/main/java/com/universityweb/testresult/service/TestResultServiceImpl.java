@@ -120,7 +120,7 @@ public class TestResultServiceImpl
 
         TestResult testResult = TestResult.builder()
                 .result("")
-                .status(TestResult.EStatus.FAILED)
+                .status(TestResult.EStatus.IN_PROGRESS)
                 .takingDuration(req.getTakingDuration())
                 .startedAt(req.getStartedAt())
                 .finishedAt(req.getFinishedAt())

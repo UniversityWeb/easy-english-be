@@ -28,7 +28,7 @@ public class TestPart {
     @Column(name = "reading_passage", columnDefinition = "TEXT", nullable = true)
     private String readingPassage;
 
-    @Column(name = "ordinal_number")
+    @Column(name = "ordinal_number", columnDefinition = "integer default 1")
     private Integer ordinalNumber;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
@@ -45,7 +45,15 @@ public class TestPart {
     @PostLoad
     private void postLoad() {
         if (this.questionGroups != null) {
-            this.questionGroups.sort(Comparator.comparingInt(QuestionGroup::getOrdinalNumber));
+            this.questionGroups.sort((g1, g2) -> {
+                Integer ordinal1 = g1.getOrdinalNumber();
+                Integer ordinal2 = g2.getOrdinalNumber();
+
+                int value1 = ordinal1 != null ? ordinal1 : Integer.MAX_VALUE;
+                int value2 = ordinal2 != null ? ordinal2 : Integer.MAX_VALUE;
+
+                return Integer.compare(value1, value2);
+            });
         }
     }
 }

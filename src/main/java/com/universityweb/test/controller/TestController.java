@@ -45,6 +45,7 @@ public class TestController
 
     @Override
     public ResponseEntity<TestDTO> getById(Long id) {
+        service.refactorOrdinalNumbers(id);
         TestDTO testDTO = service.getById(id);
         return ResponseEntity.ok(MediaUtils.attachTestMediaUrls(mediaService, testDTO));
     }
@@ -81,6 +82,14 @@ public class TestController
         log.info("get tests by section Id: {}", sectionId);
         List<TestDTO> testDTOs = service.getBySection(sectionId);
         return ResponseEntity.ok(addTestMediaUrls(testDTOs));
+    }
+
+    @PutMapping("/refactor-ordinal-numbers/{testId}")
+    public ResponseEntity<Void> refactorOrdinalNumbers(
+            @PathVariable Long testId
+    ) {
+        service.refactorOrdinalNumbers(testId);
+        return ResponseEntity.noContent().build();
     }
 
     private List<TestDTO> addTestMediaUrls(List<TestDTO> testDTOs) {

@@ -1,6 +1,8 @@
 package com.universityweb.test.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.questiongroup.QuestionGroupRepos;
+import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.section.service.SectionService;
 import com.universityweb.test.TestMapper;
 import com.universityweb.test.TestRepos;
@@ -10,9 +12,12 @@ import com.universityweb.test.exception.TestNotFoundException;
 import com.universityweb.testpart.TestPartRepos;
 import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testpart.service.TestPartService;
+import com.universityweb.testquestion.TestQuestionRepos;
+import com.universityweb.testquestion.entity.TestQuestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,14 +27,23 @@ public class TestServiceImpl
         implements TestService {
 
     private final SectionService sectionService;
+    private final TestPartRepos testPartRepos;
+    private final QuestionGroupRepos questionGroupRepos;
+    private final TestQuestionRepos testQuestionRepos;
 
     @Autowired
     public TestServiceImpl(
             TestRepos repository,
-            SectionService sectionService
+            SectionService sectionService,
+            TestPartRepos testPartRepos,
+            QuestionGroupRepos questionGroupRepos,
+            TestQuestionRepos testQuestionRepos
     ) {
         super(repository, TestMapper.INSTANCE);
         this.sectionService = sectionService;
+        this.testPartRepos = testPartRepos;
+        this.questionGroupRepos = questionGroupRepos;
+        this.testQuestionRepos = testQuestionRepos;
     }
 
     @Override
@@ -52,6 +66,39 @@ public class TestServiceImpl
         Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
         List<Test> tests = repository.findBySectionId(sectionId, sort);
         return mapper.toDTOs(tests);
+    }
+
+    @Override
+    @Transactional
+    public void refactorOrdinalNumbers(Long testId) {
+        Test test = getEntityById(testId);
+
+        List<TestPart> parts = testPartRepos.findByTestOrderByOrdinalNumberAsc(test);
+
+        int partOrdinal = 1;
+        int groupOrdinal = 1;
+        int questionOrdinal = 1;
+        for (TestPart part : parts) {
+            part.setOrdinalNumber(partOrdinal++);
+            testPartRepos.save(part);
+
+            List<QuestionGroup> groups = questionGroupRepos.findByTestPartOrderByOrdinalNumberAsc(part);
+
+            for (QuestionGroup group : groups) {
+                group.setOrdinalNumber(groupOrdinal++);
+                group.setFrom(questionOrdinal);
+
+                List<TestQuestion> questions = testQuestionRepos.findByQuestionGroupOrderByOrdinalNumberAsc(group);
+
+                for (TestQuestion question : questions) {
+                    question.setOrdinalNumber(questionOrdinal++);
+                    testQuestionRepos.save(question);
+                }
+
+                group.setTo(questionOrdinal - 1);
+                questionGroupRepos.save(group);
+            }
+        }
     }
 
     @Override

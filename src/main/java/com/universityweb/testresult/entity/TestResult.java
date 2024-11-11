@@ -48,6 +48,6 @@ public class TestResult implements Serializable {
     private List<UserAnswer> userAnswers;
 
     public enum EStatus {
-        DONE, FAILED
+        DONE, IN_PROGRESS, FAILED
     }
 }
