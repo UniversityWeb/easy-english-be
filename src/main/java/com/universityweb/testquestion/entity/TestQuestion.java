@@ -26,18 +26,26 @@ public class TestQuestion implements Serializable {
     @Column(name = "ordinal_number")
     private Integer ordinalNumber;
 
+    @Column(columnDefinition = "TEXT")
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @ElementCollection
-    @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
-    @Column(name = "option")
+    @CollectionTable(
+            name = "question_options",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @Column(name = "option", columnDefinition = "TEXT")
     private List<String> options;
 
     @ElementCollection
-    @CollectionTable(name = "question_correct_answers", joinColumns = @JoinColumn(name = "question_id"))
-    @Column(name = "correct_answer")
+    @CollectionTable(
+            name = "question_correct_answers",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @Column(name = "correct_answer", columnDefinition = "TEXT")
     private List<String> correctAnswers;
 
     @ManyToOne

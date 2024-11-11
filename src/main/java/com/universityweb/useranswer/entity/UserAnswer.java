@@ -22,8 +22,11 @@ public class UserAnswer implements Serializable {
     private Long id;
 
     @ElementCollection
-    @CollectionTable(name = "user_answer_strs", joinColumns = @JoinColumn(name = "user_answer_id"))
-    @Column(name = "answer")
+    @CollectionTable(
+            name = "user_answer_strs",
+            joinColumns = @JoinColumn(name = "user_answer_id")
+    )
+    @Column(name = "answer", columnDefinition = "TEXT")
     private List<String> answers;
 
     @Column(name = "is_correct")
