@@ -10,4 +10,5 @@ import java.util.List;
 public interface QuestionGroupService extends BaseService<QuestionGroup, QuestionGroupDTO, Long> {
     List<QuestionGroupDTO> getByTestPartId(Long testPartId);
     @NotNull QuestionGroup getFirstOrCreateGroupByTestPartId(Long testPartId);
+    void swapTwoQuestionGroups(Long groupId1, Long groupId2);
 }

@@ -204,6 +204,7 @@ public class DripServiceImpl
         }
 
         return DripsOfPrevDTO.builder()
+                .id(drip.getId())
                 .prevId(prevId)
                 .prevType(prevType)
                 .nextDrips(nextDrips)

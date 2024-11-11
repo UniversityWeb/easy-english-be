@@ -120,7 +120,7 @@ public class TestResultServiceImpl
 
         TestResult testResult = TestResult.builder()
                 .result("")
-                .status(TestResult.EStatus.IN_PROGRESS)
+                .status(TestResult.EStatus.FAILED)
                 .takingDuration(req.getTakingDuration())
                 .startedAt(req.getStartedAt())
                 .finishedAt(req.getFinishedAt())
@@ -155,7 +155,7 @@ public class TestResultServiceImpl
         boolean isPassed = correctPercent >= passingGrade;
 
         testResultSaved.setResult(result);
-        testResultSaved.setStatus(isPassed ? TestResult.EStatus.DONE : TestResult.EStatus.IN_PROGRESS);
+        testResultSaved.setStatus(isPassed ? TestResult.EStatus.DONE : TestResult.EStatus.FAILED);
         testResultSaved = repository.save(testResultSaved);
 
         return mapper.toDTO(testResultSaved);

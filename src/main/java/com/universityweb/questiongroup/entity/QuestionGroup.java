@@ -44,6 +44,7 @@ public class QuestionGroup implements Serializable {
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "questionGroup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("ordinalNumber ASC")
     private List<TestQuestion> questions;
 
     @ManyToOne

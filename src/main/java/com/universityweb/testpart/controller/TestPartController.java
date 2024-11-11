@@ -7,10 +7,7 @@ import com.universityweb.testpart.service.TestPartService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,5 +30,14 @@ public class TestPartController
         List<TestPartDTO> testParts = service.getTestPartsByTestId(testId);
         log.info("TestParts found for testId {}: {}", testId, testParts);
         return ResponseEntity.ok(testParts);
+    }
+
+    @PutMapping("/swap/{partId1}/{partId2}")
+    public ResponseEntity<Void> swapTestPart(
+            @PathVariable Long partId1,
+            @PathVariable Long partId2
+    ) {
+        service.swapTwoParts(partId1, partId2);
+        return ResponseEntity.noContent().build();
     }
 }

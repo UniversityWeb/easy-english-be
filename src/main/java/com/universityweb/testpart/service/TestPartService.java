@@ -10,4 +10,5 @@ import java.util.List;
 public interface TestPartService extends BaseService<TestPart, TestPartDTO, Long> {
     List<TestPartDTO> getTestPartsByTestId(Long testId);
     @NotNull TestPart getFirstOrCreateTestPartByTestId(Long testId);
+    void swapTwoParts(Long partId1, Long partId2);
 }
