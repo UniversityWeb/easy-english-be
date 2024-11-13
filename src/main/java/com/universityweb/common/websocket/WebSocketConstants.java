@@ -11,4 +11,8 @@ public class WebSocketConstants {
     public static String getCartItemCountTopic(String username) {
         return String.format("/topic/cart-item-count/%s", username);
     }
+
+    public static String testResultNotificationTopic(Long testId) {
+        return String.format("/topic/test-result/%s", testId);
+    }
 }

@@ -2,9 +2,11 @@ package com.universityweb.common.auth.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.request.GetUserFilterReq;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,24 +14,31 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@RequiredArgsConstructor
 @Tag(name = "Users")
-public class UserController {
+public class UserController
+        extends BaseController<User, UserDTO, String, UserService> {
 
-    private static final Logger log = LogManager.getLogger(UserController.class);
-
-    private final UserService userService;
     private final AuthService authService;
     private final MediaService mediaService;
+
+    @Autowired
+    public UserController(
+            UserService service,
+            AuthService authService,
+            MediaService mediaService
+    ) {
+        super(service);
+        this.authService = authService;
+        this.mediaService = mediaService;
+    }
 
     @Operation(
             summary = "Update User Profile",
@@ -59,7 +68,7 @@ public class UserController {
 
         authService.checkAuthorization(usernameToUpdate);
 
-        UserDTO saved = userService.update(updateProfileRequest);
+        UserDTO saved = service.update(updateProfileRequest);
         log.info("Successfully updated user with username: {}", saved.getUsername());
         return ResponseEntity.ok(saved);
     }
@@ -78,7 +87,15 @@ public class UserController {
         String suffixPath = mediaService.uploadFile(avatar);
 
         user.setAvatarPath(suffixPath);
-        User saved = userService.save(user);
+        User saved = service.save(user);
         return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAvatarPath()));
+    }
+
+    @GetMapping("/get-users-without-admin")
+    public ResponseEntity<Page<UserDTO>> getUsersWithoutAdmin(
+            @RequestBody GetUserFilterReq filterReq
+    ) {
+        Page<UserDTO> userDTOs = service.getUsersWithoutAdmin(filterReq);
+        return ResponseEntity.ok(userDTOs);
     }
 }

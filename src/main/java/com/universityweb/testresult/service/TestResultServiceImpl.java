@@ -4,6 +4,7 @@ import com.universityweb.common.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
 import com.universityweb.testquestion.entity.TestQuestion;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class TestResultServiceImpl
     private final UserService userService;
     private final TestQuestionService testQuestionService;
     private final UserAnswerRepos userAnswerRepos;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     public TestResultServiceImpl(
@@ -44,13 +47,15 @@ public class TestResultServiceImpl
             TestService testService,
             UserService userService,
             TestQuestionService testQuestionService,
-            UserAnswerRepos userAnswerRepos
+            UserAnswerRepos userAnswerRepos,
+            SimpMessagingTemplate simpMessagingTemplate
     ) {
         super(repository, mapper);
         this.testService = testService;
         this.userService = userService;
         this.testQuestionService = testQuestionService;
         this.userAnswerRepos = userAnswerRepos;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -134,7 +139,9 @@ public class TestResultServiceImpl
         }
 
         userAnswerRepos.saveAll(userAnswers);
-        return updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
+        TestResult savedResult = updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
+        sendRealtimeNewResult(savedResult);
+        return mapper.toDTO(savedResult);
     }
 
     @Override
@@ -156,6 +163,7 @@ public class TestResultServiceImpl
                 .takingDuration(req.getTakingDuration())
                 .startedAt(req.getStartedAt())
                 .finishedAt(req.getFinishedAt())
+                .isDeleted(false)
                 .user(user)
                 .test(test)
                 .build();
@@ -178,7 +186,7 @@ public class TestResultServiceImpl
                 .build();
     }
 
-    private TestResultDTO updateTestResult(TestResult testResult, int numberOfCorrectAnswers, int numberOfQuestions, Test test) {
+    private TestResult updateTestResult(TestResult testResult, int numberOfCorrectAnswers, int numberOfQuestions, Test test) {
         double correctPercent = (numberOfCorrectAnswers * 100.0) / numberOfQuestions;
         String result = numberOfCorrectAnswers + "/" + numberOfQuestions;
         Double passingGrade = test.getPassingGrade();
@@ -188,8 +196,7 @@ public class TestResultServiceImpl
         testResult.setCorrectPercent(correctPercent);
         testResult.setStatus(isPassed ? TestResult.EStatus.DONE : TestResult.EStatus.FAILED);
         testResult = repository.save(testResult);
-
-        return mapper.toDTO(testResult);
+        return testResult;
     }
 
     private TestResultWithoutListDTO enrichTestResultWithoutListDTO(TestResult testResult) {
@@ -204,5 +211,11 @@ public class TestResultServiceImpl
         Long courseId = testService.getCourseIdByTestId(testResultDTO.getTestId());
         testResultDTO.setCourseId(courseId);
         return testResultDTO;
+    }
+
+    private void sendRealtimeNewResult(TestResult savedResult) {
+        TestResultWithoutListDTO testResultWithoutListDTO = mapper.toTestResultWithoutListDTO(savedResult);
+        String destination = WebSocketConstants.testResultNotificationTopic(testResultWithoutListDTO.getTestId());
+        simpMessagingTemplate.convertAndSend(destination, testResultWithoutListDTO);
     }
 }

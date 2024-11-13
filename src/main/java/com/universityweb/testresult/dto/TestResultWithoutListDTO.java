@@ -1,6 +1,5 @@
 package com.universityweb.testresult.dto;
 
-import com.universityweb.test.dto.TestDTO;
 import com.universityweb.testresult.entity.TestResult;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

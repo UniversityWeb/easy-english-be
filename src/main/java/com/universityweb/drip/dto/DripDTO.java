@@ -1,21 +1,20 @@
 package com.universityweb.drip.dto;
 
 import com.universityweb.drip.Drip;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class DripDTO {
-    private Long id;
-    private Long prevId;
-    private Drip.ESourceType prevType;
-    private Long nextId;
-    private Drip.ESourceType nextType;
-    private Boolean requiredCompletion;
-    private Long courseId;
+    Long id;
+    Long prevId;
+    Drip.ESourceType prevType;
+    Long nextId;
+    Drip.ESourceType nextType;
+    Boolean requiredCompletion;
+    Long courseId;
 }

@@ -1,7 +1,7 @@
 package com.universityweb.common.security;
 
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.auth.repos.UserRepos;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtGenerator jwtGenerator;
-    private final UserService userService;
+    private final UserRepos userRepos;
 
     @Override
     protected void doFilterInternal(
@@ -31,7 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean isValidToken = jwtGenerator.isValidToken(token);
         if (isValidToken) {
             String username = jwtGenerator.getUsernameFromJwt(token);
-            User user = userService.loadUserByUsername(username);
+            User user = userRepos.findByUsername(username)
+                    .orElse(new User());
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     user,
                     null,
