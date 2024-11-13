@@ -5,6 +5,7 @@ import com.universityweb.test.entity.Test;
 import com.universityweb.useranswer.entity.UserAnswer;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@Where(clause = "is_deleted = false")
 public class TestResult implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +40,9 @@ public class TestResult implements Serializable {
 
     @Column(name = "finished_at")
     private LocalDateTime finishedAt;
+
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isDeleted;
 
     @ManyToOne
     @JoinColumn(name = "username", referencedColumnName = "username")

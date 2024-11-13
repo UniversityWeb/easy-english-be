@@ -10,6 +10,7 @@ import com.universityweb.testquestion.entity.TestQuestion;
 import com.universityweb.testquestion.service.TestQuestionService;
 import com.universityweb.testresult.TestResultRepos;
 import com.universityweb.testresult.dto.TestResultDTO;
+import com.universityweb.testresult.dto.TestResultWithoutListDTO;
 import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.mapper.TestResultMapper;
 import com.universityweb.testresult.request.GetTestResultReq;
@@ -20,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,10 +79,10 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public Page<TestResultDTO> getTestHistoryByTestId(String username, GetTestResultReq req) {
+    public Page<TestResultWithoutListDTO> getTestHistoryByTestId(GetTestResultReq req) {
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize());
-        Page<TestResult> results = repository.findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(username, req.getTestId(), pageable);
-        return results.map(this::enrichTestResultDTO);
+        Page<TestResult> results = repository.findByTest_IdOrderByFinishedAtDesc(req.getTestId(), pageable);
+        return results.map(this::enrichTestResultWithoutListDTO);
     }
 
     @Override
@@ -137,6 +137,13 @@ public class TestResultServiceImpl
         return updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
     }
 
+    @Override
+    public void softDelete(Long id) {
+        TestResult testResult = getEntityById(id);
+        testResult.setIsDeleted(true);
+        repository.save(testResult);
+    }
+
     private Boolean isCorrect(TestQuestion testQuestion, List<String> userAnswers) {
         return Utils.isEquals(testQuestion.getCorrectAnswers(), userAnswers);
     }
@@ -183,6 +190,13 @@ public class TestResultServiceImpl
         testResult = repository.save(testResult);
 
         return mapper.toDTO(testResult);
+    }
+
+    private TestResultWithoutListDTO enrichTestResultWithoutListDTO(TestResult testResult) {
+        TestResultWithoutListDTO dtoWithoutList = mapper.toTestResultWithoutListDTO(testResult);
+        Long courseId = testService.getCourseIdByTestId(dtoWithoutList.getTestId());
+        dtoWithoutList.setCourseId(courseId);
+        return dtoWithoutList;
     }
 
     private TestResultDTO enrichTestResultDTO(TestResult testResult) {
