@@ -41,10 +41,6 @@ public class QuestionGroupServiceImpl
     public QuestionGroupDTO update(Long id, QuestionGroupDTO dto) {
         QuestionGroup existingQuestionGroup = getEntityById(id);
 
-        existingQuestionGroup.setTitle(dto.getTitle());
-        existingQuestionGroup.setOrdinalNumber(dto.getOrdinalNumber());
-        existingQuestionGroup.setFrom(dto.getFrom());
-        existingQuestionGroup.setTo(dto.getTo());
         existingQuestionGroup.setRequirement(dto.getRequirement());
         existingQuestionGroup.setImagePath(dto.getImagePath());
 
@@ -74,8 +70,7 @@ public class QuestionGroupServiceImpl
 
     @Override
     public List<QuestionGroupDTO> getByTestPartId(Long testPartId) {
-        Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
-        List<QuestionGroup> questionGroups = repository.findByTestPartId(testPartId, sort);
+        List<QuestionGroup> questionGroups = repository.findByTestPartId(testPartId);
         return mapper.toDTOs(questionGroups);
     }
 
@@ -88,7 +83,6 @@ public class QuestionGroupServiceImpl
 
         TestPart testPart = testPartService.getEntityById(testPartId);
         QuestionGroup newQuestionGroup = QuestionGroup.builder()
-                .title("Default Title")
                 .ordinalNumber(1)
                 .isDeleted(false)
                 .testPart(testPart)

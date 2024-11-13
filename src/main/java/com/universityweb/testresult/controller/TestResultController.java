@@ -4,6 +4,7 @@ import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.testresult.dto.TestResultDTO;
 import com.universityweb.testresult.entity.TestResult;
+import com.universityweb.testresult.request.GetTestResultReq;
 import com.universityweb.testresult.request.SubmitTestRequest;
 import com.universityweb.testresult.service.TestResultService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,14 +42,13 @@ public class TestResultController
         return ResponseEntity.ok(testResults);
     }
 
-    @GetMapping("/get-by-cur-user")
-    public ResponseEntity<Page<TestResultDTO>> getTestResults(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+    @GetMapping("/get-test-history-by-test-id")
+    public ResponseEntity<Page<TestResultDTO>> getTestHistoryByTestId(
+            @RequestBody GetTestResultReq getTestResultReq
     ) {
         String username = authService.getCurrentUsername();
-        log.info("Fetching all for user: {}", username);
-        Page<TestResultDTO> testResults = service.getTestResultsByUsername(page, size, username);
+        log.info("Fetching test history for user: {}", username);
+        Page<TestResultDTO> testResults = service.getTestHistoryByTestId(username, getTestResultReq);
         log.info("all test results found for user {}: size-{}", username, testResults.getSize());
         return ResponseEntity.ok(testResults);
     }

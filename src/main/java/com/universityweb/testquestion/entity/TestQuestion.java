@@ -23,7 +23,7 @@ public class TestQuestion implements Serializable {
     @Enumerated(EnumType.STRING)
     private EType type;
 
-    @Column(name = "ordinal_number")
+    @Column(name = "ordinal_number", columnDefinition = "integer default 1")
     private Integer ordinalNumber;
 
     @Column(columnDefinition = "TEXT")

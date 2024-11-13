@@ -13,7 +13,6 @@ public interface UserAnswerMapper extends BaseMapper<UserAnswer, UserAnswerDTO> 
     @Override
     UserAnswerDTO toDTO(UserAnswer entity);
 
-    @Mapping(target = "testQuestion", ignore = true)
     @Mapping(target = "testResult", ignore = true)
     @Override
     UserAnswer toEntity(UserAnswerDTO dto);

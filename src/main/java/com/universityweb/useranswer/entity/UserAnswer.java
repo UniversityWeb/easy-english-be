@@ -21,6 +21,9 @@ public class UserAnswer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "ordinal_number", columnDefinition = "integer default 1")
+    private Integer ordinalNumber;
+
     @ElementCollection
     @CollectionTable(
             name = "user_answer_strs",

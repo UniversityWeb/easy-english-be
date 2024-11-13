@@ -88,10 +88,8 @@ public class TestPartServiceImpl
 
         existingTestPart.setTitle(dto.title());
         existingTestPart.setReadingPassage(dto.readingPassage());
-        existingTestPart.setOrdinalNumber(dto.ordinalNumber());
 
-        TestPart updatedTestPart = repository.save(existingTestPart);
-        return mapper.toDTO(updatedTestPart);
+        return savedAndConvertToDTO(existingTestPart);
     }
 
     @Override

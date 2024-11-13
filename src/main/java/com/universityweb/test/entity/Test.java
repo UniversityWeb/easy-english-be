@@ -36,7 +36,7 @@ public class Test implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "ordinal_number")
+    @Column(name = "ordinal_number", columnDefinition = "integer default 1")
     private Integer ordinalNumber;
 
     @Column(name = "duration_in_milis")
@@ -52,6 +52,7 @@ public class Test implements Serializable {
     private String audioPath;
 
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("ordinalNumber ASC")
     private List<TestPart> parts;
 
     @ManyToOne
@@ -86,8 +87,17 @@ public class Test implements Serializable {
     @PostLoad
     private void postLoad() {
         if (this.parts != null) {
-            this.parts.sort(Comparator.comparingInt(TestPart::getOrdinalNumber));
+            this.parts.sort((p1, p2) -> {
+                Integer ordinal1 = p1.getOrdinalNumber();
+                Integer ordinal2 = p2.getOrdinalNumber();
+
+                int value1 = ordinal1 != null ? ordinal1 : Integer.MAX_VALUE;
+                int value2 = ordinal2 != null ? ordinal2 : Integer.MAX_VALUE;
+
+                return Integer.compare(value1, value2);
+            });
         }
+
     }
 
     public enum EType {

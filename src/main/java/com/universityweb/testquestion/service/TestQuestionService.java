@@ -12,4 +12,5 @@ public interface TestQuestionService extends BaseService<TestQuestion, TestQuest
     TestQuestionDTO createNewQuestionForQuizType(AddQuizQuestionRequest request);
     List<TestQuestionDTO> getAllQuestionsForQuizType(Long testId);
     int getNumberOfQuestions(Long testId);
+    List<TestQuestion> findByTestId(Long testId);
 }

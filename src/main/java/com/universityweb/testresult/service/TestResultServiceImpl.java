@@ -12,6 +12,7 @@ import com.universityweb.testresult.TestResultRepos;
 import com.universityweb.testresult.dto.TestResultDTO;
 import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.mapper.TestResultMapper;
+import com.universityweb.testresult.request.GetTestResultReq;
 import com.universityweb.testresult.request.SubmitTestRequest;
 import com.universityweb.useranswer.UserAnswerRepos;
 import com.universityweb.useranswer.entity.UserAnswer;
@@ -53,30 +54,23 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public Page<TestResultDTO> getTestResultsByUsername(int page, int size, String username) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startedAt"));
-        Page<TestResult> testResultsPage = repository.findByUser_Username(username, pageable);
-        return testResultsPage.map(mapper::toDTO);
-    }
-
-    @Override
-
-    public TestResult getEntityById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Could not find any test results with id" + id));
-    }
-
-    @Override
     public TestResultDTO update(Long aLong, TestResultDTO dto) {
-        TestResult testResult = getEntityById(dto.id());
+        TestResult testResult = getEntityById(dto.getId());
 
-        testResult.setResult(dto.result());
-        testResult.setStatus(dto.status());
-        testResult.setTakingDuration(dto.takingDuration());
-        testResult.setStartedAt(dto.startedAt());
-        testResult.setFinishedAt(dto.finishedAt());
+        testResult.setResult(dto.getResult());
+        testResult.setCorrectPercent(dto.getCorrectPercent());
+        testResult.setStatus(dto.getStatus());
+        testResult.setTakingDuration(dto.getTakingDuration());
+        testResult.setStartedAt(dto.getStartedAt());
+        testResult.setFinishedAt(dto.getFinishedAt());
 
         return savedAndConvertToDTO(testResult);
+    }
+
+    @Override
+    public TestResultDTO getById(Long id) {
+        TestResult testResult = getEntityById(id);
+        return enrichTestResultDTO(testResult);
     }
 
     @Override
@@ -85,22 +79,22 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public Page<TestResultDTO> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<TestResult> testResultsPage = repository.findAll(pageable);
-        return testResultsPage.map(mapper::toDTO);
+    public Page<TestResultDTO> getTestHistoryByTestId(String username, GetTestResultReq req) {
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize());
+        Page<TestResult> results = repository.findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(username, req.getTestId(), pageable);
+        return results.map(this::enrichTestResultDTO);
     }
 
     @Override
-    public Page<TestResultDTO> getByUsernameAndTestId(String username, Long testId, int page, int size) {
+    public Page<TestResultDTO> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<TestResult> results = repository.findByUser_UsernameAndTest_Id(username, testId, pageable);
-        return mapper.mapPageToPageDTO(results);
+        Page<TestResult> testResultsPage = repository.findAll(pageable);
+        return testResultsPage.map(this::enrichTestResultDTO);
     }
 
     @Override
     public List<TestResult> getByUsernameAndTestId(String username, Long testId) {
-        return repository.findByUser_UsernameAndTest_Id(username, testId);
+        return repository.findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(username, testId);
     }
 
     @Override
@@ -114,54 +108,87 @@ public class TestResultServiceImpl
     @Override
     @Transactional
     public TestResultDTO submit(String username, SubmitTestRequest req) {
+        List<SubmitTestRequest.UserAnswerDTO> answerDTOs = req.getUserAnswers();
+        if (answerDTOs == null || answerDTOs.isEmpty()) {
+            throw new RuntimeException("Could not find any user answers");
+        }
+
         Long testId = req.getTestId();
         User user = userService.loadUserByUsername(username);
         Test test = testService.getEntityById(testId);
 
-        TestResult testResult = TestResult.builder()
+        TestResult savedTestResult = createTestResult(req, user, test);
+
+        int numberOfQuestions = testQuestionService.getNumberOfQuestions(testId);
+        int numberOfCorrectAnswers = 0;
+        List<UserAnswer> userAnswers = new ArrayList<>();
+
+        List<TestQuestion> testQuestions = testQuestionService.findByTestId(testId);
+        for (TestQuestion existingQuestion : testQuestions) {
+            SubmitTestRequest.UserAnswerDTO userAnswerDTO = getUserAnswerDTO(answerDTOs, existingQuestion.getId());
+            boolean isCorrect = isCorrect(existingQuestion, userAnswerDTO.getAnswers());
+
+            UserAnswer userAnswer = createUserAnswer(userAnswerDTO, isCorrect, existingQuestion, savedTestResult);
+            userAnswers.add(userAnswer);
+            numberOfCorrectAnswers += isCorrect ? 1 : 0;
+        }
+
+        userAnswerRepos.saveAll(userAnswers);
+        return updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
+    }
+
+    private Boolean isCorrect(TestQuestion testQuestion, List<String> userAnswers) {
+        return Utils.isEquals(testQuestion.getCorrectAnswers(), userAnswers);
+    }
+
+    private TestResult createTestResult(SubmitTestRequest req, User user, Test test) {
+        return TestResult.builder()
                 .result("")
-                .status(TestResult.EStatus.FAILED)
+                .correctPercent(0.0)
+                .status(TestResult.EStatus.IN_PROGRESS)
                 .takingDuration(req.getTakingDuration())
                 .startedAt(req.getStartedAt())
                 .finishedAt(req.getFinishedAt())
                 .user(user)
                 .test(test)
                 .build();
-        TestResult testResultSaved = repository.save(testResult);
+    }
 
-        int numberOfQuestions = testQuestionService.getNumberOfQuestions(testId);
-        int numberOfCorrectAnswers = 0;
-        List<UserAnswer> userAnswers = new ArrayList<>();
-        for (SubmitTestRequest.UserAnswerDTO userAnswerDTO : req.getUserAnswers()) {
-            Long testQuestionId = userAnswerDTO.getTestQuestionId();
-            TestQuestion testQuestion = testQuestionService.getEntityById(testQuestionId);
-            Boolean isCorrect = isCorrect(testQuestion, userAnswerDTO.getAnswers());
-            UserAnswer userAnswer = UserAnswer.builder()
-                    .answers(userAnswerDTO.getAnswers())
-                    .isCorrect(isCorrect)
-                    .testQuestion(testQuestion)
-                    .testResult(testResultSaved)
-                    .build();
-            userAnswers.add(userAnswer);
+    private SubmitTestRequest.UserAnswerDTO getUserAnswerDTO(List<SubmitTestRequest.UserAnswerDTO> answerDTOs, Long testQuestionId) {
+        return answerDTOs.stream()
+                .filter(userAnswer -> userAnswer.getTestQuestionId().equals(testQuestionId))
+                .findFirst()
+                .orElse(new SubmitTestRequest.UserAnswerDTO(new ArrayList<>(), testQuestionId));
+    }
 
-            numberOfCorrectAnswers = isCorrect ? numberOfCorrectAnswers + 1 : numberOfCorrectAnswers;
-        }
+    private UserAnswer createUserAnswer(SubmitTestRequest.UserAnswerDTO userAnswerDTO, boolean isCorrect, TestQuestion existingQuestion, TestResult testResult) {
+        return UserAnswer.builder()
+                .ordinalNumber(existingQuestion.getOrdinalNumber())
+                .answers(userAnswerDTO.getAnswers())
+                .isCorrect(isCorrect)
+                .testQuestion(existingQuestion)
+                .testResult(testResult)
+                .build();
+    }
 
-        userAnswerRepos.saveAll(userAnswers);
-
+    private TestResultDTO updateTestResult(TestResult testResult, int numberOfCorrectAnswers, int numberOfQuestions, Test test) {
         double correctPercent = (numberOfCorrectAnswers * 100.0) / numberOfQuestions;
         String result = numberOfCorrectAnswers + "/" + numberOfQuestions;
         Double passingGrade = test.getPassingGrade();
         boolean isPassed = correctPercent >= passingGrade;
 
-        testResultSaved.setResult(result);
-        testResultSaved.setStatus(isPassed ? TestResult.EStatus.DONE : TestResult.EStatus.FAILED);
-        testResultSaved = repository.save(testResultSaved);
+        testResult.setResult(result);
+        testResult.setCorrectPercent(correctPercent);
+        testResult.setStatus(isPassed ? TestResult.EStatus.DONE : TestResult.EStatus.FAILED);
+        testResult = repository.save(testResult);
 
-        return mapper.toDTO(testResultSaved);
+        return mapper.toDTO(testResult);
     }
 
-    private Boolean isCorrect(TestQuestion testQuestion, List<String> userAnswers) {
-        return Utils.isEquals(testQuestion.getCorrectAnswers(), userAnswers);
+    private TestResultDTO enrichTestResultDTO(TestResult testResult) {
+        TestResultDTO testResultDTO = mapper.toDTO(testResult);
+        Long courseId = testService.getCourseIdByTestId(testResultDTO.getTestId());
+        testResultDTO.setCourseId(courseId);
+        return testResultDTO;
     }
 }

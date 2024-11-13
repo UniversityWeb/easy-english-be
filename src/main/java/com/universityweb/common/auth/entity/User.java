@@ -29,6 +29,7 @@ public class User implements UserDetails, Serializable {
     @Id
     private String username;
 
+    @Column(columnDefinition = "TEXT")
     private String password;
 
     @Column(name = "full_name")
@@ -37,9 +38,10 @@ public class User implements UserDetails, Serializable {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "phone_number", unique = true)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(columnDefinition = "TEXT")
     private String bio;
 
     @Enumerated(EnumType.STRING)
@@ -56,11 +58,14 @@ public class User implements UserDetails, Serializable {
     @Enumerated(EnumType.STRING)
     private EStatus status;
 
-    @Column(name = "avatar_path")
+    @Column(name = "avatar_path", columnDefinition = "TEXT")
     private String avatarPath;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Token token;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Course> courses;

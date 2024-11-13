@@ -18,7 +18,4 @@ public class DripDTO {
     private Drip.ESourceType nextType;
     private Boolean requiredCompletion;
     private Long courseId;
-
-    private Object prev;
-    private Object next;
 }

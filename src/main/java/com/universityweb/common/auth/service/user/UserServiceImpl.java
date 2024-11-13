@@ -2,6 +2,7 @@ package com.universityweb.common.auth.service.user;
 
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.exception.EmailNotFoundException;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
@@ -14,7 +15,8 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserMapper uMapper = UserMapper.INSTANCE;
+    @Autowired
+    private UserMapper uMapper;
 
     @Autowired
     private UserRepos userRepos;
@@ -68,5 +70,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getEmailByUsername(String username) {
         return userRepos.getEmailByUsername(username);
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepos.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException("Could not find your email: " + email));
     }
 }

@@ -1,18 +1,21 @@
 package com.universityweb.common.auth.service.auth;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.universityweb.common.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
+import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.*;
 import com.universityweb.common.auth.mapper.UserMapper;
+import com.universityweb.common.auth.repos.TokenRepos;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.ActiveAccountResponse;
 import com.universityweb.common.auth.response.LoginResponse;
+import com.universityweb.common.auth.service.GoogleAuthService;
 import com.universityweb.common.auth.service.otp.OtpService;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.security.JwtGenerator;
-import com.universityweb.common.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,25 +28,25 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserMapper uMapper = UserMapper.INSTANCE;
+    private final UserMapper uMapper;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtGenerator jwtGenerator;
     private final AuthenticationManager authManager;
     private final OtpService otpService;
     private final UserRepos userRepos;
+    private final TokenRepos tokenRepos;
+    private final GoogleAuthService googleAuthService;
 
     @Override
     @Transactional
-    public boolean registerStudentAccount(RegisterRequest registerRequest) {
+    public UserDTO registerStudentAccount(RegisterRequest registerRequest) {
         String username = registerRequest.username();
         boolean isExists = userService.existsByUsername(username);
         if (isExists) {
@@ -65,14 +68,15 @@ public class AuthServiceImpl implements AuthService {
                 .dob(registerRequest.dob())
                 .role(User.ERole.STUDENT)
                 .createdAt(LocalDateTime.now())
+                .avatarPath(registerRequest.avatarPath())
                 .status(User.EStatus.INACTIVE)
                 .build();
         user.setPassword(encodedPassword);
 
-        userService.save(user);
+        User saved = userService.save(user);
 
         otpService.generateAndSendOtp(email, OtpService.EPurpose.ACTIVE_ACCOUNT);
-        return true;
+        return uMapper.toDTO(saved);
     }
 
     @Override
@@ -81,40 +85,41 @@ public class AuthServiceImpl implements AuthService {
         String usernameOrEmail = loginRequest.usernameOrEmail();
         String password = loginRequest.password();
 
-        String username;
-        if (Utils.isEmail(usernameOrEmail)) {
-            username = userRepos.getUsernameByEmail(usernameOrEmail);
-        } else {
-            username = usernameOrEmail;
+        String username = Utils.isEmail(usernameOrEmail)
+                ? userRepos.getUsernameByEmail(usernameOrEmail)
+                : usernameOrEmail;
+
+        User user = userService.loadUserByUsername(username);
+
+        LoginResponse statusResponse = handleAccountStatus(user);
+        if (statusResponse != null) {
+            return statusResponse;
         }
 
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        username,
-                        password
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = authenticateUser(username, password);
 
-        LocalDateTime curTime = LocalDateTime.now();
-        LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
-        String generatedToken = jwtGenerator.generateToken(username, curTime, expirationTime);
-        UserDTO userDTO = userService.getUserByUsername(username);
-        return new LoginResponse("Login successfully", "Bearer", generatedToken, userDTO);
+        String generatedToken = jwtGenerator.generateAndSaveToken(user);
+        return LoginResponse.builder()
+                .message("Login successfully")
+                .tokenType("Bearer")
+                .tokenStr(generatedToken)
+                .user(uMapper.toDTO(user))
+                .accountStatus(User.EStatus.ACTIVE)
+                .build();
     }
 
     @Override
-    public void logout(String tokenStr) {
-
+    public void logout() {
+        User user = getCurUser();
+        tokenRepos.deleteByUser(user);
     }
 
     @Override
     public UserDTO getUserByTokenStr(String tokenStr) {
-        jwtGenerator.validateToken(tokenStr);
-
-        String username = jwtGenerator.getUsernameFromJwt(tokenStr);
-        User user = userService.loadUserByUsername(username);
-        return uMapper.toDTO(user);
+        jwtGenerator.isValidToken(tokenStr);
+        Token token = tokenRepos.findByTokenStr(tokenStr)
+                .orElseThrow(() -> new TokenNotFoundException(tokenStr));
+        return uMapper.toDTO(token.getUser());
     }
 
     @Override
@@ -163,19 +168,28 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public LoginResponse loginWithOtp(OtpRequest loginWithOtpRequest) {
         String username = loginWithOtpRequest.username();
         String otp = loginWithOtpRequest.otp();
-        UserDTO userDTO = userService.getUserByUsername(username);
-        String email = userDTO.getEmail();
+        User user = userService.loadUserByUsername(username);
+        LoginResponse statusResponse = handleAccountStatus(user);
+        if (statusResponse != null) {
+            return statusResponse;
+        }
 
+        String email = user.getEmail();
         otpService.validateOtp(email, otp, OtpService.EPurpose.LOGIN);
         otpService.invalidateOtp(email, OtpService.EPurpose.LOGIN);
 
-        LocalDateTime curTime = LocalDateTime.now();
-        LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
-        String generatedToken = jwtGenerator.generateToken(username, curTime, expirationTime);
-        return new LoginResponse("OTP login successfully", "Bearer", generatedToken, userDTO);
+        String generatedToken = jwtGenerator.generateAndSaveToken(user);
+        return LoginResponse.builder()
+                .message("OTP login successfully")
+                .tokenType("Bearer")
+                .tokenStr(generatedToken)
+                .user(uMapper.toDTO(user))
+                .accountStatus(User.EStatus.ACTIVE)
+                .build();
     }
 
     @Override
@@ -283,19 +297,13 @@ public class AuthServiceImpl implements AuthService {
         if (email == null || email.isEmpty() || !isValidEmail(email)) {
             throw new RuntimeException("Email is not valid");
         }
-
-        Optional<User> optionalUser = userRepos.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            throw new EmailNotFoundException("Could not find your email: " + email);
-        }
-
+        userService.getUserByEmail(email);
         otpService.generateAndSendOtp(email, OtpService.EPurpose.RESET_PASS);
     }
 
     @Override
     public void resetPasswordWithOtp(ResetPassWithOtpReq req) {
-        User user = userRepos.findByEmail(req.getEmail())
-                .orElseThrow(() -> new EmailNotFoundException("Could not find your email: " + req.getEmail()));
+        User user = userService.getUserByEmail(req.getEmail());
         String email = user.getEmail();
 
         otpService.validateOtp(email, req.getOtp(), OtpService.EPurpose.RESET_PASS);
@@ -305,6 +313,46 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(encodedPass);
         userRepos.save(user);
     }
+
+    @Override
+    @Transactional
+    public LoginResponse loginWithGoogle(GoogleLoginRequest request) {
+        String idToken = request.token();
+        if (idToken == null || idToken.isEmpty()) {
+            throw new BadCredentialsException("Invalid token");
+        }
+
+        try {
+            GoogleIdToken.Payload payload = googleAuthService.verifyToken(idToken);
+            RegisterRequest req = googleAuthService.getInfor(payload);
+            User existingUser = userRepos.findByEmail(req.email())
+                    .orElse(null);
+            if (existingUser == null) {
+                UserDTO userDTO = registerStudentAccount(req);
+                return LoginResponse.builder()
+                        .message("")
+                        .user(userDTO)
+                        .accountStatus(User.EStatus.INACTIVE)
+                        .build();
+            }
+
+            LoginResponse statusResponse = handleAccountStatus(existingUser);
+            if (statusResponse != null) {
+                return statusResponse;
+            }
+            String generatedToken = jwtGenerator.generateAndSaveToken(existingUser);
+            return LoginResponse.builder()
+                    .message("OTP login successfully")
+                    .tokenType("Bearer")
+                    .tokenStr(generatedToken)
+                    .user(uMapper.toDTO(existingUser))
+                    .accountStatus(User.EStatus.ACTIVE)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Error during verify Google Account: ", e);
+        }
+    }
+
 
     private UserDTO saveUserAndConvertToDTO(User user) {
         User savedUser = userRepos.save(user);
@@ -354,6 +402,32 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Password and Confirm Password do not match");
         }
 
-        return true; // Password is valid
+        return true;
+    }
+
+    private LoginResponse handleAccountStatus(User user) {
+        if (user.getStatus() == User.EStatus.DELETED) {
+            return LoginResponse.builder()
+                    .message("Your account is deleted")
+                    .tokenType(null)
+                    .tokenStr(null)
+                    .user(uMapper.toDTO(user))
+                    .accountStatus(User.EStatus.DELETED)
+                    .build();
+        }
+        if (user.getStatus() == User.EStatus.INACTIVE) {
+            return LoginResponse.builder()
+                    .message("Your account is inactive")
+                    .tokenType(null)
+                    .tokenStr(null)
+                    .user(uMapper.toDTO(user))
+                    .accountStatus(User.EStatus.INACTIVE)
+                    .build();
+        }
+        return null;
+    }
+
+    private Authentication authenticateUser(String username, String password) {
+        return authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 }

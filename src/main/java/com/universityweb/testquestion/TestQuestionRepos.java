@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface TestQuestionRepos extends JpaRepository<TestQuestion, Long> {
-    List<TestQuestion> findByQuestionGroupId(Long questionGroupId, Sort sort);
+    List<TestQuestion> findByQuestionGroupId(Long questionGroupId);
 
     @Query("SELECT COUNT(q) " +
             "FROM TestQuestion q " +
@@ -22,4 +22,10 @@ public interface TestQuestionRepos extends JpaRepository<TestQuestion, Long> {
     int countByTestId(@Param("testId") Long testId);
 
     List<TestQuestion> findByQuestionGroupOrderByOrdinalNumberAsc(QuestionGroup questionGroup);
+
+    @Query("SELECT tq FROM TestQuestion tq " +
+            "JOIN tq.questionGroup g " +
+            "JOIN g.testPart p " +
+            "WHERE p.test.id = :testId")
+    List<TestQuestion> findByTestId(@Param("testId") Long testId);
 }

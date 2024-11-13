@@ -14,6 +14,8 @@ public class DripsOfPrevDTO {
     private Long id;
     private Long prevId;
     private Drip.ESourceType prevType;
+    private String prevTitle;
+    private String prevDetailType;
     private Long courseId;
     private List<DripOfPrevDTO> nextDrips;
 
@@ -26,6 +28,7 @@ public class DripsOfPrevDTO {
         private Long id;
         private Long nextId;
         private Drip.ESourceType nextType;
-        private Boolean requiredCompletion;
+        private String nextTitle;
+        private String nextDetailType;
     }
 }

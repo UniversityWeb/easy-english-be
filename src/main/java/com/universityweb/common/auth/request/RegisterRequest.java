@@ -53,5 +53,7 @@ public record RegisterRequest(
                 example = "2024-08-05T13:47:06.794Z",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
-        LocalDate dob
+        LocalDate dob,
+
+        String avatarPath
 ) {}

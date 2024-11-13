@@ -17,7 +17,6 @@ public class QuestionGroupDTO {
     private Integer ordinalNumber;
     private Integer from;
     private Integer to;
-    private String title;
     private String requirement;
     private String imagePath;
     private List<TestQuestionDTO> questions;
