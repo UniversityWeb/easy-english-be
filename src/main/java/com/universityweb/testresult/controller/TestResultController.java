@@ -3,6 +3,7 @@ package com.universityweb.testresult.controller;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.testresult.dto.TestResultDTO;
+import com.universityweb.testresult.dto.TestResultWithoutListDTO;
 import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.request.GetTestResultReq;
 import com.universityweb.testresult.request.SubmitTestRequest;
@@ -43,13 +44,15 @@ public class TestResultController
     }
 
     @GetMapping("/get-test-history-by-test-id")
-    public ResponseEntity<Page<TestResultDTO>> getTestHistoryByTestId(
-            @RequestBody GetTestResultReq getTestResultReq
+    public ResponseEntity<Page<TestResultWithoutListDTO>> getTestHistoryByTestId(
+            @RequestParam Long testId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        String username = authService.getCurrentUsername();
-        log.info("Fetching test history for user: {}", username);
-        Page<TestResultDTO> testResults = service.getTestHistoryByTestId(username, getTestResultReq);
-        log.info("all test results found for user {}: size-{}", username, testResults.getSize());
+        log.info("Fetching test history for user");
+        GetTestResultReq getTestResultReq = new GetTestResultReq(testId, page, size);
+        Page<TestResultWithoutListDTO> testResults = service.getTestHistoryByTestId(getTestResultReq);
+        log.info("all test results found: size-{}", testResults.getSize());
         return ResponseEntity.ok(testResults);
     }
 

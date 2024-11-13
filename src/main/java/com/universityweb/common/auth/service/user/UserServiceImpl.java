@@ -5,26 +5,37 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.EmailNotFoundException;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.UserRepos;
+import com.universityweb.common.auth.request.GetUserFilterReq;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl
+        extends BaseServiceImpl<User, UserDTO, String, UserRepos, UserMapper>
+        implements UserService {
+
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserMapper uMapper;
-
-    @Autowired
-    private UserRepos userRepos;
+    public UserServiceImpl(UserRepos repository, UserMapper mapper, PasswordEncoder passwordEncoder) {
+        super(repository, mapper);
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         String msg = String.format("Could not find any user with username=%s", username);
-        User user = userRepos.findByUsername(username)
+        User user = repository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(msg));
         return user;
     }
@@ -32,22 +43,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserByUsername(String username) throws UsernameNotFoundException {
         User user = loadUserByUsername(username);
-        return uMapper.toDTO(user);
+        return mapper.toDTO(user);
     }
 
     @Override
     public boolean existsByUsername(String username) {
-        return userRepos.existsByUsername(username);
+        return repository.existsByUsername(username);
     }
 
     @Override
-    public User save(User user) {
-        return userRepos.save(user);
+    public UserDTO update(String username, UserDTO dto) {
+        return null;
+    }
+
+    @Override
+    protected void throwNotFoundException(String username) {
+        String msg = String.format("Could not find any user with username=%s", username);
+        throw new UsernameNotFoundException(msg);
     }
 
     @Override
     public List<User> saveAll(List<User> users) {
-        return userRepos.saveAll(users);
+        return repository.saveAll(users);
     }
 
     @Override
@@ -63,18 +80,39 @@ public class UserServiceImpl implements UserService {
         user.setGender(updateProfileRequest.getGender());
         user.setDob(updateProfileRequest.getDob());
 
-        User savedUser = userRepos.save(user);
-        return uMapper.toDTO(savedUser);
+        User savedUser = repository.save(user);
+        return mapper.toDTO(savedUser);
     }
 
     @Override
     public String getEmailByUsername(String username) {
-        return userRepos.getEmailByUsername(username);
+        return repository.getEmailByUsername(username);
     }
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepos.findByEmail(email)
+        return repository.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException("Could not find your email: " + email));
+    }
+
+    @Override
+    public Page<UserDTO> getUsersWithoutAdmin(GetUserFilterReq filterReq) {
+        List<User.ERole> excludedRoles = new ArrayList<>();
+        excludedRoles.add(User.ERole.ADMIN);
+
+        Sort sort = Sort.by(Sort.Order.asc("createdAt"));
+        PageRequest pageable = PageRequest.of(filterReq.getPage(), filterReq.getSize(), sort);
+
+        Page<User> users = repository.findAllNonAdminUsersWithFilters(
+                excludedRoles,
+                filterReq.getStatus(),
+                filterReq.getStartDate(),
+                filterReq.getEndDate(),
+                filterReq.getFullName(),
+                filterReq.getEmail(),
+                pageable
+        );
+
+        return mapper.mapPageToPageDTO(users);
     }
 }

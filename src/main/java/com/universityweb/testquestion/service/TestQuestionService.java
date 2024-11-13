@@ -13,4 +13,5 @@ public interface TestQuestionService extends BaseService<TestQuestion, TestQuest
     List<TestQuestionDTO> getAllQuestionsForQuizType(Long testId);
     int getNumberOfQuestions(Long testId);
     List<TestQuestion> findByTestId(Long testId);
+    void swapTwoQuestions(Long questionId1, Long questionId2);
 }

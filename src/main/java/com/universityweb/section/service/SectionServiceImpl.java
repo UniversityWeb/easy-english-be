@@ -8,7 +8,6 @@ import com.universityweb.section.dto.SectionDTO;
 import com.universityweb.section.entity.Section;
 import com.universityweb.section.mapper.SectionMapper;
 import com.universityweb.section.request.SectionRequest;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +37,11 @@ public class SectionServiceImpl
     @Override
     public SectionDTO updateSection(SectionRequest sectionRequest) {
         Section section = getEntityById(sectionRequest.getId());
-        BeanUtils.copyProperties(sectionRequest, section, "id");
+
+        section.setTitle(sectionRequest.getTitle());
+        section.setCreatedAt(sectionRequest.getCreatedAt());
+        section.setUpdatedAt(sectionRequest.getUpdatedAt());
+        section.setOrdinalNumber(sectionRequest.getOrdinalNumber());
         return savedAndConvertToDTO(section);
     }
 
@@ -65,7 +68,6 @@ public class SectionServiceImpl
     public SectionDTO update(Long id, SectionDTO dto) {
         Section section = getEntityById(dto.getId());
 
-        section.setStatus(dto.getStatus());
         section.setTitle(dto.getTitle());
         section.setCreatedAt(dto.getCreatedAt());
         section.setUpdatedAt(dto.getUpdatedAt());

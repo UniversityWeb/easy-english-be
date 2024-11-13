@@ -48,4 +48,13 @@ public class TestQuestionController
         List<TestQuestionDTO> testQuestionDTOs = service.getAllQuestionsForQuizType(testId);
         return ResponseEntity.ok(testQuestionDTOs);
     }
+
+    @PutMapping("/swap/{questionId1}/{questionId2}")
+    public ResponseEntity<Void> swapTestPart(
+            @PathVariable Long questionId1,
+            @PathVariable Long questionId2
+    ) {
+        service.swapTwoQuestions(questionId1, questionId2);
+        return ResponseEntity.noContent().build();
+    }
 }

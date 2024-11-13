@@ -4,12 +4,14 @@ import com.universityweb.common.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
 import com.universityweb.testquestion.entity.TestQuestion;
 import com.universityweb.testquestion.service.TestQuestionService;
 import com.universityweb.testresult.TestResultRepos;
 import com.universityweb.testresult.dto.TestResultDTO;
+import com.universityweb.testresult.dto.TestResultWithoutListDTO;
 import com.universityweb.testresult.entity.TestResult;
 import com.universityweb.testresult.mapper.TestResultMapper;
 import com.universityweb.testresult.request.GetTestResultReq;
@@ -20,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class TestResultServiceImpl
     private final UserService userService;
     private final TestQuestionService testQuestionService;
     private final UserAnswerRepos userAnswerRepos;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     public TestResultServiceImpl(
@@ -44,13 +47,15 @@ public class TestResultServiceImpl
             TestService testService,
             UserService userService,
             TestQuestionService testQuestionService,
-            UserAnswerRepos userAnswerRepos
+            UserAnswerRepos userAnswerRepos,
+            SimpMessagingTemplate simpMessagingTemplate
     ) {
         super(repository, mapper);
         this.testService = testService;
         this.userService = userService;
         this.testQuestionService = testQuestionService;
         this.userAnswerRepos = userAnswerRepos;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -79,10 +84,10 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public Page<TestResultDTO> getTestHistoryByTestId(String username, GetTestResultReq req) {
+    public Page<TestResultWithoutListDTO> getTestHistoryByTestId(GetTestResultReq req) {
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize());
-        Page<TestResult> results = repository.findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(username, req.getTestId(), pageable);
-        return results.map(this::enrichTestResultDTO);
+        Page<TestResult> results = repository.findByTest_IdOrderByFinishedAtDesc(req.getTestId(), pageable);
+        return results.map(this::enrichTestResultWithoutListDTO);
     }
 
     @Override
@@ -134,7 +139,16 @@ public class TestResultServiceImpl
         }
 
         userAnswerRepos.saveAll(userAnswers);
-        return updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
+        TestResult savedResult = updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
+        sendRealtimeNewResult(savedResult);
+        return mapper.toDTO(savedResult);
+    }
+
+    @Override
+    public void softDelete(Long id) {
+        TestResult testResult = getEntityById(id);
+        testResult.setIsDeleted(true);
+        repository.save(testResult);
     }
 
     private Boolean isCorrect(TestQuestion testQuestion, List<String> userAnswers) {
@@ -149,6 +163,7 @@ public class TestResultServiceImpl
                 .takingDuration(req.getTakingDuration())
                 .startedAt(req.getStartedAt())
                 .finishedAt(req.getFinishedAt())
+                .isDeleted(false)
                 .user(user)
                 .test(test)
                 .build();
@@ -171,7 +186,7 @@ public class TestResultServiceImpl
                 .build();
     }
 
-    private TestResultDTO updateTestResult(TestResult testResult, int numberOfCorrectAnswers, int numberOfQuestions, Test test) {
+    private TestResult updateTestResult(TestResult testResult, int numberOfCorrectAnswers, int numberOfQuestions, Test test) {
         double correctPercent = (numberOfCorrectAnswers * 100.0) / numberOfQuestions;
         String result = numberOfCorrectAnswers + "/" + numberOfQuestions;
         Double passingGrade = test.getPassingGrade();
@@ -181,8 +196,14 @@ public class TestResultServiceImpl
         testResult.setCorrectPercent(correctPercent);
         testResult.setStatus(isPassed ? TestResult.EStatus.DONE : TestResult.EStatus.FAILED);
         testResult = repository.save(testResult);
+        return testResult;
+    }
 
-        return mapper.toDTO(testResult);
+    private TestResultWithoutListDTO enrichTestResultWithoutListDTO(TestResult testResult) {
+        TestResultWithoutListDTO dtoWithoutList = mapper.toTestResultWithoutListDTO(testResult);
+        Long courseId = testService.getCourseIdByTestId(dtoWithoutList.getTestId());
+        dtoWithoutList.setCourseId(courseId);
+        return dtoWithoutList;
     }
 
     private TestResultDTO enrichTestResultDTO(TestResult testResult) {
@@ -190,5 +211,11 @@ public class TestResultServiceImpl
         Long courseId = testService.getCourseIdByTestId(testResultDTO.getTestId());
         testResultDTO.setCourseId(courseId);
         return testResultDTO;
+    }
+
+    private void sendRealtimeNewResult(TestResult savedResult) {
+        TestResultWithoutListDTO testResultWithoutListDTO = mapper.toTestResultWithoutListDTO(savedResult);
+        String destination = WebSocketConstants.testResultNotificationTopic(testResultWithoutListDTO.getTestId());
+        simpMessagingTemplate.convertAndSend(destination, testResultWithoutListDTO);
     }
 }

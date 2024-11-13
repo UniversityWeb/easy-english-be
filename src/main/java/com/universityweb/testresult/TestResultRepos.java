@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface TestResultRepos extends JpaRepository<TestResult, Long> {
-    Page<TestResult> findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(String username, Long testId, Pageable pageable);
-
     List<TestResult> findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(String username, Long testId);
+
+    Page<TestResult> findByTest_IdOrderByFinishedAtDesc(Long testId, Pageable pageable);
 }

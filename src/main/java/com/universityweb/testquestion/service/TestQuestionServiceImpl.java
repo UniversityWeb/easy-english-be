@@ -96,6 +96,20 @@ public class TestQuestionServiceImpl
     }
 
     @Override
+    @Transactional
+    public void swapTwoQuestions(Long questionId1, Long questionId2) {
+        TestQuestion question1 = getEntityById(questionId1);
+        TestQuestion question2 = getEntityById(questionId2);
+
+        Integer tempOrdinalNumber = question1.getOrdinalNumber();
+        question1.setOrdinalNumber(question2.getOrdinalNumber());
+        question2.setOrdinalNumber(tempOrdinalNumber);
+
+        repository.save(question1);
+        repository.save(question2);
+    }
+
+    @Override
     public void softDelete(Long id) {
         repository.deleteById(id);
     }
