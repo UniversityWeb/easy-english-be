@@ -22,4 +22,10 @@ public interface TestQuestionRepos extends JpaRepository<TestQuestion, Long> {
     int countByTestId(@Param("testId") Long testId);
 
     List<TestQuestion> findByQuestionGroupOrderByOrdinalNumberAsc(QuestionGroup questionGroup);
+
+    @Query("SELECT tq FROM TestQuestion tq " +
+            "JOIN tq.questionGroup g " +
+            "JOIN g.testPart p " +
+            "WHERE p.test.id = :testId")
+    List<TestQuestion> findByTestId(@Param("testId") Long testId);
 }

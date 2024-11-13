@@ -7,12 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TestResultRepos extends JpaRepository<TestResult, Long> {
-    Page<TestResult> findByUser_Username(String username, Pageable pageable);
-    Page<TestResult> findByUser_UsernameAndTest_Id(String username, Long testId, Pageable pageable);
+    Page<TestResult> findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(String username, Long testId, Pageable pageable);
 
-    List<TestResult> findByUser_UsernameAndTest_Id(String username, Long testId);
+    List<TestResult> findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(String username, Long testId);
 }

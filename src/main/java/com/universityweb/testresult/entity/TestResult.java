@@ -24,6 +24,9 @@ public class TestResult implements Serializable {
 
     private String result;
 
+    @Column(name = "correct_percent")
+    private Double correctPercent;
+
     @Enumerated(EnumType.STRING)
     private EStatus status;
 
@@ -45,6 +48,7 @@ public class TestResult implements Serializable {
     private Test test;
 
     @OneToMany(mappedBy = "testResult", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("ordinalNumber ASC")
     private List<UserAnswer> userAnswers;
 
     public enum EStatus {

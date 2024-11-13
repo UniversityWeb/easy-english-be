@@ -91,7 +91,6 @@ public class DripServiceImpl
         drip.setPrevType(dto.getNextType());
         drip.setNextId(dto.getNextId());
         drip.setNextType(dto.getNextType());
-        drip.setRequiredCompletion(dto.getRequiredCompletion());
 
         return savedAndConvertToDTO(drip);
     }
@@ -105,9 +104,6 @@ public class DripServiceImpl
     public List<DripDTO> getAllDripsByPrevId(Long prevId) {
         List<Drip> drips = repository.findAllByPrevId(prevId);
         List<DripDTO> dripDTOs = mapper.toDTOs(drips);
-
-        dripDTOs.forEach(this::populateDripDetails);
-
         return dripDTOs;
     }
 
@@ -170,7 +166,6 @@ public class DripServiceImpl
                         .prevId(prevId)
                         .nextType(nextType)
                         .nextId(nextId)
-                        .requiredCompletion(next.getRequiredCompletion())
                         .course(course)
                         .build();
                 drips.add(drip);
@@ -205,6 +200,7 @@ public class DripServiceImpl
 
         return DripsOfPrevDTO.builder()
                 .id(drip.getId())
+                .prevTitle("")
                 .prevId(prevId)
                 .prevType(prevType)
                 .nextDrips(nextDrips)
@@ -218,16 +214,7 @@ public class DripServiceImpl
         return DripsOfPrevDTO.DripOfPrevDTO.builder()
                 .nextId(nextId)
                 .nextType(nextType)
-                .requiredCompletion(dripOfPrev.getRequiredCompletion())
                 .build();
-    }
-
-    private void populateDripDetails(DripDTO dripDTO) {
-        Object prev = getObjectBySourceType(dripDTO.getPrevType(), dripDTO.getPrevId());
-        Object next = getObjectBySourceType(dripDTO.getNextType(), dripDTO.getNextId());
-
-        dripDTO.setPrev(prev);
-        dripDTO.setNext(next);
     }
 
     private Object getObjectBySourceType(Drip.ESourceType sourceType, Long id) {

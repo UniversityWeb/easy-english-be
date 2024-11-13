@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.simpleframework.xml.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -191,7 +190,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String tokenStr) {
         log.info("Logout method called with token: {}", tokenStr);
-        authService.logout(tokenStr);
+        authService.logout();
         log.info("Logout method completed successfully");
         return ResponseEntity.ok("Logged out successfully");
     }
@@ -434,8 +433,20 @@ public class AuthController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
+    @PostMapping("/login-with-google")
+    public ResponseEntity<LoginResponse> loginWithGoogle(@RequestBody GoogleLoginRequest req) {
+        log.info("Received Google login request with token: {}", req.token());
+        LoginResponse loginResponse = authService.loginWithGoogle(req);
+        log.info("User logged in successfully with Google. User: {}", loginResponse.getUser());
+        return ResponseEntity.ok().body(loginResponse);
+    }
+
     private UserDTO setMediaUrls(UserDTO dto) {
-        dto.setAvatarPath(mediaService.constructFileUrl(dto.getAvatarPath()));
+        try {
+            dto.setAvatarPath(mediaService.constructFileUrl(dto.getAvatarPath()));
+        } catch (Exception e) {
+            log.error("Failed to construct media url", e);
+        }
         return dto;
     }
 }

@@ -92,6 +92,14 @@ public class TestController
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/is-empty/{testId}")
+    public ResponseEntity<Boolean> isEmptyTest(
+            @PathVariable Long testId
+    ) {
+        Boolean isEmpty = service.isEmptyTest(testId);
+        return ResponseEntity.ok(isEmpty);
+    }
+
     private List<TestDTO> addTestMediaUrls(List<TestDTO> testDTOs) {
         return testDTOs.stream()
                 .map(this::addTestMediaUrls)

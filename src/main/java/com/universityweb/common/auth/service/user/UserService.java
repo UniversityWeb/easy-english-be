@@ -22,4 +22,6 @@ public interface UserService extends UserDetailsService {
     UserDTO update(UpdateProfileRequest updateProfileRequest);
 
     String getEmailByUsername(String username);
+
+    User getUserByEmail(String email);
 }

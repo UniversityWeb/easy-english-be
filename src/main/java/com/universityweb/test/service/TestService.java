@@ -10,4 +10,6 @@ public interface TestService extends BaseService<Test, TestDTO, Long> {
     void updateStatus(Long id, Test.EStatus status);
     List<TestDTO> getBySection(Long sectionId);
     void refactorOrdinalNumbers(Long testId);
+    Boolean isEmptyTest(Long testId);
+    Long getCourseIdByTestId(Long testId);
 }

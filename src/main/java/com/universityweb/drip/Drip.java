@@ -32,9 +32,6 @@ public class Drip implements Serializable {
     @Column(name = "next_type")
     private ESourceType nextType;
 
-    @Column(name = "required_completion")
-    private Boolean requiredCompletion;
-
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;

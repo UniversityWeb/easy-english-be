@@ -8,11 +8,11 @@ import com.universityweb.common.auth.response.LoginResponse;
 
 public interface AuthService {
 
-    boolean registerStudentAccount(RegisterRequest registerRequest);
+    UserDTO registerStudentAccount(RegisterRequest registerRequest);
 
     LoginResponse login(LoginRequest loginRequest);
 
-    void logout(String tokenStr);
+    void logout();
 
     UserDTO getUserByTokenStr(String tokenStr);
 
@@ -43,4 +43,6 @@ public interface AuthService {
     void generateOtpToResetPassword(String email);
 
     void resetPasswordWithOtp(ResetPassWithOtpReq req);
+
+    LoginResponse loginWithGoogle(GoogleLoginRequest req);
 }

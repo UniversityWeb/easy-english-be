@@ -1,9 +1,8 @@
 package com.universityweb.useranswer.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.universityweb.testquestion.dto.TestQuestionDTO;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
@@ -11,10 +10,13 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserAnswerDTO {
-    private Long id;
-    private List<String> answers;
-    private Boolean isCorrect;
-    private Long testQuestionId;
-    private Long testResultId;
+    Long id;
+    Integer ordinalNumber;
+    List<String> answers;
+    Boolean isCorrect;
+    Long testQuestionId;
+    Long testResultId;
+    TestQuestionDTO testQuestion;
 }

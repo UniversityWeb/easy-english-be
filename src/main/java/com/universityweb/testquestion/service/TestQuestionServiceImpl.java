@@ -91,6 +91,11 @@ public class TestQuestionServiceImpl
     }
 
     @Override
+    public List<TestQuestion> findByTestId(Long testId) {
+        return repository.findByTestId(testId);
+    }
+
+    @Override
     public void softDelete(Long id) {
         repository.deleteById(id);
     }

@@ -11,7 +11,6 @@ import com.universityweb.test.entity.Test;
 import com.universityweb.test.exception.TestNotFoundException;
 import com.universityweb.testpart.TestPartRepos;
 import com.universityweb.testpart.entity.TestPart;
-import com.universityweb.testpart.service.TestPartService;
 import com.universityweb.testquestion.TestQuestionRepos;
 import com.universityweb.testquestion.entity.TestQuestion;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TestServiceImpl
@@ -99,6 +99,29 @@ public class TestServiceImpl
                 questionGroupRepos.save(group);
             }
         }
+    }
+
+    @Override
+    public Boolean isEmptyTest(Long testId) {
+        Optional<Test> testOptional = repository.findById(testId);
+
+        if (testOptional.isPresent()) {
+            Test test = testOptional.get();
+
+            return test.getParts().stream()
+                    .filter(part -> part.getQuestionGroups() != null) // Ensure question groups are not null
+                    .flatMap(part -> part.getQuestionGroups().stream())
+                    .filter(group -> group.getQuestions() != null) // Ensure questions are not null
+                    .mapToLong(group -> group.getQuestions().size())
+                    .sum() == 0;
+        }
+
+        return true;
+    }
+
+    @Override
+    public Long getCourseIdByTestId(Long testId) {
+        return repository.findCourseIdByTestId(testId);
     }
 
     @Override

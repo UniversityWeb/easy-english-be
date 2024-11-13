@@ -14,6 +14,7 @@ import java.util.List;
 public interface TestResultMapper extends BaseMapper<TestResult, TestResultDTO> {
     @Mapping(source = "user.username", target = "username")
     @Mapping(source = "test.id", target = "testId")
+    @Mapping(target = "courseId", ignore = true)
     TestResultDTO toDTO(TestResult entity);
 
     @Mapping(target = "user", ignore = true)
