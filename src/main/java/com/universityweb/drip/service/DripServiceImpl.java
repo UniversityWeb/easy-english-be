@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class DripServiceImpl
@@ -112,9 +114,15 @@ public class DripServiceImpl
         List<Drip> drips = repository.findAllByCourseId(courseId);
         List<DripsOfPrevDTO> dripsOfPrevDTOs = new ArrayList<>();
 
+        Set<String> seen = new HashSet<>();
+
         for (Drip drip : drips) {
-            DripsOfPrevDTO dripsOfPrevDTO = createDripOfPrevDTO(drip);
-            dripsOfPrevDTOs.add(dripsOfPrevDTO);
+            String key = drip.getPrevType() + "-" + drip.getPrevId();
+            if (!seen.contains(key)) {
+                DripsOfPrevDTO dripsOfPrevDTO = createDripOfPrevDTO(drip);
+                dripsOfPrevDTOs.add(dripsOfPrevDTO);
+                seen.add(key);
+            }
         }
 
         return dripsOfPrevDTOs;
@@ -188,8 +196,26 @@ public class DripServiceImpl
     }
 
     private DripsOfPrevDTO createDripOfPrevDTO(Drip drip) {
-        Long prevId = drip.getPrevId();
         Drip.ESourceType prevType = drip.getPrevType();
+        Long prevId = drip.getPrevId();
+        Object obj = getObjectBySourceType(prevType, prevId);
+
+        String prevTitle;
+        String prevDetailType;
+        try {
+            if (prevType.equals(Drip.ESourceType.LESSON)) {
+                Lesson lesson = (Lesson) obj;
+                prevTitle = lesson.getTitle();
+                prevDetailType = lesson.getType().toString();
+            } else {
+                Test test = (Test) obj;
+                prevTitle = test.getTitle();
+                prevDetailType = test.getType().toString();
+            }
+        } catch (ClassCastException e) {
+            prevTitle = "";
+            prevDetailType = "";
+        }
 
         List<Drip> dripsByPrevId = repository.findAllByPrevId(prevId);
         List<DripsOfPrevDTO.DripOfPrevDTO> nextDrips = new ArrayList<>();
@@ -200,9 +226,10 @@ public class DripServiceImpl
 
         return DripsOfPrevDTO.builder()
                 .id(drip.getId())
-                .prevTitle("")
-                .prevId(prevId)
                 .prevType(prevType)
+                .prevId(prevId)
+                .prevTitle(prevTitle)
+                .prevDetailType(prevDetailType)
                 .nextDrips(nextDrips)
                 .build();
     }
@@ -211,9 +238,30 @@ public class DripServiceImpl
         Long nextId = dripOfPrev.getNextId();
         Drip.ESourceType nextType = dripOfPrev.getNextType();
 
+        Object obj = getObjectBySourceType(nextType, nextId);
+
+        String nextTitle;
+        String nextDetailType;
+        try {
+            if (nextType.equals(Drip.ESourceType.LESSON)) {
+                Lesson lesson = (Lesson) obj;
+                nextTitle = lesson.getTitle();
+                nextDetailType = lesson.getType().toString();
+            } else {
+                Test test = (Test) obj;
+                nextTitle = test.getTitle();
+                nextDetailType = test.getType().toString();
+            }
+        } catch (ClassCastException e) {
+            nextTitle = "";
+            nextDetailType = "";
+        }
+
         return DripsOfPrevDTO.DripOfPrevDTO.builder()
                 .nextId(nextId)
                 .nextType(nextType)
+                .nextTitle(nextTitle)
+                .nextDetailType(nextDetailType)
                 .build();
     }
 
