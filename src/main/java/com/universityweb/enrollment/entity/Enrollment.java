@@ -21,7 +21,7 @@ public class Enrollment implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private double progress;
+    private int progress;
 
     @Enumerated(EnumType.STRING)
     private EStatus status;

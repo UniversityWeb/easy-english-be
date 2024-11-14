@@ -33,6 +33,7 @@ public class Lesson {
     private String contentUrl;
     private String description;
     private int duration;
+    @Column(columnDefinition = "integer default 1")
     private int ordinalNumber;
     @Column(name = "preview")
     private Boolean isPreview;

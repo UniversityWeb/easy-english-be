@@ -18,8 +18,6 @@ public class AddQuizQuestionRequest {
     private Integer ordinalNumber;
     private String title;
     private String description;
-    private String audioPath;
-    private String imagePath;
     private List<String> options;
     private List<String> correctAnswers;
 

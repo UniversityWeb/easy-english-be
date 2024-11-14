@@ -13,6 +13,7 @@ import com.universityweb.testresult.service.TestResultService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +52,7 @@ public class TestController
     }
 
     @PutMapping("/{testId}/upload-audio")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<String> updateAudioFile(
             @PathVariable Long testId,
             @RequestParam("audio") MultipartFile audio
@@ -63,6 +65,19 @@ public class TestController
         test.setAudioPath(suffixPath);
         Test saved = service.save(test);
         return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAudioPath()));
+    }
+
+    @DeleteMapping("/{testId}/delete-audio")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<Void> deleteAudioFile(
+            @PathVariable Long testId
+    ) {
+        Test test = service.getEntityById(testId);
+        mediaService.deleteFile(test.getAudioPath());
+
+        test.setAudioPath("");
+        service.save(test);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/update-status/{id}/{status}")
@@ -85,6 +100,7 @@ public class TestController
     }
 
     @PutMapping("/refactor-ordinal-numbers/{testId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<Void> refactorOrdinalNumbers(
             @PathVariable Long testId
     ) {

@@ -63,7 +63,7 @@ public class TestQuestionServiceImpl
 
     @Override
     public List<TestQuestionDTO> getByQuestionGroupId(Long questionGroupId) {
-        List<TestQuestion> questions = repository.findByQuestionGroupId(questionGroupId);
+        List<TestQuestion> questions = repository.findByQuestionGroupIdOrderByOrdinalNumberAsc(questionGroupId);
         return mapper.toDTOs(questions);
     }
 

@@ -19,4 +19,5 @@ public interface EnrollmentService extends BaseService<Enrollment, EnrollmentDTO
 
     Page<CourseResponse> getEnrolledCourses(String username, int page, int size);
     Page<CourseResponse> getEnrolledCoursesByFilter(String username, EnrolledCourseFilterReq req);
+    int refreshProgress(String username, Long courseId);
 }

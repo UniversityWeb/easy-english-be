@@ -18,7 +18,6 @@ public class QuestionGroupDTO {
     private Integer from;
     private Integer to;
     private String requirement;
-    private String imagePath;
     private List<TestQuestionDTO> questions;
     private Long testPartId;
 }

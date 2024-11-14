@@ -9,8 +9,8 @@ public record EnrollmentDTO(
         @Schema(description = "Unique identifier for the enrollment", example = "1")
         Long id,
 
-        @Schema(description = "Progress of the enrollment in percentage", example = "85.5")
-        double progress,
+        @Schema(description = "Progress of the enrollment in percentage", example = "85")
+        int progress,
 
         @Schema(description = "Status of the enrollment", example = "ACTIVE")
         Enrollment.EStatus status,
