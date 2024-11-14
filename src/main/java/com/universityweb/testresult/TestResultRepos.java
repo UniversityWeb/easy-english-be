@@ -4,6 +4,7 @@ import com.universityweb.testresult.entity.TestResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,5 +15,20 @@ public interface TestResultRepos extends JpaRepository<TestResult, Long> {
 
     Page<TestResult> findByTest_IdOrderByFinishedAtDesc(Long testId, Pageable pageable);
 
-    List<TestResult> findByUserUsernameAndTestSectionCourseIdAndStatus(String username, Long courseId, TestResult.EStatus eStatus);
+    @Query("""
+        SELECT DISTINCT tr FROM TestResult tr 
+        WHERE tr.user.username = :username 
+        AND tr.test.section.course.id = :courseId 
+        AND tr.status = :status
+        AND tr.isDeleted = false
+        AND tr.finishedAt = (
+            SELECT MAX(subTr.finishedAt) 
+            FROM TestResult subTr 
+            WHERE subTr.user.username = tr.user.username 
+            AND subTr.test.section.course.id = tr.test.section.course.id 
+            AND subTr.status = tr.status 
+            AND subTr.isDeleted = false
+        )
+        """)
+    List<TestResult> findByUserUsernameAndTestSectionCourseIdAndStatus(String username, Long courseId, TestResult.EStatus status);
 }

@@ -35,9 +35,6 @@ public class QuestionGroup implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String requirement;
 
-    @Column(name = "image_path", columnDefinition = "TEXT")
-    private String imagePath;
-
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isDeleted;
 

@@ -40,7 +40,6 @@ public class QuestionGroupServiceImpl
         QuestionGroup existingQuestionGroup = getEntityById(id);
 
         existingQuestionGroup.setRequirement(dto.getRequirement());
-        existingQuestionGroup.setImagePath(dto.getImagePath());
 
         return savedAndConvertToDTO(existingQuestionGroup);
     }

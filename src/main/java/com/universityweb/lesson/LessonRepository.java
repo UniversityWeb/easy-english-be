@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
-    @Query("SELECT t FROM Test t " +
-            "WHERE t.section.id = :sectionId AND t.status <> 'DELETED' " +
-            "ORDER BY t.ordinalNumber ASC")
+    @Query("SELECT l FROM Lesson l " +
+            "WHERE l.section.id = :sectionId " +
+            "ORDER BY l.ordinalNumber ASC")
     List<Lesson> findBySectionId(Long sectionId);
 }
