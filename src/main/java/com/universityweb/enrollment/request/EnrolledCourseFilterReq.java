@@ -25,7 +25,7 @@ public class EnrolledCourseFilterReq {
     Double rating;
     List<Long> categoryIds;
 
-    double progress;
+    int progress;
     Enrollment.EStatus enrollmentStatus;
     Enrollment.EType enrollmentType;
 

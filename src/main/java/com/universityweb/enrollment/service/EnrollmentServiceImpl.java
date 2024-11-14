@@ -12,6 +12,16 @@ import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.enrollment.request.AddEnrollmentRequest;
 import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
+import com.universityweb.lesson.LessonRepository;
+import com.universityweb.lesson.entity.Lesson;
+import com.universityweb.lessontracker.LessonTracker;
+import com.universityweb.lessontracker.LessonTrackerRepository;
+import com.universityweb.section.SectionRepository;
+import com.universityweb.section.entity.Section;
+import com.universityweb.test.TestRepos;
+import com.universityweb.test.entity.Test;
+import com.universityweb.testresult.TestResultRepos;
+import com.universityweb.testresult.entity.TestResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,12 +38,26 @@ public class EnrollmentServiceImpl
 
     private final UserService userService;
     private final CourseService courseService;
+    private final SectionRepository sectionRepository;
+    private final LessonTrackerRepository lessonTrackerRepository;
+    private final TestResultRepos testResultRepository;
 
     @Autowired
-    public EnrollmentServiceImpl(EnrollmentRepos repository, UserService userService, CourseService courseService) {
-        super(repository, EnrollmentMapper.INSTANCE);
+    public EnrollmentServiceImpl(
+            EnrollmentRepos repository,
+            EnrollmentMapper enrollmentMapper,
+            UserService userService,
+            CourseService courseService,
+            SectionRepository sectionRepository,
+            LessonTrackerRepository lessonTrackerRepository,
+            TestResultRepos testResultRepository
+    ) {
+        super(repository, enrollmentMapper);
         this.userService = userService;
         this.courseService = courseService;
+        this.sectionRepository = sectionRepository;
+        this.lessonTrackerRepository = lessonTrackerRepository;
+        this.testResultRepository = testResultRepository;
     }
 
     @Override
@@ -78,33 +102,28 @@ public class EnrollmentServiceImpl
 
     @Override
     public Page<CourseResponse> getEnrolledCourses(String username, int page, int size) {
-        Sort sort = Sort.by("createdAt").descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        // Fetch paginated list of enrollments for the user with status not equal to CANCELLED
+        Pageable pageable = createPageable(page, size);
         Page<Enrollment> enrollmentsPage = repository.findByUser_UsernameAndStatusNot(username, Enrollment.EStatus.CANCELLED, pageable);
-
-        return enrollmentsPage.map(enrollment -> courseService.mapCourseToResponse(enrollment.getCourse()));
+        return mapEnrollmentsToCourseResponses(username, enrollmentsPage);
     }
 
     @Override
     public Page<CourseResponse> getEnrolledCoursesByFilter(String username, EnrolledCourseFilterReq req) {
-        Sort sort = Sort.by("createdAt").descending();
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+        Pageable pageable = createPageable(req.getPage(), req.getSize());
 
         List<Long> categoryIds = req.getCategoryIds();
         Long levelId = req.getLevelId();
         Long topicId = req.getTopicId();
         Double rating = req.getRating();
         String title = req.getTitle();
-        double progress = req.getProgress();
+        int progress = req.getProgress();
         Enrollment.EStatus enrollmentStatus = req.getEnrollmentStatus();
         Enrollment.EType enrollmentType = req.getEnrollmentType();
-        Page<Course> filteredEnrollmentsPage = repository.findByUser_UsernameAndFilter(
+        Page<Enrollment> filteredEnrollmentsPage = repository.findByUser_UsernameAndFilter(
                 username, categoryIds, topicId, levelId, rating, title, progress, enrollmentStatus, enrollmentType, pageable
         );
 
-        return filteredEnrollmentsPage.map(courseService::mapCourseToResponse);
+        return mapEnrollmentsToCourseResponses(username, filteredEnrollmentsPage);
     }
 
     @Override
@@ -141,5 +160,54 @@ public class EnrollmentServiceImpl
         Enrollment enrollment = getEntityById(id);
         enrollment.setStatus(Enrollment.EStatus.CANCELLED);
         repository.save(enrollment);
+    }
+
+    @Override
+    public int refreshProgress(String username, Long courseId) {
+        Enrollment enrollment = repository.findByUser_UsernameAndCourse_Id(username, courseId)
+                .orElseThrow(() -> new RuntimeException("Could not find any enrollments with username=" + username + ", courseId=" + courseId));
+
+        int progress = calculateProgress(username, courseId);
+        enrollment.setProgress(progress);
+        Enrollment saved = repository.save(enrollment);
+        return saved.getProgress();
+    }
+
+    private int calculateProgress(String username, Long courseId) {
+        List<Section> sections = sectionRepository.findByCourseId(courseId);
+        int totalLessons = 0;
+        int totalTests = 0;
+
+        for (Section section : sections) {
+            totalLessons += section.getLessons().size();
+            totalTests += section.getTests().size();
+        }
+
+        int totalItems = totalLessons + totalTests;
+        if (totalItems == 0) {
+            return 0;
+        }
+
+        List<LessonTracker> completedLessons = lessonTrackerRepository
+                .findByUserUsernameAndLessonSectionCourseIdAndIsCompletedTrue(username, courseId);
+        List<TestResult> completedTests = testResultRepository
+                .findByUserUsernameAndTestSectionCourseIdAndStatus(username, courseId, TestResult.EStatus.DONE);
+        int completedItems = completedLessons.size() + completedTests.size();
+        double progress = ((double) completedItems / totalItems) * 100;
+        return (int) Math.round(progress);
+    }
+
+    private Pageable createPageable(int page, int size) {
+        Sort sort = Sort.by("createdAt").descending();
+        return PageRequest.of(page, size, sort);
+    }
+
+    private Page<CourseResponse> mapEnrollmentsToCourseResponses(String username, Page<Enrollment> enrollmentsPage) {
+        return enrollmentsPage.map(enrollment -> {
+            CourseResponse courseResponse = courseService.mapCourseToResponse(enrollment.getCourse());
+            int newProgress = refreshProgress(username, courseResponse.getId());
+            courseResponse.setProgress(newProgress);
+            return courseResponse;
+        });
     }
 }

@@ -32,7 +32,7 @@ public interface UserRepos extends JpaRepository<User, String> {
             "AND (:endDate IS NULL OR u.createdAt <= :endDate) " +
             "AND (:fullName IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :fullName, '%'))) " +
             "AND (:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')))")
-    Page<User> findAllNonAdminUsersWithFilters(
+    Page<User> findAllNonRoleUsersWithFilters(
             @Param("excludedRoles") List<User.ERole> excludedRoles,
             @Param("status") User.EStatus status,
             @Param("startDate") LocalDate startDate,

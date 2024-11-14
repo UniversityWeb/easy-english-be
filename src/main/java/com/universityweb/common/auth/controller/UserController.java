@@ -1,6 +1,7 @@
 package com.universityweb.common.auth.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
+import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.request.GetUserFilterReq;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
@@ -14,9 +15,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.simpleframework.xml.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,10 +95,21 @@ public class UserController
     }
 
     @GetMapping("/get-users-without-admin")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserDTO>> getUsersWithoutAdmin(
             @RequestBody GetUserFilterReq filterReq
     ) {
         Page<UserDTO> userDTOs = service.getUsersWithoutAdmin(filterReq);
         return ResponseEntity.ok(userDTOs);
+    }
+
+    @PutMapping("/update-user-for-admin/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserForAdminDTO> updateUserForAdmin(
+            @PathVariable String username,
+            @RequestBody UserForAdminDTO req
+    ) {
+        UserForAdminDTO userDTO = service.updateUserForAdmin(username, req);
+        return ResponseEntity.ok(userDTO);
     }
 }

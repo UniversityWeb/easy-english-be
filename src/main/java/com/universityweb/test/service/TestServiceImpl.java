@@ -63,8 +63,7 @@ public class TestServiceImpl
 
     @Override
     public List<TestDTO> getBySection(Long sectionId) {
-        Sort sort = Sort.by(Sort.Order.asc("ordinalNumber"));
-        List<Test> tests = repository.findBySectionId(sectionId, sort);
+        List<Test> tests = repository.findBySectionId(sectionId);
         return mapper.toDTOs(tests);
     }
 

@@ -1,6 +1,7 @@
 package com.universityweb.common.auth.service.user;
 
 import com.universityweb.common.auth.dto.UserDTO;
+import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.EmailNotFoundException;
 import com.universityweb.common.auth.mapper.UserMapper;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +43,6 @@ public class UserServiceImpl
     }
 
     @Override
-    public UserDTO getUserByUsername(String username) throws UsernameNotFoundException {
-        User user = loadUserByUsername(username);
-        return mapper.toDTO(user);
-    }
-
-    @Override
     public boolean existsByUsername(String username) {
         return repository.existsByUsername(username);
     }
@@ -60,11 +56,6 @@ public class UserServiceImpl
     protected void throwNotFoundException(String username) {
         String msg = String.format("Could not find any user with username=%s", username);
         throw new UsernameNotFoundException(msg);
-    }
-
-    @Override
-    public List<User> saveAll(List<User> users) {
-        return repository.saveAll(users);
     }
 
     @Override
@@ -103,7 +94,7 @@ public class UserServiceImpl
         Sort sort = Sort.by(Sort.Order.asc("createdAt"));
         PageRequest pageable = PageRequest.of(filterReq.getPage(), filterReq.getSize(), sort);
 
-        Page<User> users = repository.findAllNonAdminUsersWithFilters(
+        Page<User> users = repository.findAllNonRoleUsersWithFilters(
                 excludedRoles,
                 filterReq.getStatus(),
                 filterReq.getStartDate(),
@@ -114,5 +105,57 @@ public class UserServiceImpl
         );
 
         return mapper.mapPageToPageDTO(users);
+    }
+
+    @Override
+    @Transactional
+    public UserForAdminDTO updateUserForAdmin(String username, UserForAdminDTO req) {
+        User user = loadUserByUsername(username);
+        mapper.updateEntityFromDTO(req, user);
+        User savedUser = repository.save(user);
+        if (!username.equals(req.getUsername())) {
+            updateUsername(username, req.getUsername());
+        }
+        return mapper.toUserForAdminDTO(savedUser);
+    }
+
+    private User updateUsername(String currentUsername, String newUsername) {
+        User user = repository.findById(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (repository.existsById(newUsername)) {
+            throw new RuntimeException("Username already taken");
+        }
+
+        User newUser = User.builder()
+                .username(newUsername)
+                .password(user.getPassword())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .bio(user.getBio())
+                .gender(user.getGender())
+                .dob(user.getDob())
+                .role(user.getRole())
+                .createdAt(user.getCreatedAt())
+                .status(user.getStatus())
+                .avatarPath(user.getAvatarPath())
+                .cart(user.getCart())
+                .token(user.getToken())
+                .courses(user.getCourses())
+                .reviews(user.getReviews())
+                .build();
+
+        repository.save(newUser);
+        repository.delete(user);
+
+        return newUser;
+    }
+
+    @Override
+    public void softDelete(String username) {
+        User user = loadUserByUsername(username);
+        user.setStatus(User.EStatus.DELETED);
+        repository.save(user);
     }
 }

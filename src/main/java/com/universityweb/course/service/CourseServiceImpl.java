@@ -45,7 +45,6 @@ public class CourseServiceImpl
     private final LevelRepository levelRepository;
     private final TopicRepository topicRepository;
     private final EnrollmentRepos enrollmentRepos;
-    private final FavouriteRepository favouriteRepository;
     private final ReviewRepository reviewRepository;
     private final UserService userService;
 
@@ -57,7 +56,6 @@ public class CourseServiceImpl
             LevelRepository levelRepository,
             TopicRepository topicRepository,
             EnrollmentRepos enrollmentRepos,
-            FavouriteRepository favouriteRepository,
             ReviewRepository reviewRepository,
             UserService userService) {
 
@@ -66,7 +64,6 @@ public class CourseServiceImpl
         this.levelRepository = levelRepository;
         this.topicRepository = topicRepository;
         this.enrollmentRepos = enrollmentRepos;
-        this.favouriteRepository = favouriteRepository;
         this.reviewRepository = reviewRepository;
         this.userService = userService;
     }

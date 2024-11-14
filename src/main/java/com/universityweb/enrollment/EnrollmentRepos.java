@@ -31,7 +31,7 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
 
     Page<Enrollment> findByUser_UsernameAndStatusNot(String username, Enrollment.EStatus eStatus, Pageable pageable);
 
-    @Query("SELECT c FROM Enrollment e " +
+    @Query("SELECT e FROM Enrollment e " +
             "JOIN e.course c " +
             "JOIN c.categories cat " +
             "JOIN c.topic t " +
@@ -44,20 +44,22 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             "AND (:levelId IS NULL OR l.id = :levelId) " +
             "AND (:topicId IS NULL OR t.id = :topicId) " +
             "AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) " +
-            "AND (:progress IS NULL OR :progress = 0 OR e.progress = :progress) " +
+            "AND (:progress IS NULL OR :progress = 0 OR e.progress >= :progress) " +
             "AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) " +
             "AND (:enrollmentType IS NULL OR e.type = :enrollmentType) " +
-            "GROUP BY c.id, e.createdAt " +
+            "GROUP BY e.id, e.createdAt " +
             "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)")
-    Page<Course> findByUser_UsernameAndFilter(
+    Page<Enrollment> findByUser_UsernameAndFilter(
             @Param("username") String username,
             @Param("categoryIds") List<Long> categoryIds,
             @Param("levelId") Long levelId,
             @Param("topicId") Long topicId,
             @Param("rating") Double rating,
             @Param("title") String title,
-            @Param("progress") Double progress,
+            @Param("progress") int progress,
             @Param("enrollmentStatus") Enrollment.EStatus enrollmentStatus,
             @Param("enrollmentType") Enrollment.EType enrollmentType,
             Pageable pageable);
+
+    Optional<Enrollment> findByUser_UsernameAndCourse_Id(String username, Long courseId);
 }

@@ -34,7 +34,7 @@ public class CourseResponse {
     private Boolean isActive;
     private String notice;
 
-    private double progress;
+    private int progress;
     private double rating;
     private Long ratingCount;
 

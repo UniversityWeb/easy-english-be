@@ -10,13 +10,4 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface EnrollmentMapper extends BaseMapper<Enrollment, EnrollmentDTO> {
-    EnrollmentMapper INSTANCE = Mappers.getMapper(EnrollmentMapper.class);
-
-    EnrollmentDTO toDTO(Enrollment entity);
-
-    List<EnrollmentDTO> toDTOs(List<Enrollment> entities);
-
-    Enrollment toEntity(EnrollmentDTO dto);
-
-    List<Enrollment> toEntities(List<EnrollmentDTO> dtos);
 }

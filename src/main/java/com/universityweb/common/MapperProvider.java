@@ -2,6 +2,8 @@ package com.universityweb.common;
 
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.drip.DripMapper;
+import com.universityweb.enrollment.entity.Enrollment;
+import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
@@ -69,5 +71,11 @@ public class MapperProvider {
     @Primary
     public UserMapper userMapper() {
         return Mappers.getMapper(UserMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public EnrollmentMapper enrollmentMapper() {
+        return Mappers.getMapper(EnrollmentMapper.class);
     }
 }

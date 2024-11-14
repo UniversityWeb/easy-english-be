@@ -13,4 +13,6 @@ public interface TestResultRepos extends JpaRepository<TestResult, Long> {
     List<TestResult> findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(String username, Long testId);
 
     Page<TestResult> findByTest_IdOrderByFinishedAtDesc(Long testId, Pageable pageable);
+
+    List<TestResult> findByUserUsernameAndTestSectionCourseIdAndStatus(String username, Long courseId, TestResult.EStatus eStatus);
 }
