@@ -112,11 +112,19 @@ public class UserServiceImpl
     public UserForAdminDTO updateUserForAdmin(String username, UserForAdminDTO req) {
         User user = loadUserByUsername(username);
         mapper.updateEntityFromDTO(req, user);
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         User savedUser = repository.save(user);
         if (!username.equals(req.getUsername())) {
             updateUsername(username, req.getUsername());
         }
         return mapper.toUserForAdminDTO(savedUser);
+    }
+
+    @Override
+    public void softDelete(String username) {
+        User user = loadUserByUsername(username);
+        user.setStatus(User.EStatus.DELETED);
+        repository.save(user);
     }
 
     private User updateUsername(String currentUsername, String newUsername) {
@@ -150,12 +158,5 @@ public class UserServiceImpl
         repository.delete(user);
 
         return newUser;
-    }
-
-    @Override
-    public void softDelete(String username) {
-        User user = loadUserByUsername(username);
-        user.setStatus(User.EStatus.DELETED);
-        repository.save(user);
     }
 }

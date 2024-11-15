@@ -59,4 +59,12 @@ public class TestResult implements Serializable {
     public enum EStatus {
         DONE, IN_PROGRESS, FAILED
     }
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }

@@ -34,4 +34,12 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "username")
     private User user;
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }

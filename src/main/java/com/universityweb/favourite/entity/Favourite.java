@@ -40,4 +40,12 @@ public class Favourite  {
     @JoinColumn(name = "course_id")
     @JsonBackReference
     private Course course;
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }
