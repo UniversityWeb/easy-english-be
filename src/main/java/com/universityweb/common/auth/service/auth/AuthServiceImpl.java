@@ -353,7 +353,6 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-
     private UserDTO saveUserAndConvertToDTO(User user) {
         User savedUser = userRepos.save(user);
         return uMapper.toDTO(savedUser);

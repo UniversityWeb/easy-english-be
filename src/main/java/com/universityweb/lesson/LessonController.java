@@ -61,8 +61,12 @@ public class LessonController {
     }
 
     @PostMapping("get-all-lesson-by-section")
-    public List<LessonResponse> getAllLessonBySection(@RequestBody LessonRequest lessonRequest) {
-        List<LessonResponse> lessonResponses = lessonService.getAllLessonBySection(lessonRequest);
+    public List<LessonResponse> getAllLessonBySection(
+            @RequestBody LessonRequest lessonRequest
+    ) {
+        String username = authService.getCurrentUsername();
+        List<LessonResponse> lessonResponses = lessonService
+                .getAllLessonBySection(username, lessonRequest);
         return lessonResponses.stream()
                 .map(this::populateLessonDetails)
                 .toList();

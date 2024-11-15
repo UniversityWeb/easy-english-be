@@ -1,6 +1,9 @@
 package com.universityweb.test.service;
 
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.drip.Drip;
+import com.universityweb.drip.DripRepos;
+import com.universityweb.lessontracker.LessonTrackerRepository;
 import com.universityweb.questiongroup.QuestionGroupRepos;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.section.service.SectionService;
@@ -13,11 +16,13 @@ import com.universityweb.testpart.TestPartRepos;
 import com.universityweb.testpart.entity.TestPart;
 import com.universityweb.testquestion.TestQuestionRepos;
 import com.universityweb.testquestion.entity.TestQuestion;
+import com.universityweb.testresult.TestResultRepos;
+import com.universityweb.testresult.entity.TestResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,20 +35,29 @@ public class TestServiceImpl
     private final TestPartRepos testPartRepos;
     private final QuestionGroupRepos questionGroupRepos;
     private final TestQuestionRepos testQuestionRepos;
+    private final DripRepos dripRepos;
+    private final TestResultRepos testResultRepos;
+    private final LessonTrackerRepository lessonTrackerRepository;
 
     @Autowired
     public TestServiceImpl(
             TestRepos repository,
+            TestMapper testMapper,
             SectionService sectionService,
             TestPartRepos testPartRepos,
             QuestionGroupRepos questionGroupRepos,
-            TestQuestionRepos testQuestionRepos
-    ) {
-        super(repository, TestMapper.INSTANCE);
+            TestQuestionRepos testQuestionRepos,
+            DripRepos dripRepos,
+            TestResultRepos testResultRepos,
+            LessonTrackerRepository lessonTrackerRepository) {
+        super(repository, testMapper);
         this.sectionService = sectionService;
         this.testPartRepos = testPartRepos;
         this.questionGroupRepos = questionGroupRepos;
         this.testQuestionRepos = testQuestionRepos;
+        this.dripRepos = dripRepos;
+        this.testResultRepos = testResultRepos;
+        this.lessonTrackerRepository = lessonTrackerRepository;
     }
 
     @Override
@@ -62,9 +76,20 @@ public class TestServiceImpl
     }
 
     @Override
-    public List<TestDTO> getBySection(Long sectionId) {
+    @Transactional
+    public List<TestDTO> getBySection(String username, Long sectionId) {
         List<Test> tests = repository.findBySectionId(sectionId);
-        return mapper.toDTOs(tests);
+
+        List<TestDTO> testDTOs = new ArrayList<>();
+        for (Test test : tests) {
+            Long testId = test.getId();
+            boolean isLocked = this.isLocked(username, testId);
+            TestDTO testDTO = mapper.toDTOBasedOnIsLocked(isLocked, test);
+            refactorOrdinalNumbers(testId);
+            testDTOs.add(testDTO);
+        }
+
+        return testDTOs;
     }
 
     @Override
@@ -154,5 +179,30 @@ public class TestServiceImpl
     @Override
     protected void setEntityRelationshipsBeforeAdd(Test entity, TestDTO dto) {
         entity.setSection(sectionService.getEntityById(dto.getSectionId()));
+    }
+
+    private boolean isLocked(String username, Long testId) {
+        // Step 1: Check if the user has a TestResult for the test
+        List<TestResult> testResult = testResultRepos.findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(username, testId);
+        if (testResult != null && !testResult.isEmpty()) {
+            return false;
+        }
+
+        // Step 2: Check for prerequisite lessons or tests using Drip
+        List<Drip> drips = dripRepos.findDripByNextId(testId, Drip.ESourceType.TEST);
+        for (Drip drip : drips) {
+            if (drip.getPrevType() == Drip.ESourceType.LESSON) {
+                if (!lessonTrackerRepository.isLessonCompleted(username, drip.getPrevId())) {
+                    return true;
+                }
+            } else if (drip.getPrevType() == Drip.ESourceType.TEST) {
+                if (!testResultRepos.isTestDone(username, drip.getPrevId())) {
+                    return true;
+                }
+            }
+        }
+
+        // If no locking conditions were met, the test is not locked
+        return false;
     }
 }
