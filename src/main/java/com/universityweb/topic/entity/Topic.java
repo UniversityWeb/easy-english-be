@@ -31,4 +31,11 @@ public class Topic {
 
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
     private List<Level> levels;
+
+    @PrePersist
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }

@@ -29,6 +29,7 @@ public class Token implements Serializable {
     private User user;
 
     @PrePersist
+    @PreUpdate
     public void prePersist() {
         if (this.tokenStr == null) {
             this.tokenStr = "";

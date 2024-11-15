@@ -60,4 +60,12 @@ public class QuestionGroup implements Serializable {
             });
         }
     }
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }

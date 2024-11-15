@@ -55,4 +55,27 @@ public class Price {
         }
         return price;  // Otherwise, return the regular price
     }
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaultsAndValidateFields() {
+        // Set default values if null
+        if (isActive == null) {
+            isActive = true; // Default to active
+        }
+        if (startDate == null) {
+            startDate = LocalDate.now(); // Default to current date
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now().plusMonths(1); // Default to 1 month from now
+        }
+
+        // Validation checks
+        if (price == null) {
+            price = BigDecimal.TEN;
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date must be before end date");
+        }
+    }
 }

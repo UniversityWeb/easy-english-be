@@ -38,4 +38,12 @@ public class LessonTracker implements Serializable {
     @ManyToOne
     @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }

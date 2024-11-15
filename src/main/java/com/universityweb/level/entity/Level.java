@@ -31,4 +31,10 @@ public class Level {
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;
 
+    @PrePersist
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }

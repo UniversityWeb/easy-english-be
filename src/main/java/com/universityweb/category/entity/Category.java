@@ -29,4 +29,12 @@ public class Category {
 
     @ManyToMany(mappedBy = "categories")
     private List<Course> courses;
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 }

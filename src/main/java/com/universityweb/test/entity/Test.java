@@ -60,6 +60,7 @@ public class Test implements Serializable {
     private Section section;
 
     @PrePersist
+    @PreUpdate
     public void prePersist() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now(); // Ensures createdAt is set if not already
