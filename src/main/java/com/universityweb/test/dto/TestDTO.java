@@ -2,10 +2,8 @@ package com.universityweb.test.dto;
 
 import com.universityweb.test.entity.Test;
 import com.universityweb.testpart.dto.TestPartDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,20 +12,23 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class TestDTO {
-    private Long id;
-    private Test.EType type;
-    private Test.EStatus status;
-    private String title;
-    private String description;
-    private Integer ordinalNumber;
-    private Integer durationInMilis;
-    private Double passingGrade;
-    private LocalDateTime createdAt;
-    private String audioPath;
-    private List<TestPartDTO> parts;
-    private Long sectionId;
-    private Long courseId;
+    Long id;
+    Test.EType type;
+    Test.EStatus status;
+    String title;
+    String description;
+    Integer ordinalNumber;
+    Integer durationInMilis;
+    Double passingGrade;
+    LocalDateTime createdAt;
+    String audioPath;
+    List<TestPartDTO> parts;
+    Long sectionId;
+    Long courseId;
 
-    private Boolean isDone;
+    Boolean isDone;
+
+    boolean isLocked;
 }

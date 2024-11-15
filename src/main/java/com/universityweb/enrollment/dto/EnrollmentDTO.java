@@ -1,5 +1,6 @@
 package com.universityweb.enrollment.dto;
 
+import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -28,5 +29,7 @@ public record EnrollmentDTO(
         String username,
 
         @Schema(description = "Unique identifier for the course", example = "101")
-        Long courseId
+        Long courseId,
+
+        UserDTO user
 ) {}

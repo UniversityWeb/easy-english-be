@@ -1,5 +1,6 @@
 package com.universityweb.test.controller;
 
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.common.media.MediaUtils;
@@ -94,8 +95,9 @@ public class TestController
     public ResponseEntity<List<TestDTO>> getBySection(
             @PathVariable Long sectionId
     ) {
+        String username = authService.getCurrentUsername();
         log.info("get tests by section Id: {}", sectionId);
-        List<TestDTO> testDTOs = service.getBySection(sectionId);
+        List<TestDTO> testDTOs = service.getBySection(username, sectionId);
         return ResponseEntity.ok(addTestMediaUrls(testDTOs));
     }
 

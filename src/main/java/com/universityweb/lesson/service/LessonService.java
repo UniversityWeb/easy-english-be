@@ -8,7 +8,7 @@ import com.universityweb.lesson.response.LessonResponse;
 import java.util.List;
 
 public interface LessonService extends BaseService<Lesson, LessonResponse, Long> {
-    List<LessonResponse> getAllLessonBySection(LessonRequest lessonRequest);
+    List<LessonResponse> getAllLessonBySection(String username, LessonRequest lessonRequest);
     LessonResponse createLesson(LessonRequest lessonRequest);
     LessonResponse updateLesson(LessonRequest lessonRequest);
     void deleteLesson(LessonRequest lessonRequest);

@@ -1,32 +1,33 @@
 package com.universityweb.lesson.response;
 
 import com.universityweb.lesson.customenum.LessonType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LessonResponse {
-    private Long id;
-    private Long sectionId;
-    private String title;
-    private LessonType type;
-    private String content;
-    private String contentUrl;
-    private String description;
-    private int duration;
-    private Boolean isPreview;
-    private LocalDate startDate;
-    private LocalTime startTime;
-    private LocalDateTime createdAt;
+    Long id;
+    Long sectionId;
+    String title;
+    LessonType type;
+    String content;
+    String contentUrl;
+    String description;
+    int duration;
+    Boolean isPreview;
+    LocalDate startDate;
+    LocalTime startTime;
+    LocalDateTime createdAt;
 
-    private boolean isCompleted;
+    boolean isCompleted;
+
+    boolean isLocked;
 }

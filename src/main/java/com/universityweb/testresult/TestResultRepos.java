@@ -31,4 +31,14 @@ public interface TestResultRepos extends JpaRepository<TestResult, Long> {
         )
         """)
     List<TestResult> findByUserUsernameAndTestSectionCourseIdAndStatus(String username, Long courseId, TestResult.EStatus status);
+
+    @Query("""
+        SELECT COUNT(tr) > 0
+        FROM TestResult tr
+        WHERE tr.user.username = :username
+        AND tr.test.id = :testId
+        AND tr.status = 'DONE'
+        AND tr.isDeleted = false
+        """)
+    boolean isTestDone(String username, Long testId);
 }

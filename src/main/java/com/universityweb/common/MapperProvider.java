@@ -9,6 +9,7 @@ import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
 import com.universityweb.notification.NotificationMapper;
 import com.universityweb.questiongroup.QuestionGroupMapper;
+import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
 import org.aspectj.weaver.patterns.TypePatternQuestions;
@@ -77,5 +78,11 @@ public class MapperProvider {
     @Primary
     public EnrollmentMapper enrollmentMapper() {
         return Mappers.getMapper(EnrollmentMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public TestMapper testMapper() {
+        return Mappers.getMapper(TestMapper.class);
     }
 }
