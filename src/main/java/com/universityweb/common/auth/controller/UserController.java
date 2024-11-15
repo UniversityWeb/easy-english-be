@@ -100,7 +100,7 @@ public class UserController
         return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAvatarPath()));
     }
 
-    @GetMapping("/get-users-without-admin")
+    @GetMapping("/admin/get")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserDTO>> getUsersWithoutAdmin(
             @RequestBody GetUserFilterReq filterReq
@@ -109,7 +109,7 @@ public class UserController
         return ResponseEntity.ok(userDTOs);
     }
 
-    @PutMapping("/update-user-for-admin/{username}")
+    @PutMapping("/admin/update/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserForAdminDTO> updateUserForAdmin(
             @PathVariable String username,
@@ -119,7 +119,7 @@ public class UserController
         return ResponseEntity.ok(userDTO);
     }
 
-    @PutMapping("/delete-user-for-admin/{username}")
+    @PutMapping("/admin/delete/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUserForAdmin(
             @PathVariable String username
