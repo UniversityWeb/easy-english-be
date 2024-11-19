@@ -1,6 +1,8 @@
 package com.universityweb.common.infrastructure.service;
 
 import com.universityweb.common.infrastructure.BaseMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,12 +13,15 @@ import java.util.Optional;
 public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, ID>, MAPPER extends BaseMapper<E, D>>
         implements BaseService<E, D, ID> {
 
+    protected final Logger log;
+
     protected final REPOS repository;
     protected final MAPPER mapper;
 
     protected BaseServiceImpl(REPOS repository, MAPPER mapper) {
         this.repository = repository;
         this.mapper = mapper;
+        this.log = LogManager.getLogger(getClass());
     }
 
     @Override
@@ -40,8 +45,8 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
         return entityOpt.get();
     }
 
-    @Override
     @Transactional
+    @Override
     public D create(D dto) {
         checkBeforeAdd(dto);
         E entity = mapper.toEntity(dto);
@@ -55,13 +60,21 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
         return mapper.toDTO(saved);
     }
 
+    @Transactional
     @Override
     public void softDelete(ID id) {
     }
 
+    @Transactional
     @Override
     public E save(E entity) {
         return repository.save(entity);
+    }
+
+    @Transactional
+    @Override
+    public D update(ID id, D dto) {
+        return null;
     }
 
     protected abstract void throwNotFoundException(ID id);

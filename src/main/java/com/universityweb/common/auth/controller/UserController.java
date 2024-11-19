@@ -100,7 +100,7 @@ public class UserController
         return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAvatarPath()));
     }
 
-    @GetMapping("/admin/get")
+    @PostMapping("/admin/get")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserDTO>> getUsersWithoutAdmin(
             @RequestBody GetUserFilterReq filterReq

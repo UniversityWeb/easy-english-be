@@ -23,6 +23,7 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "TEXT")
     private String title;
 
     @Enumerated(EnumType.STRING)
@@ -31,6 +32,7 @@ public class Lesson {
     private String content;
     @Column(columnDefinition = "TEXT")
     private String contentUrl;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private int duration;
     @Column(columnDefinition = "integer default 1")
