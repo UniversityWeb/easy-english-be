@@ -30,23 +30,25 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findByOwnerNot(User user);
 
-    @Query("SELECT c FROM Course c " +
-            "JOIN c.categories cat " +
-            "JOIN c.topic t " +
-            "JOIN c.level l " +
-            "JOIN c.price p " +
-            "LEFT JOIN c.reviews r " +
-            "WHERE (:categoryId IS NULL OR cat.id IN :categoryId) " +
-            "AND (:topicId IS NULL OR t.id = :topicId) " +
-            "AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) " +
-            "AND (:levelId IS NULL OR l.id = :levelId) " +
-            "AND (:price IS NULL OR (" +
-            "  (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate " +
-            "  AND c.price.salePrice <= :price) " +
-            "  OR (c.price.price <= :price))" +
-            ") " +
-            "GROUP BY c.id " +
-            "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)")
+    @Query("""
+        SELECT c FROM Course c
+        JOIN c.categories cat 
+        JOIN c.topic t 
+        JOIN c.level l 
+        JOIN c.price p 
+        LEFT JOIN c.reviews r 
+        WHERE (:categoryId IS NULL OR cat.id IN :categoryId) 
+        AND (:topicId IS NULL OR t.id = :topicId) 
+        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
+        AND (:levelId IS NULL OR l.id = :levelId) 
+        AND (:price IS NULL OR (
+            (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate 
+            AND c.price.salePrice <= :price) 
+            OR (c.price.price <= :price))
+        ) 
+        GROUP BY c.id 
+        HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
+    """)
     Page<Course> findCourseByFilter(
             @Param("categoryId") List<Long> categoryId,
             @Param("topicId") Long topicId,

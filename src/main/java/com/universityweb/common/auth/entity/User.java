@@ -38,7 +38,7 @@ public class User implements UserDetails, Serializable {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @Column(columnDefinition = "TEXT")
@@ -47,12 +47,13 @@ public class User implements UserDetails, Serializable {
     @Enumerated(EnumType.STRING)
     private EGender gender;
 
+    @Column(name = "dob")
     private LocalDate dob;
 
     @Enumerated(EnumType.STRING)
     private ERole role;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)

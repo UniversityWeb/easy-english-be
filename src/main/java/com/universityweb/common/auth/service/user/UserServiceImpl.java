@@ -94,17 +94,24 @@ public class UserServiceImpl
         Sort sort = Sort.by(Sort.Order.asc("createdAt"));
         PageRequest pageable = PageRequest.of(filterReq.getPage(), filterReq.getSize(), sort);
 
-        Page<User> users = repository.findAllNonRoleUsersWithFilters(
-                excludedRoles,
-                filterReq.getStatus(),
-                filterReq.getStartDate(),
-                filterReq.getEndDate(),
-                filterReq.getFullName(),
-                filterReq.getEmail(),
-                pageable
-        );
+        try {
+            log.info("Fetching users with filter: {}", filterReq);
+            Page<User> users = repository.findAllNonRoleUsersWithFilters(
+                    excludedRoles,
+                    filterReq.getStatus(),
+                    filterReq.getDob(),
+                    filterReq.getCreatedAt(),
+                    filterReq.getFullName(),
+                    filterReq.getEmail(),
+                    pageable
+            );
 
-        return mapper.mapPageToPageDTO(users);
+            log.info("Successfully retrieved {} users", users.getTotalElements());
+            return mapper.mapPageToPageDTO(users);
+        } catch (Exception e) {
+            log.error("Error occurred while fetching users", e);
+            return Page.empty();
+        }
     }
 
     @Override
