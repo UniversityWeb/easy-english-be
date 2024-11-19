@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,8 +35,6 @@ public interface UserRepos extends JpaRepository<User, String> {
         WHERE
             (:excludedRoles IS NULL OR u.role NOT IN :excludedRoles)
             AND (:status IS NULL OR u.status = :status)
-            AND (:dob IS NULL OR u.dob = :dob)
-            AND (:createdAt IS NULL OR u.createdAt = :createdAt)
             AND (
                 :fullName IS NULL OR :fullName = '' 
                 OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :fullName, '%'))
@@ -47,14 +43,25 @@ public interface UserRepos extends JpaRepository<User, String> {
                 :email IS NULL OR :email = '' 
                 OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))
             )
+            AND (
+                :phoneNumber IS NULL OR :phoneNumber = '' 
+                OR LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :phoneNumber, '%'))
+            )
+            AND (
+                :gender IS NULL OR u.gender = :gender
+            )
+            AND (
+                :role IS NULL OR u.role = :role
+            )
     """)
     Page<User> findAllNonRoleUsersWithFilters(
             @Param("excludedRoles") List<User.ERole> excludedRoles,
             @Param("status") User.EStatus status,
-            @Param("dob") LocalDate dob,
-            @Param("createdAt") LocalDateTime createdAt,
             @Param("fullName") String fullName,
             @Param("email") String email,
+            @Param("phoneNumber") String phoneNumber,
+            @Param("gender") User.EGender gender,
+            @Param("role") User.ERole role,
             Pageable pageable
     );
 }

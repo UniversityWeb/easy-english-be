@@ -99,10 +99,11 @@ public class UserServiceImpl
             Page<User> users = repository.findAllNonRoleUsersWithFilters(
                     excludedRoles,
                     filterReq.getStatus(),
-                    filterReq.getDob(),
-                    filterReq.getCreatedAt(),
                     filterReq.getFullName(),
                     filterReq.getEmail(),
+                    filterReq.getPhoneNumber(),
+                    filterReq.getGender(),
+                    filterReq.getRole(),
                     pageable
             );
 
