@@ -31,7 +31,6 @@
 		<mapstruct.version>1.4.2.Final</mapstruct.version>
 		<springdoc.version>2.3.0</springdoc.version>
 		<junit.jupiter.version>5.10.0</junit.jupiter.version>
-		<h2database.version>2.2.224</h2database.version>
 		<javax.mail.version>1.6.2</javax.mail.version>
 		<jjwt.version>0.11.5</jjwt.version>
 	</properties>
@@ -120,12 +119,6 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
 			<version>${junit.jupiter.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>${h2database.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

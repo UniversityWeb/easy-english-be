@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM --platform=linux/amd64 maven:3.8.3-openjdk-17 AS build
+FROM maven:3.8.3-openjdk-17 AS build
 WORKDIR /easy-english-be
 
 # Copy only the project definition files

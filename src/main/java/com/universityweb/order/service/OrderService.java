@@ -4,6 +4,7 @@ import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
+import com.universityweb.order.response.TotalAmountResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,4 +20,6 @@ public interface OrderService {
     Page<OrderItemDTO> getOrderItems(Long orderItemId, Pageable pageable);
     OrderItem getOrderItemEntityById(Long orderItemId);
     Order updateOrder(Order order);
+
+    TotalAmountResponse getTotalAmountByUsernameAndStatus(String username, String status);
 }
