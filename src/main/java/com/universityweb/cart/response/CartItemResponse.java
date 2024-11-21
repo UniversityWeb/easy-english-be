@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItemResponse implements Serializable {
+    private Long id;
+
     @Schema(description = "Status of the cart item",
             example = "ACTIVE")
     private CartItem.EStatus status;
