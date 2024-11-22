@@ -2,6 +2,7 @@ package com.universityweb.common.auth.entity;
 
 import com.universityweb.cart.entity.Cart;
 import com.universityweb.course.entity.Course;
+import com.universityweb.message.Message;
 import com.universityweb.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
@@ -73,6 +74,13 @@ public class User implements UserDetails, Serializable {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Message> sentMessages;
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Message> receivedMessages;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

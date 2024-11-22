@@ -102,10 +102,10 @@ public class UserController
 
     @PostMapping("/admin/get")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserDTO>> getUsersWithoutAdmin(
+    public ResponseEntity<Page<UserForAdminDTO>> getUsersWithoutAdmin(
             @RequestBody GetUserFilterReq filterReq
     ) {
-        Page<UserDTO> userDTOs = service.getUsersWithoutAdmin(filterReq);
+        Page<UserForAdminDTO> userDTOs = service.getUsersWithoutAdmin(filterReq);
         return ResponseEntity.ok(userDTOs);
     }
 

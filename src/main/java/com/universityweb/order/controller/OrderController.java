@@ -1,10 +1,12 @@
 package com.universityweb.order.controller;
 
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.order.entity.Order;
+import com.universityweb.order.response.TotalAmountResponse;
 import com.universityweb.order.service.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final MediaService mediaService;
+    private final AuthService authService;
 
     @GetMapping("/{username}")
     public ResponseEntity<Page<OrderDTO>> getOrders(
@@ -71,5 +74,16 @@ public class OrderController {
         log.info("Fetching order details for order ID: {}", orderId);
         OrderDTO orderDTO = orderService.getOrderById(orderId);
         return ResponseEntity.ok(MediaUtils.addOrderMediaUrls(mediaService, orderDTO));
+    }
+
+    @GetMapping("/total-amount/{status}")
+    public ResponseEntity<TotalAmountResponse> getTotalAmount(
+            @PathVariable(value = "status")
+            String status
+    ) {
+        log.info("Fetching total amount for status: {}", status);
+        String username = authService.getCurrentUsername();
+        TotalAmountResponse totalAmount = orderService.getTotalAmountByUsernameAndStatus(username, status);
+        return ResponseEntity.ok(totalAmount);
     }
 }

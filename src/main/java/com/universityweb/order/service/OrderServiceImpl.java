@@ -15,8 +15,11 @@ import com.universityweb.order.exception.OrderNotFoundException;
 import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.order.repository.OrderItemRepos;
 import com.universityweb.order.repository.OrderRepos;
+import com.universityweb.order.response.TotalAmountResponse;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +35,8 @@ public class OrderServiceImpl implements OrderService {
 
     private static final long EXPIRATION_CHECK_RATE_MS = 3_600_000; // 1 hour
     private static final OrderMapper orderMapper = OrderMapper.INSTANCE;
+
+    private Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
     private OrderRepos orderRepos;
@@ -142,6 +147,22 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order updateOrder(Order order) {
         return null;
+    }
+
+    @Override
+    public TotalAmountResponse getTotalAmountByUsernameAndStatus(String username, String status) {
+        Order.EStatus enumStatus = null;
+        try {
+            if (status != null) {
+                enumStatus = Order.EStatus.valueOf(status.toUpperCase());
+            }
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid status value: {}", status);
+        }
+
+        // Pass enumStatus (can be null) to the repository method
+        BigDecimal totalAmount = orderRepos.getTotalAmountByUsernameAndStatus(username, enumStatus);
+        return new TotalAmountResponse(totalAmount, ECurrency.VND);
     }
 
     @Scheduled(fixedRate = EXPIRATION_CHECK_RATE_MS)

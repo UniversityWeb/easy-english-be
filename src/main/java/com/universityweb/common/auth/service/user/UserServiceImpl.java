@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.service.user;
 
+import com.universityweb.common.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
@@ -87,7 +88,7 @@ public class UserServiceImpl
     }
 
     @Override
-    public Page<UserDTO> getUsersWithoutAdmin(GetUserFilterReq filterReq) {
+    public Page<UserForAdminDTO> getUsersWithoutAdmin(GetUserFilterReq filterReq) {
         List<User.ERole> excludedRoles = new ArrayList<>();
         excludedRoles.add(User.ERole.ADMIN);
 
@@ -96,19 +97,24 @@ public class UserServiceImpl
 
         try {
             log.info("Fetching users with filter: {}", filterReq);
+
+            User.EStatus status = Utils.safeEnumConversion(User.EStatus.class, filterReq.getStatus());
+            User.EGender gender = Utils.safeEnumConversion(User.EGender.class, filterReq.getGender());
+            User.ERole role = Utils.safeEnumConversion(User.ERole.class, filterReq.getRole());
+
             Page<User> users = repository.findAllNonRoleUsersWithFilters(
                     excludedRoles,
-                    filterReq.getStatus(),
+                    status,
                     filterReq.getFullName(),
                     filterReq.getEmail(),
                     filterReq.getPhoneNumber(),
-                    filterReq.getGender(),
-                    filterReq.getRole(),
+                    gender,
+                    role,
                     pageable
             );
 
             log.info("Successfully retrieved {} users", users.getTotalElements());
-            return mapper.mapPageToPageDTO(users);
+            return mapper.mapPageToPageForAdminDTO(users);
         } catch (Exception e) {
             log.error("Error occurred while fetching users", e);
             return Page.empty();

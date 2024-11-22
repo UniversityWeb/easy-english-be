@@ -84,4 +84,15 @@ public class Utils {
     public static boolean isEmail(String input) {
         return input != null && input.contains("@");
     }
+
+    public static  <E extends Enum<E>> E safeEnumConversion(Class<E> enumClass, String value) {
+        if (value == null || value.isBlank()) {
+            return null; // Return null or a default value if needed
+        }
+        try {
+            return Enum.valueOf(enumClass, value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null; // Return null or a fallback value
+        }
+    }
 }

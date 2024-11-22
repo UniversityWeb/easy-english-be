@@ -157,16 +157,14 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentPage.map(paymentMapper::toDTO);
     }
 
-    @Override
     @Transactional
+    @Override
     public PaymentResponse simulateSuccess(Long orderId) {
-        Order order = orderService.getOrderEntityById(orderId);
         LocalDateTime paymentTime = LocalDateTime.now();
         Long transactionNo = PaymentUtils.generateTransactionNo();
-        Payment payment = order.getPayment();
 
-        order.setUpdatedAt(paymentTime);
-        order.setStatus(Order.EStatus.PAID);
+        Order order = orderService.getOrderEntityById(orderId);
+        Payment payment = order.getPayment();
 
         payment.setStatus(Payment.EStatus.SUCCESS);
         payment.setPaymentTime(paymentTime);
@@ -174,11 +172,17 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmountPaid(order.getTotalAmount());
         payment.setCurrency(ECurrency.VND);
 
-        orderRepos.save(order);
+        order.setStatus(Order.EStatus.PAID);
+        order.setUpdatedAt(paymentTime);
+
         Payment savedPayment = paymentRepos.save(payment);
+        orderService.updateOrder(order);
 
         addEnrollmentsByOrderId(orderId);
 
+        String username = order.getUser().getUsername();
+        sendNotification(true, username, String.valueOf(orderId),
+                String.valueOf(transactionNo), order.getTotalAmount().toString(), paymentTime);
         return paymentMapper.toDTO(savedPayment);
     }
 
