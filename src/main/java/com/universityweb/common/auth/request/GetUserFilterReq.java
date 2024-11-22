@@ -16,7 +16,7 @@ public class GetUserFilterReq {
             description = "The status of the user. Can be NULL for all statuses.",
             example = "ACTIVE"
     )
-    User.EStatus status;
+    String status;
 
     @Schema(
             description = "Full name filter for the user. Case-insensitive.",
@@ -40,13 +40,13 @@ public class GetUserFilterReq {
             description = "Gender filter for the user.",
             example = "MALE"
     )
-    User.EGender gender;
+    String gender;
 
     @Schema(
             description = "Role filter for the user. (TEACHER or STUDENT)",
             example = "TEACHER"
     )
-    User.ERole role;
+    String role;
 
     @Schema(
             description = "The page number to fetch. Defaults to 0 (first page).",

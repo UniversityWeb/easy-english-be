@@ -7,6 +7,7 @@ import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
+import com.universityweb.message.MessageMapper;
 import com.universityweb.notification.NotificationMapper;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.test.TestMapper;
@@ -84,5 +85,11 @@ public class MapperProvider {
     @Primary
     public TestMapper testMapper() {
         return Mappers.getMapper(TestMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public MessageMapper messageMapper() {
+        return Mappers.getMapper(MessageMapper.class);
     }
 }

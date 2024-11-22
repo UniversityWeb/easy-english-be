@@ -8,14 +8,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper extends BaseMapper<User, UserDTO> {
     UserDTO toDTO(User user);
-
-    UserForAdminDTO toUserForAdminDTO(User user);
 
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "status", ignore = true)
@@ -25,4 +25,13 @@ public interface UserMapper extends BaseMapper<User, UserDTO> {
     @Mapping(target = "username", ignore = true)
     @Mapping(target = "password", ignore = true)
     void updateEntityFromDTO(UserForAdminDTO dto, @MappingTarget User entity);
+
+    UserForAdminDTO toUserForAdminDTO(User user);
+
+    List<UserForAdminDTO> toForAdminDTOs(List<User> entities);
+
+    default Page<UserForAdminDTO> mapPageToPageForAdminDTO(Page<User> page) {
+        List<UserForAdminDTO> dtos = toForAdminDTOs(page.getContent());
+        return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
+    }
 }
