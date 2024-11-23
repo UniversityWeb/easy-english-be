@@ -11,12 +11,14 @@ import com.universityweb.message.MessageDTO;
 import com.universityweb.message.MessageMapper;
 import com.universityweb.message.MessageRepos;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -56,6 +58,8 @@ public class MessageServiceImpl
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(Message entity, MessageDTO dto) {
+        entity.setSendingTime(LocalDateTime.now());
+
         String senderUsername = dto.getSenderUsername();
         User sender = userService.loadUserByUsername(senderUsername);
 
@@ -93,7 +97,7 @@ public class MessageServiceImpl
     public MessageDTO sendRealtimeMessage(MessageDTO dto) {
         MessageDTO messageDTO = super.create(dto);
         String destination = WebSocketConstants.getMessageTopic(dto.getRecipientUsername());
-        simpMessagingTemplate.convertAndSend(destination, dto);
+        simpMessagingTemplate.convertAndSend(destination, messageDTO);
         return messageDTO;
     }
 }

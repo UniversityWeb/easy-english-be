@@ -44,4 +44,12 @@ public class Message implements Serializable {
         IMAGE,
         COURSE_INFO
     }
+
+    @PrePersist
+    @PreUpdate
+    public void initializeSendingTime() {
+        if (this.sendingTime == null) {
+            this.sendingTime = LocalDateTime.now();
+        }
+    }
 }

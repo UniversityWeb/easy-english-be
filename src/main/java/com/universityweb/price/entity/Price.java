@@ -1,5 +1,6 @@
 package com.universityweb.price.entity;
 
+import com.universityweb.common.Utils;
 import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
@@ -72,8 +73,11 @@ public class Price {
         }
 
         // Validation checks
-        if (price == null) {
-            price = BigDecimal.TEN;
+        if (price == null || price.compareTo(BigDecimal.ZERO) > 0 && price.compareTo(Utils.MIN_PRICE_LIMIT) < 0) {
+            price = Utils.MIN_PRICE_LIMIT;
+        }
+        if (salePrice == null || salePrice.compareTo(BigDecimal.ZERO) > 0 && salePrice.compareTo(Utils.MIN_PRICE_LIMIT) < 0) {
+            salePrice = Utils.MIN_PRICE_LIMIT;
         }
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date must be before end date");
