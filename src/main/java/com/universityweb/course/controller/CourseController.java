@@ -1,5 +1,7 @@
 package com.universityweb.course.controller;
 
+import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.entity.Course;
@@ -7,25 +9,24 @@ import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@CrossOrigin
 @RequestMapping("/api/v1/course")
 @RestController
 @Tag(name = "Courses")
+@RequiredArgsConstructor
 public class CourseController {
-    @Autowired
-    private CourseService courseService;
-
-    @Autowired
-    private MediaService mediaService;
+    private final CourseService courseService;
+    private final MediaService mediaService;
+    private final AuthService authService;
 
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
@@ -112,6 +113,17 @@ public class CourseController {
     public ResponseEntity<Page<CourseResponse>> filterCourses(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getCourseByFilter(courseRequest);
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
+    }
+
+    @PutMapping("/update-status/{courseId}/{status}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<CourseResponse> updateStatus(
+            @PathVariable Long courseId,
+            @PathVariable Course.EStatus status
+    ) {
+        User curUser = authService.getCurUser();
+        CourseResponse courseResponse = courseService.updateStatus(curUser, courseId, status);
+        return ResponseEntity.ok(courseResponse);
     }
 
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {

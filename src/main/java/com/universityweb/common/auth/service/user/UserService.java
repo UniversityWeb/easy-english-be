@@ -26,4 +26,6 @@ public interface UserService extends UserDetailsService, BaseService<User, UserD
     Page<UserForAdminDTO> getUsersWithoutAdmin(GetUserFilterReq filterReq);
 
     UserForAdminDTO updateUserForAdmin(String username, UserForAdminDTO req);
+
+    UserForAdminDTO addUserForAdmin(UserForAdminDTO req);
 }

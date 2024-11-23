@@ -5,15 +5,18 @@ import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.EmailNotFoundException;
+import com.universityweb.common.auth.exception.UserAlreadyExistsException;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.GetUserFilterReq;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,11 +31,13 @@ public class UserServiceImpl
         implements UserService {
 
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserServiceImpl(UserRepos repository, UserMapper mapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepos repository, UserMapper mapper, PasswordEncoder passwordEncoder, @Qualifier("userMapper") UserMapper userMapper) {
         super(repository, mapper);
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -126,12 +131,33 @@ public class UserServiceImpl
     public UserForAdminDTO updateUserForAdmin(String username, UserForAdminDTO req) {
         User user = loadUserByUsername(username);
         mapper.updateEntityFromDTO(req, user);
-        user.setPassword(passwordEncoder.encode(req.getPassword()));
+
+        if (req.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+
         User savedUser = repository.save(user);
         if (!username.equals(req.getUsername())) {
             updateUsername(username, req.getUsername());
         }
         return mapper.toUserForAdminDTO(savedUser);
+    }
+
+    @Override
+    public UserForAdminDTO addUserForAdmin(UserForAdminDTO req) {
+        String username = req.getUsername();
+        if (username == null || username.isEmpty()) {
+            throw new BadCredentialsException("Username must not be empty or null");
+        }
+
+        boolean isExist = repository.existsByUsername(username);
+        if (isExist) {
+            throw new UserAlreadyExistsException("User with this username already exists");
+        }
+
+        User user = mapper.toEntity(req);
+        User saved = repository.save(user);
+        return mapper.toUserForAdminDTO(saved);
     }
 
     @Override

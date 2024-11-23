@@ -13,7 +13,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT c, AVG(r.rating), COUNT(r.id) " +
             "FROM Review r JOIN r.course c " +
             "GROUP BY c.id, c.countView, c.createdAt, c.description, c.descriptionPreview, c.duration, c.imagePreview, " +
-            "c.isActive, c.isPublish, c.level.id, c.owner.username, c.price.id, c.title, c.topic.id, c.updatedAt, c.videoPreview " +
+            "c.status, c.level.id, c.owner.username, c.price.id, c.title, c.topic.id, c.updatedAt, c.videoPreview " +
             "ORDER BY AVG(r.rating) DESC")
     List<Object[]> getTop10CoursesByRating();
 }

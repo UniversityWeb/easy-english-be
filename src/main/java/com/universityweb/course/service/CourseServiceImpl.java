@@ -3,6 +3,7 @@ package com.universityweb.course.service;
 import com.universityweb.category.CategoryRepository;
 import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
@@ -13,7 +14,6 @@ import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
-import com.universityweb.favourite.repository.FavouriteRepository;
 import com.universityweb.level.LevelRepository;
 import com.universityweb.level.entity.Level;
 import com.universityweb.price.entity.Price;
@@ -77,7 +77,7 @@ public class CourseServiceImpl
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByIsActiveAndOwner(true,user, pageable);
+        Page<Course> coursePage = repository.findByStatusAndOwner(Course.EStatus.PUBLISHED,user, pageable);
 
         return coursePage.map(mapper::toDTO);
     }
@@ -85,6 +85,7 @@ public class CourseServiceImpl
     @Override
     public void updateCourse(CourseRequest courseRequest) {
         Course currentCourse = getEntityById(courseRequest.getId());
+        mapper.updateEntityFromDTO(courseRequest, currentCourse);
         BeanUtils.copyProperties(courseRequest, currentCourse, "id", "createdAt");
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
@@ -100,7 +101,6 @@ public class CourseServiceImpl
             categories.add(category);
         }
         currentCourse.setCategories(categories);
-        currentCourse.setIsActive(true);
         repository.save(currentCourse);
     }
 
@@ -132,14 +132,13 @@ public class CourseServiceImpl
 
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
         course.setOwner(user);
-        course.setIsActive(true);
         repository.save(course);
     }
 
     @Override
     public void deleteCourse(CourseRequest courseRequest) {
         Course currentCourse = getEntityById(courseRequest.getId());
-        currentCourse.setIsActive(false);
+        currentCourse.setStatus(Course.EStatus.DELETED);
         repository.save(currentCourse);
     }
 
@@ -158,7 +157,7 @@ public class CourseServiceImpl
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByIsActiveAndTopicId(true, topicId, pageable);
+        Page<Course> coursePage = repository.findByStatusAndTopicId(Course.EStatus.PUBLISHED, topicId, pageable);
 
         return coursePage.map(mapper::toDTO);
     }
@@ -171,7 +170,7 @@ public class CourseServiceImpl
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByIsActiveAndLevelId(true, levelId, pageable);
+        Page<Course> coursePage = repository.findByStatusAndLevelId(Course.EStatus.PUBLISHED, levelId, pageable);
 
         return coursePage.map(mapper::toDTO);
     }
@@ -184,7 +183,7 @@ public class CourseServiceImpl
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByIsActiveAndCategoriesId(true, categoryIds.get(0), pageable);
+        Page<Course> coursePage = repository.findByStatusAndCategoriesId(Course.EStatus.PUBLISHED, categoryIds.get(0), pageable);
 
         return coursePage.map(mapper::toDTO);
     }
@@ -196,7 +195,7 @@ public class CourseServiceImpl
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByIsActive(true,pageable);
+        Page<Course> coursePage = repository.findByStatus(Course.EStatus.PUBLISHED,pageable);
 
         return coursePage.map(course -> {
             CourseResponse courseResponse = mapper.toDTO(course);
@@ -327,10 +326,30 @@ public class CourseServiceImpl
     }
 
     @Override
+    public CourseResponse updateStatus(
+            User curUser,
+            Long courseId,
+            Course.EStatus status
+    ) {
+        Course course = getEntityById(courseId);
+        String courseOwnerUsername = course.getOwner().getUsername();
+        String currentUsername = curUser.getUsername();
+
+        boolean isAdmin = curUser.getRole().equals(User.ERole.ADMIN);
+        boolean isOwner = courseOwnerUsername != null && courseOwnerUsername.equals(currentUsername);
+
+        if (!isOwner && !isAdmin) {
+            throw new PermissionDenyException("User is not authorized to update the course status.");
+        }
+
+        course.setStatus(status);
+        return savedAndConvertToDTO(course);
+    }
+
+    @Override
     public void softDelete(Long id) {
         Course course = getEntityById(id);
-        course.setIsDeleted(true);
-        course.setIsActive(false);
+        course.setStatus(Course.EStatus.DELETED);
         repository.save(course);
     }
 }

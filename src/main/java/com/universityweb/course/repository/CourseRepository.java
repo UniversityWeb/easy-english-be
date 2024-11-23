@@ -18,15 +18,15 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Page<Course> findByOwner(User user, Pageable pageable);
 
-    Page<Course> findByIsActiveAndOwner(Boolean isActive, User user, Pageable pageable);
+    Page<Course> findByStatusAndOwner(Course.EStatus status, User user, Pageable pageable);
 
-    Page<Course> findByIsActiveAndCategoriesId(boolean b, Long categoryId, Pageable pageable);
+    Page<Course> findByStatusAndCategoriesId(Course.EStatus status, Long categoryId, Pageable pageable);
 
-    Page<Course> findByIsActiveAndTopicId(boolean b, Long topicId, Pageable pageable);
+    Page<Course> findByStatusAndTopicId(Course.EStatus status, Long topicId, Pageable pageable);
 
-    Page<Course> findByIsActiveAndLevelId(boolean b, Long levelId, Pageable pageable);
+    Page<Course> findByStatusAndLevelId(Course.EStatus status, Long levelId, Pageable pageable);
 
-    Page<Course> findByIsActive(boolean b, Pageable pageable);
+    Page<Course> findByStatus(Course.EStatus status, Pageable pageable);
 
     List<Course> findByOwnerNot(User user);
 

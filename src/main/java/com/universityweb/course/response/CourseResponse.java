@@ -1,13 +1,12 @@
 package com.universityweb.course.response;
 
 import com.universityweb.category.response.CategoryResponse;
+import com.universityweb.course.entity.Course;
 import com.universityweb.level.response.LevelResponse;
 import com.universityweb.price.response.PriceResponse;
 import com.universityweb.topic.response.TopicResponse;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,32 +15,32 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseResponse {
-    private Long id;
-    private String title;
-    private String category;
-    private String imagePreview;
-    private String videoPreview;
-    private String descriptionPreview;
-    private String description;
-    private int duration;
-    private int countView;
-    private Long countStudent;
-    private Long countSection;
-    private Boolean isPublish;
-    private LocalDateTime createdAt;
-    private LocalDateTime updateAt;
-    private Boolean isActive;
-    private String notice;
+    Long id;
+    String title;
+    String category;
+    String imagePreview;
+    String videoPreview;
+    String descriptionPreview;
+    String description;
+    int duration;
+    int countView;
+    Long countStudent;
+    Long countSection;
+    LocalDateTime createdAt;
+    LocalDateTime updateAt;
+    String notice;
+    Course.EStatus status;
 
-    private int progress;
-    private double rating;
-    private Long ratingCount;
+    int progress;
+    double rating;
+    Long ratingCount;
 
-    private String ownerUsername;
-    private PriceResponse price;
-    private TopicResponse topic;
-    private LevelResponse level;
+    String ownerUsername;
+    PriceResponse price;
+    TopicResponse topic;
+    LevelResponse level;
 
-    private List<CategoryResponse> categories;
+    List<CategoryResponse> categories;
 }

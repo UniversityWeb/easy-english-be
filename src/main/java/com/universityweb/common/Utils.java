@@ -1,5 +1,6 @@
 package com.universityweb.common;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -7,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 
 public class Utils {
+    public static final BigDecimal MIN_PRICE_LIMIT = new BigDecimal(10_000);
+
     public static Date toDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }

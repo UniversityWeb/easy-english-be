@@ -3,6 +3,9 @@ package com.universityweb.message.controller;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaController;
+import com.universityweb.common.media.MediaUtils;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.message.MessageDTO;
 import com.universityweb.message.service.MessageService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +22,7 @@ public class MessageController {
 
     private final AuthService authService;
     private final MessageService messageService;
+    private final MediaService mediaService;
 
     @GetMapping("/{senderUsername}/{recipientUsername}")
     public ResponseEntity<Page<MessageDTO>> getAllMessages(
@@ -33,7 +37,7 @@ public class MessageController {
         }
 
         Page<MessageDTO> messages = messageService.getAllMessages(senderUsername, recipientUsername, page, size);
-        return ResponseEntity.ok(messages);
+        return ResponseEntity.ok(MediaUtils.addMessageMediaUrls(mediaService, messages));
     }
 
     @GetMapping("/get-recent-chats")
@@ -43,6 +47,6 @@ public class MessageController {
     ) {
         String curUsername = authService.getCurrentUsername();
         Page<UserDTO> users = messageService.getRecentChats(curUsername, page, size);
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(MediaUtils.addUserMediaUrlsForPage(mediaService, users));
     }
 }

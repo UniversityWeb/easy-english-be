@@ -10,6 +10,7 @@ import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
 import com.universityweb.review.request.ReviewRequest;
 import com.universityweb.review.response.ReviewResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,18 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class ReviewServiceImpl implements ReviewService {
-    private final CourseMapper courseMapper = CourseMapper.INSTANCE;
-
-    @Autowired
-    private ReviewRepository reviewRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private UserRepos userRepos;
+    private final CourseMapper courseMapper;
+    private final ReviewRepository reviewRepository;
+    private final CourseRepository courseRepository;
+    private final UserRepos userRepos;
 
     @Override
     public ReviewResponse createReview(ReviewRequest reviewRequest) {
