@@ -58,4 +58,35 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             @Param("title") String title,
             Pageable pageable);
 
+    @Query("""
+        SELECT c FROM Course c
+        JOIN c.categories cat 
+        JOIN c.topic t 
+        JOIN c.level l 
+        JOIN c.price p 
+        LEFT JOIN c.reviews r 
+        WHERE (:categoryId IS NULL OR cat.id IN :categoryId) 
+        AND (:topicId IS NULL OR t.id = :topicId) 
+        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
+        AND (:levelId IS NULL OR l.id = :levelId) 
+        AND (:price IS NULL OR (
+            (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate 
+            AND c.price.salePrice <= :price) 
+            OR (c.price.price <= :price))
+        ) 
+        AND (:ownerUsername IS NULL OR LOWER(c.owner.username) LIKE LOWER(CONCAT('%', CAST(:ownerUsername AS text), '%'))) 
+        AND (:status IS NULL OR c.status = :status) 
+        GROUP BY c.id 
+        HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
+    """)
+    Page<Course> findCourseForAdmin(
+            @Param("categoryId") List<Long> categoryId,
+            @Param("topicId") Long topicId,
+            @Param("levelId") Long levelId,
+            @Param("price") BigDecimal price,
+            @Param("rating") Double rating,
+            @Param("title") String title,
+            @Param("ownerUsername") String ownerUsername,
+            @Param("status") Course.EStatus status,
+            Pageable pageable);
 }

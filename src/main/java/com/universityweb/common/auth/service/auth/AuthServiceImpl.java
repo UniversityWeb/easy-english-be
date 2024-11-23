@@ -1,7 +1,7 @@
 package com.universityweb.common.auth.service.auth;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.universityweb.common.Utils;
+import com.universityweb.common.AuthUtils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
@@ -25,10 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +54,10 @@ public class AuthServiceImpl implements AuthService {
 
         String email = registerRequest.email();
         String plainPassword = registerRequest.password();
+
+        AuthUtils.isValidEmail(email);
+        AuthUtils.isValidEmail(plainPassword);
+
         String encodedPassword = passwordEncoder.encode(plainPassword);
         User user = User.builder()
                 .username(username)
@@ -71,7 +73,6 @@ public class AuthServiceImpl implements AuthService {
                 .avatarPath(registerRequest.avatarPath())
                 .status(User.EStatus.INACTIVE)
                 .build();
-        user.setPassword(encodedPassword);
 
         User saved = userService.save(user);
 
@@ -85,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
         String usernameOrEmail = loginRequest.usernameOrEmail();
         String password = loginRequest.password();
 
-        String username = Utils.isEmail(usernameOrEmail)
+        String username = AuthUtils.isValidEmail(usernameOrEmail)
                 ? userRepos.getUsernameByEmail(usernameOrEmail)
                 : usernameOrEmail;
 
@@ -268,13 +269,11 @@ public class AuthServiceImpl implements AuthService {
     public void generateOtpToUpdatePassword(UpdatePasswordRequest request) {
         User user = getCurUser();
         String email = user.getEmail();
-        if (email == null || email.isEmpty()) {
-            throw new EmailNotFoundException("Email not found");
+        if (AuthUtils.isValidEmail(email)) {
+            throw new EmailNotFoundException("Email is not valid");
         }
 
-        if (!isPasswordValid(request)) {
-            throw new BadCredentialsException("Password is not valid");
-        }
+        AuthUtils.validPassAndConfirmPass(request);
 
         otpService.generateAndSendOtp(email, OtpService.EPurpose.UPDATE_PASS);
     }
@@ -294,7 +293,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void generateOtpToResetPassword(String email) {
-        if (email == null || email.isEmpty() || !isValidEmail(email)) {
+        if (email == null || email.isEmpty() || !AuthUtils.isValidEmail(email)) {
             throw new RuntimeException("Email is not valid");
         }
         userService.getUserByEmail(email);
@@ -369,40 +368,6 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
-    private boolean isValidEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        return pattern.matcher(email).matches();
-    }
-
-    private boolean isPasswordValid(UpdatePasswordRequest request) {
-        String password = request.password();
-        String confirmPassword = request.confirmPassword();
-
-        // Password validation rules
-        if (!StringUtils.hasText(password) || password.length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters long");
-        }
-        if (!password.matches(".*[A-Z].*")) {
-            throw new IllegalArgumentException("Password must contain at least one uppercase letter");
-        }
-        if (!password.matches(".*[a-z].*")) {
-            throw new IllegalArgumentException("Password must contain at least one lowercase letter");
-        }
-        if (!password.matches(".*\\d.*")) {
-            throw new IllegalArgumentException("Password must contain at least one digit");
-        }
-        if (!password.matches(".*[!@#$%^&*].*")) {
-            throw new IllegalArgumentException("Password must contain at least one special character");
-        }
-
-        // Confirm that password and confirmPassword match
-        if (!password.equals(confirmPassword)) {
-            throw new IllegalArgumentException("Password and Confirm Password do not match");
-        }
-
-        return true;
-    }
 
     private LoginResponse handleAccountStatus(User user) {
         if (user.getStatus() == User.EStatus.DELETED) {

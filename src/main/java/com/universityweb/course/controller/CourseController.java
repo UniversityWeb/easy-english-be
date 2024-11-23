@@ -126,6 +126,25 @@ public class CourseController {
         return ResponseEntity.ok(courseResponse);
     }
 
+    @PostMapping("/admin/get")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<CourseResponse>> getAllCourseForAdmin(
+            @RequestBody CourseRequest req
+    ) {
+        Page<CourseResponse> courseResponses = courseService.getCourseForAdmin(req);
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
+    }
+
+    @PutMapping("/admin/update/{courseId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CourseResponse> updateCourseAdmin(
+            @PathVariable Long courseId,
+            @RequestBody CourseRequest req
+    ) {
+        CourseResponse courseResponse = courseService.updateCourseAdmin(courseId, req);
+        return ResponseEntity.ok(courseResponse);
+    }
+
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {
         if (video != null && !video.isEmpty()) {
             String videoPreview = mediaService.uploadFile(video);
