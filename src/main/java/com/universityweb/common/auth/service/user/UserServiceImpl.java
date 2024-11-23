@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.service.user;
 
+import com.universityweb.common.AuthUtils;
 import com.universityweb.common.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
@@ -132,8 +133,9 @@ public class UserServiceImpl
         User user = loadUserByUsername(username);
         mapper.updateEntityFromDTO(req, user);
 
-        if (req.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        String password = req.getPassword();
+        if (AuthUtils.isValidPassword(password) == AuthUtils.PASSWORD_VALID) {
+            user.setPassword(passwordEncoder.encode(password));
         }
 
         User savedUser = repository.save(user);

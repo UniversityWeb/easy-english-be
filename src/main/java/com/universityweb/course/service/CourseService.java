@@ -27,4 +27,6 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     Page<CourseResponse> getCourseByFilter(CourseRequest courseRequest);
     CourseResponse mapCourseToResponse(Course course);
     CourseResponse updateStatus(User curUser, Long courseId, Course.EStatus status);
+    Page<CourseResponse> getCourseForAdmin(CourseRequest req);
+    CourseResponse updateCourseAdmin(Long courseId, CourseRequest req);
 }
