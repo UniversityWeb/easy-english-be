@@ -1,10 +1,12 @@
 package com.universityweb.common.auth.controller;
 
+import com.universityweb.common.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.ActiveAccountResponse;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -226,7 +228,7 @@ public class AuthController {
         log.info("GetUserByTokenStr method called with token: {}", tokenStr);
         UserDTO userDTO = authService.getUserByTokenStr(tokenStr);
         log.info("GetUserByTokenStr method completed successfully with response: {}", userDTO);
-        userDTO = setMediaUrls(userDTO);
+        userDTO = MediaUtils.attachUserMediaUrls(mediaService, userDTO);
         return ResponseEntity.ok(userDTO);
     }
 
@@ -251,7 +253,7 @@ public class AuthController {
                             @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorResponse.class)))
-            }
+           }
     )
     @PutMapping("/update-own-password")
     public ResponseEntity<UserDTO> updateOwnPassword(
@@ -260,7 +262,7 @@ public class AuthController {
         log.info("UpdateOwnPassword method called with request: {}", updatePasswordRequest);
         UserDTO userDTO = authService.updateOwnPassword(updatePasswordRequest);
         log.info("UpdateOwnPassword method completed successfully with response: {}", userDTO);
-        userDTO = setMediaUrls(userDTO);
+        userDTO = MediaUtils.attachUserMediaUrls(mediaService, userDTO);
         return ResponseEntity.ok(userDTO);
     }
 
@@ -293,7 +295,7 @@ public class AuthController {
         log.info("Received request to resend OTP for user: {}", username);
         UserDTO userDTO = authService.resendOTPToActiveAccount(username);
         log.info("OTP resent successfully for user: {}", username);
-        userDTO = setMediaUrls(userDTO);
+        userDTO = MediaUtils.attachUserMediaUrls(mediaService, userDTO);
         return ResponseEntity.ok(userDTO);
     }
 
@@ -389,7 +391,7 @@ public class AuthController {
         log.info("Received request to update user profile with OTP: {}", updateProfileRequest);
         UserDTO userDTO = authService.updateProfileWithOTP(updateProfileRequest);
         log.info("User profile updated successfully for user: {}", updateProfileRequest.getUsername());
-        userDTO = setMediaUrls(userDTO);
+        userDTO = MediaUtils.attachUserMediaUrls(mediaService, userDTO);
         return ResponseEntity.ok(userDTO);
     }
 
@@ -439,14 +441,5 @@ public class AuthController {
         LoginResponse loginResponse = authService.loginWithGoogle(req);
         log.info("User logged in successfully with Google. User: {}", loginResponse.getUser());
         return ResponseEntity.ok().body(loginResponse);
-    }
-
-    private UserDTO setMediaUrls(UserDTO dto) {
-        try {
-            dto.setAvatarPath(mediaService.constructFileUrl(dto.getAvatarPath()));
-        } catch (Exception e) {
-            log.error("Failed to construct media url", e);
-        }
-        return dto;
     }
 }

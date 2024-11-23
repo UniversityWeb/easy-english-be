@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -126,5 +127,14 @@ public class UserController
     ) {
         service.softDelete(username);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/admin/add")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserForAdminDTO> addUserForAdmin(
+            @RequestBody UserForAdminDTO req
+    ) {
+        UserForAdminDTO userDTO = service.addUserForAdmin(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
     }
 }

@@ -1,7 +1,10 @@
 package com.universityweb.common.media;
 
+import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.message.Message;
+import com.universityweb.message.MessageDTO;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.test.dto.TestDTO;
@@ -65,5 +68,38 @@ public class MediaUtils {
     public static TestDTO attachTestMediaUrls(MediaService mediaService, TestDTO dto) {
         dto.setAudioPath(mediaService.constructFileUrl(dto.getAudioPath()));
         return dto;
+    }
+
+    public static Page<MessageDTO> addMessageMediaUrls(MediaService mediaService, Page<MessageDTO> messageDTOs) {
+        return messageDTOs.map(message -> attachMessageMediaUrls(mediaService, message));
+    }
+
+    public static List<MessageDTO> addMessageMediaUrls(MediaService mediaService, List<MessageDTO> messageDTOs) {
+        return messageDTOs.stream()
+                .map(message -> attachMessageMediaUrls(mediaService, message))
+                .collect(Collectors.toList());
+    }
+
+    public static MessageDTO attachMessageMediaUrls(MediaService mediaService, MessageDTO messageDTO) {
+        if (messageDTO == null) return null;
+        if (messageDTO.getType() != Message.EType.IMAGE) return messageDTO;
+        messageDTO.setContent(mediaService.constructFileUrl(messageDTO.getContent()));
+        return messageDTO;
+    }
+
+    public static Page<UserDTO> addUserMediaUrlsForPage(MediaService mediaService, Page<UserDTO> userDTOs) {
+        return userDTOs.map(user -> attachUserMediaUrls(mediaService, user));
+    }
+
+    public static List<UserDTO> addUserMediaUrlsForList(MediaService mediaService, List<UserDTO> userDTOs) {
+        return userDTOs.stream()
+                .map(user -> attachUserMediaUrls(mediaService, user))
+                .collect(Collectors.toList());
+    }
+
+    public static UserDTO attachUserMediaUrls(MediaService mediaService, UserDTO userDTO) {
+        if (userDTO == null) return null;
+        userDTO.setAvatarPath(mediaService.constructFileUrl(userDTO.getAvatarPath()));
+        return userDTO;
     }
 }

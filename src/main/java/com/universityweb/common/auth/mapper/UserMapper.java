@@ -22,10 +22,13 @@ public interface UserMapper extends BaseMapper<User, UserDTO> {
     @Mapping(target = "username", ignore = true)
     User toEntity(UserDTO userDTO);
 
+    User toEntity(UserForAdminDTO userForAdminDTO);
+
     @Mapping(target = "username", ignore = true)
     @Mapping(target = "password", ignore = true)
     void updateEntityFromDTO(UserForAdminDTO dto, @MappingTarget User entity);
 
+    @Mapping(target = "password", ignore = true)
     UserForAdminDTO toUserForAdminDTO(User user);
 
     List<UserForAdminDTO> toForAdminDTOs(List<User> entities);

@@ -13,6 +13,7 @@ import com.universityweb.section.entity.Section;
 import com.universityweb.topic.entity.Topic;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
@@ -27,77 +28,72 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Where(clause = "is_deleted = false")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Where(clause = "status != 'DELETED'")
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "title", nullable = false, columnDefinition = "TEXT")
-    private String title;
+    String title;
 
     @Column(name = "image_preview")
-    private String imagePreview;
+    String imagePreview;
 
     @Column(name = "video_preview")
-    private String videoPreview;
+    String videoPreview;
 
     @Column(name = "description_preview", length = 1000)
-    private String descriptionPreview;
+    String descriptionPreview;
 
     @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    String description;
 
     @Column(name = "duration")
-    private int duration;
+    int duration;
 
     @Column(name = "count_view")
-    private int countView;
-
-    @Column(name = "publish")
-    private Boolean isPublish;
+    int countView;
 
     @CreationTimestamp
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "active")
-    private Boolean isActive;
+    LocalDateTime updatedAt;
 
     @Column(name = "notice", columnDefinition = "TEXT")
-    private String notice;
+    String notice;
 
-    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
-    private Boolean isDeleted;
+    @Enumerated(EnumType.STRING)
+    EStatus status;
 
     @ManyToOne
     @JoinColumn(name = "username")
-    private User owner;
+    User owner;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "price_id", referencedColumnName = "id")
-    private Price price;
+    Price price;
 
     @ManyToOne
     @JoinColumn(name = "topic_id")
-    private Topic topic;
+    Topic topic;
 
     @ManyToOne
     @JoinColumn(name = "level_id")
-    private Level level;
+    Level level;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Section> sections;
+    List<Section> sections;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<FAQ> faqs;
+    List<FAQ> faqs;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Review> reviews;
+    List<Review> reviews;
 
     @ManyToMany
     @JoinTable(
@@ -105,22 +101,22 @@ public class Course {
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    private List<Category> categories;
+    List<Category> categories;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Drip> drips;
+    List<Drip> drips;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Enrollment> enrollments;
+    List<Enrollment> enrollments;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Favourite> favourites;
+    List<Favourite> favourites;
 
-    @PrePersist
-    @PreUpdate
-    private void setDefaults() {
-        if (isDeleted == null) {
-            isDeleted = false;
-        }
+    public enum EStatus {
+        PUBLISHED,
+        REJECTED,
+        PENDING_APPROVAL,
+        DRAFT,
+        DELETED,
     }
 }

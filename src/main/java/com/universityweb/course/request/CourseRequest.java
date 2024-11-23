@@ -1,9 +1,9 @@
 package com.universityweb.course.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.universityweb.course.entity.Course;
+import com.universityweb.price.response.PriceResponse;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,28 +12,28 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseRequest {
-    private String username;
-    private Long favoriteId;
-    private Long id;
-    private String title;
-    private Long levelId;
-    private Long topicId;
-    private String imagePreview;
-    private String videoPreview;
-    private String descriptionPreview;
-    private String description;
-    private int duration;
-    private int countView;
-    private Boolean isPublish;
-    private String createdAt;
-    private Boolean isActive;
-    private String notice;
-    private String ownerUsername;
-    private BigDecimal price;
-    private Double rating;
-    private List<Long> categoryIds;
+    String username;
+    Long favoriteId;
+    Long id;
+    String title;
+    Long levelId;
+    Long topicId;
+    String imagePreview;
+    String videoPreview;
+    String descriptionPreview;
+    String description;
+    int duration;
+    int countView;
+    String notice;
+    Course.EStatus status;
 
-    private int pageNumber = 0;
-    private int size = 8;
+    String ownerUsername;
+    BigDecimal price;
+    Double rating;
+    List<Long> categoryIds;
+
+    int pageNumber = 0;
+    int size = 8;
 }
