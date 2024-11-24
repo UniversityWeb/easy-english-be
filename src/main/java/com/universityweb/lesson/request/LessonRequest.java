@@ -1,0 +1,40 @@
+package com.universityweb.lesson.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class LessonRequest {
+    private Long id;
+
+    private Long sectionId;
+
+    private String title;
+
+    private String type;
+
+    private String content;
+
+    private String contentUrl;
+
+    private String description;
+
+    private int duration;
+
+    private Boolean isPreview;
+
+    private LocalDate startDate;
+
+    private LocalTime startTime;
+
+    private LocalDateTime createdAt;
+}

@@ -7,7 +7,25 @@ server:
 spring:
   application:
     name: easy-english-app
-  
+  servlet:
+    multipart:
+      max-file-size: 4GB
+      max-request-size: 4GB
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${PROD_GOOGLE_CLIENT_ID}
+            client-secret: ${PROD_GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            scope: profile, email
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
   devtools:
     livereload:
       enabled: true
@@ -24,9 +42,10 @@ spring:
       ddl-auto: update
     show-sql: true
     open-in-view: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+security:
+  jwt:
+    secret-key: ${PROD_JWT_SECRET_KEY}
 
 logging:
   file:
@@ -35,4 +54,21 @@ logging:
     root: info
 
 frontend:
-  url: ${PROD_FRONTEND_URL}
+  urls: ${PROD_FRONTEND_URL}
+
+third-party:
+  sending-email:
+    address: ${PROD_SENDING_EMAIL_ADDRESS}
+    password: ${PROD_SENDING_EMAIL_PASSWORD}
+
+  vn-pay:
+    pay-url: ${PROD_VNPAY_PAY_URL}
+    tmn-code: ${PROD_VNPAY_TMN_CODE}
+    hash-secret: ${PROD_VNPAY_HASH_SECRET}
+
+minio:
+  url: ${PROD_MINIO_URL}
+  access-key: ${PROD_MINIO_ACCESS_KEY}
+  secret-key: ${PROD_MINIO_SECRET_KEY}
+  bucket:
+    name: ${PROD_MINIO_BUCKET_NAME}
