@@ -10,6 +10,8 @@ import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,9 @@ import java.util.List;
 @Tag(name = "Courses")
 @RequiredArgsConstructor
 public class CourseController {
+
+    private static final Logger log = LogManager.getLogger(CourseController.class);
+
     private final CourseService courseService;
     private final MediaService mediaService;
     private final AuthService authService;
@@ -53,7 +58,7 @@ public class CourseController {
     }
 
     @PostMapping("/update-course")
-    public ResponseEntity<String> updateCourse(
+    public ResponseEntity<CourseResponse> updateCourse(
             @ModelAttribute CourseRequest courseRequest,
             @RequestParam(value = "video", required = false) MultipartFile video,
             @RequestParam(value = "image", required = false) MultipartFile image
@@ -65,20 +70,20 @@ public class CourseController {
 
         processCourseMedia(courseRequest, video, image);
 
-        courseService.updateCourse(courseRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Course updated successfully");
+        CourseResponse courseResponse = courseService.updateCourse(courseRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(courseResponse);
     }
 
     @PostMapping("/create-course")
-    public ResponseEntity<String> createCourse(
+    public ResponseEntity<CourseResponse> createCourse(
             @ModelAttribute CourseRequest courseRequest,
             @RequestParam(value = "video", required = false) MultipartFile video,
             @RequestParam(value = "image", required = false) MultipartFile image
     ) {
         processCourseMedia(courseRequest, video, image);
 
-        courseService.createCourse(courseRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Course added successfully");
+        CourseResponse courseResponse = courseService.createCourse(courseRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(courseResponse);
     }
 
     @PostMapping("/delete-course")
@@ -147,13 +152,21 @@ public class CourseController {
 
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {
         if (video != null && !video.isEmpty()) {
-            String videoPreview = mediaService.uploadFile(video);
-            courseRequest.setVideoPreview(videoPreview);
+            try {
+                String videoPreview = mediaService.uploadFile(video);
+                courseRequest.setVideoPreview(videoPreview);
+            } catch (Exception e) {
+                log.error("Failed to upload video file for course request: {}", e.getMessage(), e);
+            }
         }
 
         if (image != null && !image.isEmpty()) {
-            String imagePreview = mediaService.uploadFile(image);
-            courseRequest.setImagePreview(imagePreview);
+            try {
+                String imagePreview = mediaService.uploadFile(image);
+                courseRequest.setImagePreview(imagePreview);
+            } catch (Exception e) {
+                log.error("Failed to upload image file for course request: {}", e.getMessage(), e);
+            }
         }
     }
 

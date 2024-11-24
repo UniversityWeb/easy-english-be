@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface CourseService extends BaseService<Course, CourseResponse, Long> {
     Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest);
-    void updateCourse(CourseRequest courseRequest);
-    void createCourse(CourseRequest courseRequest);
+    CourseResponse updateCourse(CourseRequest courseRequest);
+    CourseResponse createCourse(CourseRequest courseRequest);
     void deleteCourse(CourseRequest courseRequest);
     CourseResponse getMainCourse(CourseRequest courseRequest);
     Page<CourseResponse> getAllCourseByTopic(CourseRequest courseRequest);
