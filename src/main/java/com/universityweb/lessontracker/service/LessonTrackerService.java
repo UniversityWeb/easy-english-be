@@ -1,6 +1,7 @@
 package com.universityweb.lessontracker.service;
 
 import com.universityweb.common.infrastructure.service.BaseService;
+import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.lessontracker.LessonTracker;
 import com.universityweb.lessontracker.dto.LessonTrackerDTO;
 
@@ -8,4 +9,6 @@ public interface LessonTrackerService extends BaseService<LessonTracker, LessonT
     Boolean isLearned(String username, Long lessonId);
 
     LessonTracker getByUsernameAndLessonId(String username, Long targetId);
+
+    LessonResponse getFirstUnlearnedLesson(String username, Long courseId);
 }

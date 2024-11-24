@@ -48,8 +48,18 @@ public class SectionServiceImpl
     @Override
     public List<SectionDTO> getAllSectionByCourse(SectionRequest sectionRequest) {
         Long courseId = sectionRequest.getCourseId();
-        List<Section> sections = repository.findByCourseId(courseId);
+        return getAllSectionByCourse(courseId);
+    }
+
+    @Override
+    public List<SectionDTO> getAllSectionByCourse(Long courseId) {
+        List<Section> sections = getAllSectionEntitiesByCourse(courseId);
         return mapper.toDTOs(sections);
+    }
+
+    @Override
+    public List<Section> getAllSectionEntitiesByCourse(Long courseId) {
+        return repository.findByCourseId(courseId);
     }
 
     @Override

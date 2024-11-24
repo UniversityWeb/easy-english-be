@@ -9,9 +9,11 @@ import org.mapstruct.Mapping;
 public interface LessonTrackerMapper extends BaseMapper<LessonTracker, LessonTrackerDTO> {
     @Mapping(source = "user.username", target = "username")
     @Mapping(source = "lesson.id", target = "lessonId")
+    @Override
     LessonTrackerDTO toDTO(LessonTracker entity);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "lesson", ignore = true)
+    @Override
     LessonTracker toEntity(LessonTrackerDTO dto);
 }

@@ -94,7 +94,7 @@ public class EnrollmentServiceImpl
 
     @Override
     public EnrollmentDTO isEnrolled(String username, Long courseId) {
-        String errMsg = String.format("Could not find any enrollments with username=%s, courseId=%s", username, courseId);
+        String errMsg = String.format("No enrollment found for user '%s' in course with ID '%s'", username, courseId);
         Enrollment enrollment = repository.findByUserUsernameAndCourseId(username, courseId)
                 .orElseThrow(() -> new RuntimeException(errMsg));
         return mapper.toDTO(enrollment);

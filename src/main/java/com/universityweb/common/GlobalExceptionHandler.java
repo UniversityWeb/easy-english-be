@@ -25,4 +25,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(errorResponse);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleCommonException(RuntimeException e) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), LocalDateTime.now());
+        log.error("Runtime Exception - Internal server error", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
+    }
 }

@@ -3,6 +3,8 @@ package com.universityweb.common.media;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.lesson.entity.Lesson;
+import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
 import com.universityweb.order.dto.OrderDTO;
@@ -101,5 +103,21 @@ public class MediaUtils {
         if (userDTO == null) return null;
         userDTO.setAvatarPath(mediaService.constructFileUrl(userDTO.getAvatarPath()));
         return userDTO;
+    }
+
+    private static Page<LessonResponse> constructMediaUrl(MediaService mediaService, Page<LessonResponse> lessonResponses) {
+        return lessonResponses.map(l -> attachLessonMediaUrls(mediaService, l));
+    }
+
+    private static List<LessonResponse> constructMediaUrl(MediaService mediaService, List<LessonResponse> lessonResponses) {
+        return lessonResponses.stream()
+                .map(l -> attachLessonMediaUrls(mediaService, l))
+                .toList();
+    }
+
+    public static LessonResponse attachLessonMediaUrls(MediaService mediaService, LessonResponse lessonResponse) {
+        if (lessonResponse == null) return null;
+        lessonResponse.setContentUrl(mediaService.constructFileUrl(lessonResponse.getContentUrl()));
+        return lessonResponse;
     }
 }
