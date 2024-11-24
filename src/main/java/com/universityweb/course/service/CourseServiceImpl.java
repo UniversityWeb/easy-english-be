@@ -83,7 +83,7 @@ public class CourseServiceImpl
     }
 
     @Override
-    public void updateCourse(CourseRequest req) {
+    public CourseResponse updateCourse(CourseRequest req) {
         Course currentCourse = getEntityById(req.getId());
         mapper.updateEntityFromDTO(req, currentCourse);
 
@@ -100,11 +100,11 @@ public class CourseServiceImpl
             categories.add(category);
         }
         currentCourse.setCategories(categories);
-        repository.save(currentCourse);
+        return savedAndConvertToDTO(currentCourse);
     }
 
     @Override
-    public void createCourse(CourseRequest courseRequest) {
+    public CourseResponse createCourse(CourseRequest courseRequest) {
         Course course = new Course();
         Price price = new Price();
         BeanUtils.copyProperties(courseRequest, course, "id", "createdAt");
@@ -131,7 +131,7 @@ public class CourseServiceImpl
 
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
         course.setOwner(user);
-        repository.save(course);
+        return savedAndConvertToDTO(course);
     }
 
     @Override
