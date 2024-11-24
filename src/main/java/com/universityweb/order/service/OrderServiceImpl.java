@@ -18,9 +18,9 @@ import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.order.response.TotalAmountResponse;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private static final long EXPIRATION_CHECK_RATE_MS = 3_600_000; // 1 hour
@@ -38,17 +39,10 @@ public class OrderServiceImpl implements OrderService {
 
     private Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
-    @Autowired
-    private OrderRepos orderRepos;
-
-    @Autowired
-    private OrderItemRepos orderItemRepos;
-
-    @Autowired
-    private PaymentRepos paymentRepos;
-
-    @Autowired
-    private CartService cartService;
+    private final OrderRepos orderRepos;
+    private final OrderItemRepos orderItemRepos;
+    private final PaymentRepos paymentRepos;
+    private final CartService cartService;
 
     @Override
     public Order createOrderFromUserCart(String username) {
@@ -163,6 +157,27 @@ public class OrderServiceImpl implements OrderService {
         // Pass enumStatus (can be null) to the repository method
         BigDecimal totalAmount = orderRepos.getTotalAmountByUsernameAndStatus(username, enumStatus);
         return new TotalAmountResponse(totalAmount, ECurrency.VND);
+    }
+
+    @Override
+    public List<OrderItem> getOrderItemsByCourseId(String username, Long courseId) {
+        List<Order> orders = orderRepos.findByUser_Username(username);
+        return orderItemRepos.findByCourseIdAndOrderIn(courseId, orders);
+    }
+
+    @Override
+    public boolean isPurchasedCourse(String username, Long courseId) {
+        List<OrderItem> orderItems = getOrderItemsByCourseId(username, courseId);
+        return orderItems.stream()
+                .anyMatch(orderItem -> {
+                    Order order = orderItem.getOrder();
+                    Payment payment = order != null ? order.getPayment() : null;
+
+                    boolean isPaidOrder = order != null && order.getStatus() == Order.EStatus.PAID;
+                    boolean isSuccessPayment = payment != null && payment.getStatus() == Payment.EStatus.SUCCESS;
+
+                    return isPaidOrder && isSuccessPayment;
+                });
     }
 
     @Scheduled(fixedRate = EXPIRATION_CHECK_RATE_MS)

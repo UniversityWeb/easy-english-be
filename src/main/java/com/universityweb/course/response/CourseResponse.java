@@ -26,13 +26,13 @@ public class CourseResponse {
     String description;
     int duration;
     int countView;
-    Long countStudent;
     Long countSection;
     LocalDateTime createdAt;
     LocalDateTime updateAt;
     String notice;
     Course.EStatus status;
 
+    Long countStudent;
     int progress;
     double rating;
     Long ratingCount;

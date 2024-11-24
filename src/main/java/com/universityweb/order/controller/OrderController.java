@@ -86,4 +86,14 @@ public class OrderController {
         TotalAmountResponse totalAmount = orderService.getTotalAmountByUsernameAndStatus(username, status);
         return ResponseEntity.ok(totalAmount);
     }
+
+    @GetMapping("/is-purchased-course/{courseId}")
+    public ResponseEntity<Boolean> isPurchasedCourse(
+            @PathVariable
+            Long courseId
+    ) {
+        String username = authService.getCurrentUsername();
+        boolean isPurchased = orderService.isPurchasedCourse(username, courseId);
+        return ResponseEntity.ok(isPurchased);
+    }
 }

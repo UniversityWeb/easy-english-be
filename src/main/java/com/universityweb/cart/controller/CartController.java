@@ -8,6 +8,7 @@ import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.order.service.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +28,7 @@ public class CartController {
     private final CartService cartService;
     private final CourseService courseService;
     private final MediaService mediaService;
+    private final OrderService orderService;
 
     @GetMapping("/")
     public ResponseEntity<CartResponse> getCart() {
@@ -105,8 +107,9 @@ public class CartController {
     @GetMapping("/can-add-to-cart/{courseId}")
     public ResponseEntity<Boolean> canAddToCart(@PathVariable Long courseId) {
         String username = authService.getCurrentUsername();
-        boolean isValid = cartService.canAddToCart(username, courseId);
-        return ResponseEntity.ok(isValid);
+        boolean existNotInCart = cartService.existNotInCart(username, courseId);
+        boolean isPurchasedCourse = orderService.isPurchasedCourse(username, courseId);
+        return ResponseEntity.ok(existNotInCart && !isPurchasedCourse);
     }
 
     private void checkAuthorization(Long cartItemId) {
