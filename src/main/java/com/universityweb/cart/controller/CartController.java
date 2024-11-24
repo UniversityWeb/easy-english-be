@@ -5,7 +5,9 @@ import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.response.CartResponse;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
+import com.universityweb.course.entity.Course;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import com.universityweb.order.service.OrderService;
@@ -38,10 +40,10 @@ public class CartController {
         log.info("Successfully retrieved cart items for user: {}", username);
 
         cart.getItems().forEach(item -> {
-            Long courseId = item.getCourse().getId();
-            CourseResponse course = courseService.getById(courseId);
-            course = setMediaUrls(course);
-            item.setCourse(course);
+            Course course = courseService.getEntityById(item.getCourse().getId());
+            CourseResponse courseResponse = courseService.mapCourseToResponse(course);
+            CourseResponse newCourseResponse = MediaUtils.attachCourseMediaUrls(mediaService, courseResponse);
+            item.setCourse(newCourseResponse);
         });
 
         return ResponseEntity.ok(cart);
@@ -116,11 +118,5 @@ public class CartController {
         Cart cart = cartService.getCartByCartItemId(cartItemId);
         String targetUsername = cart.getUser().getUsername();
         authService.checkAuthorization(targetUsername);
-    }
-
-    private CourseResponse setMediaUrls(CourseResponse response) {
-        response.setVideoPreview(mediaService.constructFileUrl(response.getVideoPreview()));
-        response.setImagePreview(mediaService.constructFileUrl(response.getImagePreview()));
-        return response;
     }
 }

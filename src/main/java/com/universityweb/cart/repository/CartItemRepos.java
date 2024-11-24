@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface CartItemRepos extends JpaRepository<CartItem, Long> {
-    @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND (ci.status = 'ACTIVE' OR ci.status = 'OUT_OF_STOCK') " +
+    @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND (ci.status = 'ACTIVE') " +
             "ORDER BY ci.updatedAt DESC")
     List<CartItem> findItemsByCartIdToDisplay(@Param("cartId") Long cartId);
 
@@ -20,10 +20,10 @@ public interface CartItemRepos extends JpaRepository<CartItem, Long> {
             @Param("cartId") Long cartId,
             @Param("status") CartItem.EStatus status);
 
-    @Query("SELECT ci FROM CartItem ci WHERE ci.id = :cardItemId AND (ci.status = 'ACTIVE' OR ci.status = 'OUT_OF_STOCK') ")
+    @Query("SELECT ci FROM CartItem ci WHERE ci.id = :cardItemId AND (ci.status = 'ACTIVE') ")
     Optional<CartItem> findByCartItemById(@Param("cardItemId") Long cardItemId);
 
-    @Query("SELECT Count(ci) FROM CartItem ci WHERE ci.cart.id = :cartId AND (ci.status = 'ACTIVE' OR ci.status = 'OUT_OF_STOCK')")
+    @Query("SELECT Count(ci) FROM CartItem ci WHERE ci.cart.id = :cartId AND (ci.status = 'ACTIVE')")
     Integer countByCartId(Long cartId);
 
     @Query("SELECT ci FROM CartItem ci JOIN ci.cart c WHERE ci.course.id = :courseId AND c.user.username = :username")
