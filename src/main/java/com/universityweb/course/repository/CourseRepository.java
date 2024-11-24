@@ -18,7 +18,9 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Page<Course> findByOwner(User user, Pageable pageable);
 
-    Page<Course> findByStatusAndOwner(Course.EStatus status, User user, Pageable pageable);
+    Page<Course> findByStatusInAndOwner(List<Course.EStatus> statuses, User owner, Pageable pageable);
+
+    Page<Course> findByStatusNotInAndOwner(List<Course.EStatus> excludedStatuses, User owner, Pageable pageable);
 
     Page<Course> findByStatusAndCategoriesId(Course.EStatus status, Long categoryId, Pageable pageable);
 
@@ -46,6 +48,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             AND c.price.salePrice <= :price) 
             OR (c.price.price <= :price))
         ) 
+        AND (:statuses IS NULL OR c.status IN :statuses)
         GROUP BY c.id 
         HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
     """)
@@ -56,6 +59,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             @Param("price") BigDecimal price,
             @Param("rating") Double rating,
             @Param("title") String title,
+            @Param("statuses") List<Course.EStatus> statuses,
             Pageable pageable);
 
     @Query("""
