@@ -4,6 +4,7 @@ import com.universityweb.common.Utils;
 import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,29 +17,30 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Price {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    Long id;
 
     @Column(name = "price")
-    private BigDecimal price;
+    BigDecimal price;
 
     @Column(name = "sale_price")
-    private BigDecimal salePrice;
+    BigDecimal salePrice;
 
     @Column(name = "start_date")
-    private LocalDate startDate;
+    LocalDate startDate;
 
     @Column(name = "end_date")
-    private LocalDate  endDate;
+    LocalDate  endDate;
 
     @Column(name = "active")
-    private Boolean isActive;
+    Boolean isActive;
 
     @OneToOne(mappedBy = "price")
-    private Course course;
+    Course course;
 
     /**
      * Utility method to get the price, considering the sale price validity.

@@ -1,5 +1,6 @@
 package com.universityweb.order.repository;
 
+import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +21,6 @@ public interface OrderItemRepos extends JpaRepository<OrderItem, Long> {
     List<OrderItem> findByUsernameAndCourseId(
             @Param("username") String username,
             @Param("courseId") Long courseId);
+
+    List<OrderItem> findByCourseIdAndOrderIn(Long courseId, List<Order> orders);
 }

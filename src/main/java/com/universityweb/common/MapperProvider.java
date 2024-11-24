@@ -1,5 +1,7 @@
 package com.universityweb.common;
 
+import com.universityweb.cart.mapper.CartItemMapper;
+import com.universityweb.cart.mapper.CartMapper;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.drip.DripMapper;
@@ -98,5 +100,17 @@ public class MapperProvider {
     @Primary
     public CourseMapper courseMapper() {
         return Mappers.getMapper(CourseMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public CartMapper cartMapper() {
+        return Mappers.getMapper(CartMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public CartItemMapper cartItemMapper() {
+        return Mappers.getMapper(CartItemMapper.class);
     }
 }

@@ -16,5 +16,5 @@ public interface CartService {
     Cart getCartByCartItemId(Long cartItemId);
     Integer countItems(String username);
     BigDecimal getTotalAmountOfCart(String username);
-    boolean canAddToCart(String username, Long courseId);
+    boolean existNotInCart(String username, Long courseId);
 }

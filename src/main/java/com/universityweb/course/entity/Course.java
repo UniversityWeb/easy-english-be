@@ -119,4 +119,12 @@ public class Course {
         DRAFT,
         DELETED,
     }
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (status == null) {
+            status = EStatus.DRAFT;
+        }
+    }
 }

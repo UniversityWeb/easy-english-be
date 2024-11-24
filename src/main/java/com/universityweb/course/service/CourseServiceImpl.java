@@ -21,13 +21,13 @@ import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
 import com.universityweb.topic.TopicRepository;
 import com.universityweb.topic.entity.Topic;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -68,7 +68,6 @@ public class CourseServiceImpl
         this.userService = userService;
     }
 
-
     @Override
     public Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest) {
         int pageNumber = courseRequest.getPageNumber();
@@ -82,6 +81,7 @@ public class CourseServiceImpl
         return coursePage.map(mapper::toDTO);
     }
 
+    @Transactional
     @Override
     public CourseResponse updateCourse(CourseRequest req) {
         Course currentCourse = getEntityById(req.getId());
@@ -103,14 +103,16 @@ public class CourseServiceImpl
         return savedAndConvertToDTO(currentCourse);
     }
 
+    @Transactional
     @Override
     public CourseResponse createCourse(CourseRequest courseRequest) {
-        Course course = new Course();
+        Course course = mapper.toEntity(courseRequest);
+
         Price price = new Price();
-        BeanUtils.copyProperties(courseRequest, course, "id", "createdAt");
         price.setPrice(BigDecimal.valueOf(0));
         price.setSalePrice(BigDecimal.valueOf(0));
         course.setPrice(price);
+
         price.setCourse(course);
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
@@ -134,6 +136,7 @@ public class CourseServiceImpl
         return savedAndConvertToDTO(course);
     }
 
+    @Transactional
     @Override
     public void deleteCourse(CourseRequest courseRequest) {
         Course currentCourse = getEntityById(courseRequest.getId());
@@ -324,6 +327,7 @@ public class CourseServiceImpl
         return courseResponse;
     }
 
+    @Transactional
     @Override
     public CourseResponse updateStatus(
             User curUser,
@@ -371,6 +375,7 @@ public class CourseServiceImpl
         }
     }
 
+    @Transactional
     @Override
     public CourseResponse updateCourseAdmin(Long courseId, CourseRequest req) {
         Course currentCourse = getEntityById(req.getId());

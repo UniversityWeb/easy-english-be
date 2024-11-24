@@ -1,5 +1,6 @@
 package com.universityweb.cart;
 
+import com.universityweb.cart.exception.CartItemAlreadyExistsException;
 import com.universityweb.cart.exception.CartItemNotFoundException;
 import com.universityweb.common.response.ErrorResponse;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,14 @@ public class CartExceptionHandler {
     public ResponseEntity<ErrorResponse> handle(CartItemNotFoundException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), LocalDateTime.now());
         log.error("Cart item not found error: ", e);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(CartItemAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handle(CartItemAlreadyExistsException e) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), LocalDateTime.now());
+        log.error("Cart item already exists error: ", e);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);
     }

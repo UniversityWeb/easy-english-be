@@ -5,9 +5,12 @@ import com.universityweb.cart.response.CartItemResponse;
 import com.universityweb.cart.response.CartResponse;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
+import com.universityweb.course.entity.Course;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.order.service.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +30,7 @@ public class CartController {
     private final CartService cartService;
     private final CourseService courseService;
     private final MediaService mediaService;
+    private final OrderService orderService;
 
     @GetMapping("/")
     public ResponseEntity<CartResponse> getCart() {
@@ -36,10 +40,10 @@ public class CartController {
         log.info("Successfully retrieved cart items for user: {}", username);
 
         cart.getItems().forEach(item -> {
-            Long courseId = item.getCourse().getId();
-            CourseResponse course = courseService.getById(courseId);
-            course = setMediaUrls(course);
-            item.setCourse(course);
+            Course course = courseService.getEntityById(item.getCourse().getId());
+            CourseResponse courseResponse = courseService.mapCourseToResponse(course);
+            CourseResponse newCourseResponse = MediaUtils.attachCourseMediaUrls(mediaService, courseResponse);
+            item.setCourse(newCourseResponse);
         });
 
         return ResponseEntity.ok(cart);
@@ -105,19 +109,14 @@ public class CartController {
     @GetMapping("/can-add-to-cart/{courseId}")
     public ResponseEntity<Boolean> canAddToCart(@PathVariable Long courseId) {
         String username = authService.getCurrentUsername();
-        boolean isValid = cartService.canAddToCart(username, courseId);
-        return ResponseEntity.ok(isValid);
+        boolean existNotInCart = cartService.existNotInCart(username, courseId);
+        boolean isPurchasedCourse = orderService.isPurchasedCourse(username, courseId);
+        return ResponseEntity.ok(existNotInCart && !isPurchasedCourse);
     }
 
     private void checkAuthorization(Long cartItemId) {
         Cart cart = cartService.getCartByCartItemId(cartItemId);
         String targetUsername = cart.getUser().getUsername();
         authService.checkAuthorization(targetUsername);
-    }
-
-    private CourseResponse setMediaUrls(CourseResponse response) {
-        response.setVideoPreview(mediaService.constructFileUrl(response.getVideoPreview()));
-        response.setImagePreview(mediaService.constructFileUrl(response.getImagePreview()));
-        return response;
     }
 }
