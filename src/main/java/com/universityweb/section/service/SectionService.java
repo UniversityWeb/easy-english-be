@@ -13,4 +13,6 @@ public interface SectionService extends BaseService<Section, SectionDTO, Long> {
     SectionDTO createSection(SectionRequest sectionRequest);
     SectionDTO updateSection(SectionRequest sectionRequest);
     List<SectionDTO> getAllSectionByCourse(SectionRequest sectionRequest);
+    List<SectionDTO> getAllSectionByCourse(Long courseId);
+    List<Section> getAllSectionEntitiesByCourse(Long courseId);
 }

@@ -1,6 +1,7 @@
 package com.universityweb.lesson;
 
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.lesson.request.LessonRequest;
 import com.universityweb.lesson.response.LessonResponse;
@@ -35,7 +36,7 @@ public class LessonController {
     ) {
         handleFileUpload(lessonRequest, file);
         LessonResponse lessonResponse = lessonService.createLesson(lessonRequest);
-        return ResponseEntity.ok().body(constructMediaUrl(lessonResponse));
+        return ResponseEntity.ok().body(MediaUtils.attachLessonMediaUrls(mediaService, lessonResponse));
     }
 
     @PostMapping("/update-lesson")
@@ -45,7 +46,7 @@ public class LessonController {
         mediaService.deleteFile(lessonRequest.getContentUrl());
         handleFileUpload(lessonRequest, file);
         LessonResponse lessonResponse = lessonService.updateLesson(lessonRequest);
-        return ResponseEntity.ok().body(constructMediaUrl(lessonResponse));
+        return ResponseEntity.ok().body(MediaUtils.attachLessonMediaUrls(mediaService, lessonResponse));
     }
 
     @PostMapping("")
@@ -76,7 +77,7 @@ public class LessonController {
         String username = authService.getCurrentUsername();
         boolean isCompleted = lessonTrackerService.isLearned(username, lessonResponse.getId());
         lessonResponse.setCompleted(isCompleted);
-        return constructMediaUrl(lessonResponse);
+        return MediaUtils.attachLessonMediaUrls(mediaService, lessonResponse);
     }
 
     private void handleFileUpload(LessonRequest lessonRequest, MultipartFile file) {
@@ -84,24 +85,5 @@ public class LessonController {
             String url = mediaService.uploadFile(file);
             lessonRequest.setContentUrl(url);
         }
-    }
-
-    private Page<LessonResponse> constructMediaUrl(Page<LessonResponse> lessonResponses) {
-        return lessonResponses.map(this::setMediaUrls);
-    }
-
-    private List<LessonResponse> constructMediaUrl(List<LessonResponse> lessonResponses) {
-        return lessonResponses.stream()
-                .map(this::setMediaUrls)
-                .toList();
-    }
-
-    private LessonResponse constructMediaUrl(LessonResponse lessonResponse) {
-        return setMediaUrls(lessonResponse);
-    }
-
-    private LessonResponse setMediaUrls(LessonResponse response) {
-        response.setContentUrl(mediaService.constructFileUrl(response.getContentUrl()));
-        return response;
     }
 }

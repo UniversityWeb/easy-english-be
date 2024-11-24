@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface LessonService extends BaseService<Lesson, LessonResponse, Long> {
     List<LessonResponse> getAllLessonBySection(String username, LessonRequest lessonRequest);
+    List<Lesson> getAllLessonEntitiesBySection(String username, Long sectionId);
     LessonResponse createLesson(LessonRequest lessonRequest);
     LessonResponse updateLesson(LessonRequest lessonRequest);
     void deleteLesson(LessonRequest lessonRequest);

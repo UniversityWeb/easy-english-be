@@ -54,7 +54,7 @@ public class LessonServiceImpl
 
     @Override
     public List<LessonResponse> getAllLessonBySection(String username, LessonRequest lessonRequest) {
-        List<Lesson> lessons = lessonRepository.findBySectionId(lessonRequest.getSectionId());
+        List<Lesson> lessons =  getAllLessonEntitiesBySection(username, lessonRequest.getSectionId());
         List<LessonResponse> lessonResponses = new ArrayList<>();
         for (Lesson lesson : lessons) {
             Long lessonId = lesson.getId();
@@ -63,6 +63,11 @@ public class LessonServiceImpl
             lessonResponses.add(lessonResponse);
         }
         return lessonResponses;
+    }
+
+    @Override
+    public List<Lesson> getAllLessonEntitiesBySection(String username, Long sectionId) {
+        return lessonRepository.findBySectionId(sectionId);
     }
 
     @Override
