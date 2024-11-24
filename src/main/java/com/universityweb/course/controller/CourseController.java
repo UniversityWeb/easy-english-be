@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,10 +66,26 @@ public class CourseController {
     ) {
         Long courseId = courseRequest.getId();
         Course course = courseService.getEntityById(courseId);
-        mediaService.deleteFile(course.getVideoPreview());
-        mediaService.deleteFile(course.getImagePreview());
 
-        processCourseMedia(courseRequest, video, image);
+        if (video != null && !video.isEmpty()) {
+            try {
+                mediaService.deleteFile(course.getVideoPreview());
+                String imagePreview = mediaService.uploadFile(video);
+                courseRequest.setVideoPreview(imagePreview);
+            } catch (Exception e) {
+                log.error("Failed to upload video file for course request: {}", e.getMessage(), e);
+            }
+        }
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                mediaService.deleteFile(course.getImagePreview());
+                String videoPreview = mediaService.uploadFile(image);
+                courseRequest.setImagePreview(videoPreview);
+            } catch (Exception e) {
+                log.error("Failed to upload image file for course request: {}", e.getMessage(), e);
+            }
+        }
 
         CourseResponse courseResponse = courseService.updateCourse(courseRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(courseResponse);

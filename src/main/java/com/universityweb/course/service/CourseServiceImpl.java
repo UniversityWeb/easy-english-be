@@ -74,9 +74,11 @@ public class CourseServiceImpl
         int size = courseRequest.getSize();
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
 
+        List<Course.EStatus> excludedStatuses = List.of(Course.EStatus.DELETED);
+
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByStatusAndOwner(Course.EStatus.PUBLISHED,user, pageable);
+        Page<Course> coursePage = repository.findByStatusNotInAndOwner(excludedStatuses,user, pageable);
 
         return coursePage.map(mapper::toDTO);
     }
@@ -295,10 +297,12 @@ public class CourseServiceImpl
         BigDecimal price = courseRequest.getPrice();
         Double rating = courseRequest.getRating();
         String title = courseRequest.getTitle();
+        List<Course.EStatus> statuses = List.of(Course.EStatus.PUBLISHED);
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findCourseByFilter(categoryIds,topicId,levelId,price,rating,title,pageable);
+        Page<Course> coursePage = repository.findCourseByFilter(categoryIds,topicId,
+                levelId,price,rating,title,statuses,pageable);
 
         return coursePage.map(this::mapCourseToResponse);
     }
@@ -335,14 +339,17 @@ public class CourseServiceImpl
             Course.EStatus status
     ) {
         Course course = getEntityById(courseId);
+        boolean hasEnrolledStudents = enrollmentRepos.existsByCourseId(courseId);
+        if (status == Course.EStatus.DELETED && hasEnrolledStudents) {
+            throw new IllegalStateException("Cannot update the course status because it has enrolled students");
+        }
+
         String courseOwnerUsername = course.getOwner().getUsername();
         String currentUsername = curUser.getUsername();
-
         boolean isAdmin = curUser.getRole().equals(User.ERole.ADMIN);
         boolean isOwner = courseOwnerUsername != null && courseOwnerUsername.equals(currentUsername);
-
         if (!isOwner && !isAdmin) {
-            throw new PermissionDenyException("User is not authorized to update the course status.");
+            throw new PermissionDenyException("User is not authorized to update the course status");
         }
 
         course.setStatus(status);

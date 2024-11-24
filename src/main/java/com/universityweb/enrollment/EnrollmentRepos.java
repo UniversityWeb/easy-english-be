@@ -31,24 +31,25 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
 
     Page<Enrollment> findByUser_UsernameAndStatusNot(String username, Enrollment.EStatus eStatus, Pageable pageable);
 
-    @Query("SELECT e FROM Enrollment e " +
-            "JOIN e.course c " +
-            "JOIN c.categories cat " +
-            "JOIN c.topic t " +
-            "JOIN c.level l " +
-            "JOIN c.price p " +
-            "LEFT JOIN c.reviews r " +
-            "WHERE e.user.username = :username " +
-            "AND e.status <> 'CANCELLED' " +
-            "AND (:categoryIds IS NULL OR cat.id IN :categoryIds) " +
-            "AND (:levelId IS NULL OR l.id = :levelId) " +
-            "AND (:topicId IS NULL OR t.id = :topicId) " +
-            "AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) " +
-            "AND (:progress IS NULL OR :progress = 0 OR e.progress >= :progress) " +
-            "AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) " +
-            "AND (:enrollmentType IS NULL OR e.type = :enrollmentType) " +
-            "GROUP BY e.id, e.createdAt " +
-            "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)")
+    @Query("""
+        SELECT e FROM Enrollment e 
+        JOIN e.course c 
+        JOIN c.categories cat 
+        JOIN c.topic t 
+        JOIN c.level l 
+        LEFT JOIN c.reviews r 
+        WHERE e.user.username = :username 
+        AND e.status <> 'CANCELLED' 
+        AND (:categoryIds IS NULL OR cat.id IN :categoryIds) 
+        AND (:levelId IS NULL OR l.id = :levelId) 
+        AND (:topicId IS NULL OR t.id = :topicId) 
+        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))) 
+        AND (:progress IS NULL OR :progress = 0 OR e.progress >= :progress) 
+        AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) 
+        AND (:enrollmentType IS NULL OR e.type = :enrollmentType) 
+        GROUP BY e.id, e.createdAt 
+        HAVING (:rating IS NULL OR COALESCE(AVG(r.rating), 0) >= :rating)
+    """)
     Page<Enrollment> findByUser_UsernameAndFilter(
             @Param("username") String username,
             @Param("categoryIds") List<Long> categoryIds,
@@ -62,4 +63,6 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             Pageable pageable);
 
     Optional<Enrollment> findByUser_UsernameAndCourse_Id(String username, Long courseId);
+
+    boolean existsByCourseId(Long courseId);
 }
