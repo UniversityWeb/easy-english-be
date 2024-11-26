@@ -385,23 +385,28 @@ public class CourseServiceImpl
     @Transactional
     @Override
     public CourseResponse updateCourseAdmin(Long courseId, CourseRequest req) {
-        Course currentCourse = getEntityById(req.getId());
-        mapper.updateEntityFromDTO(req, currentCourse);
+        try {
+            Course currentCourse = getEntityById(req.getId());
+            mapper.updateEntityFromDTO(req, currentCourse);
 
-        levelRepository.findById(req.getLevelId()).ifPresent(currentCourse::setLevel);
-        topicRepository.findById(req.getTopicId()).ifPresent(currentCourse::setTopic);
+            levelRepository.findById(req.getLevelId()).ifPresent(currentCourse::setLevel);
+            topicRepository.findById(req.getTopicId()).ifPresent(currentCourse::setTopic);
 
-        List<Category> categories = new ArrayList<>();
-        if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
-            for (Long categoryId : req.getCategoryIds()) {
-                Category category = categoryRepository.findById(categoryId)
-                        .orElseThrow(() -> new RuntimeException("Category not found"));
-                categories.add(category);
+            List<Category> categories = new ArrayList<>();
+            if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
+                for (Long categoryId : req.getCategoryIds()) {
+                    Category category = categoryRepository.findById(categoryId)
+                            .orElseThrow(() -> new RuntimeException("Category not found"));
+                    categories.add(category);
+                }
+                currentCourse.setCategories(categories);
             }
-            currentCourse.setCategories(categories);
-        }
 
-        return savedAndConvertToDTO(currentCourse);
+            return savedAndConvertToDTO(currentCourse);
+        } catch (Exception e) {
+            log.error(e);
+            throw new RuntimeException("Failed to update course", e);
+        }
     }
 
     @Override

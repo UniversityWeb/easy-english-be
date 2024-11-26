@@ -4,6 +4,7 @@ import com.universityweb.course.entity.Course;
 import com.universityweb.level.entity.Level;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Where;
 
 import java.util.List;
@@ -16,21 +17,22 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "topics")
 @Where(clause = "is_deleted = false")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    private String name;
+    String name;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
-    private Boolean isDeleted = false;
+    Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "topic")
-    private List<Course> courses;
+    List<Course> courses;
 
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
-    private List<Level> levels;
+    List<Level> levels;
 
     @PrePersist
     private void setDefaults() {

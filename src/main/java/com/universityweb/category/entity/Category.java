@@ -2,10 +2,8 @@ package com.universityweb.category.entity;
 
 import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Where;
 
 import java.util.List;
@@ -17,18 +15,19 @@ import java.util.List;
 @Entity
 @Table(name = "categories")
 @Where(clause = "is_deleted = false")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    private String name;
+    String name;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
-    private Boolean isDeleted = false;
+    Boolean isDeleted = false;
 
     @ManyToMany(mappedBy = "categories")
-    private List<Course> courses;
+    List<Course> courses;
 
     @PrePersist
     @PreUpdate

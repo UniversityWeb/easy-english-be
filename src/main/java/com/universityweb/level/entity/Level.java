@@ -2,10 +2,8 @@ package com.universityweb.level.entity;
 
 import com.universityweb.topic.entity.Topic;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Where;
 
 @Setter
@@ -15,21 +13,22 @@ import org.hibernate.annotations.Where;
 @Entity
 @Table(name = "levels")
 @Where(clause = "is_deleted = false")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Level {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    private String name;
-    private String fromLevel;
-    private String toLevel;
+    String name;
+    String fromLevel;
+    String toLevel;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
-    private Boolean isDeleted;
+    Boolean isDeleted;
 
     @ManyToOne
     @JoinColumn(name = "topic_id", nullable = false)
-    private Topic topic;
+    Topic topic;
 
     @PrePersist
     private void setDefaults() {

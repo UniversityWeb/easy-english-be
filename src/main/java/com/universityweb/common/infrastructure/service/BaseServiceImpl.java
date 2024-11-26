@@ -68,7 +68,12 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     @Transactional
     @Override
     public E save(E entity) {
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (Exception e) {
+            log.error("Failed to save: {}", e.getMessage());
+            return null;
+        }
     }
 
     @Transactional

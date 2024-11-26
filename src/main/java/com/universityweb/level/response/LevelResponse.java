@@ -1,17 +1,19 @@
 package com.universityweb.level.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.universityweb.topic.response.TopicResponse;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LevelResponse {
-    private Long id;
-    private String name;
-    private Long topicId;
-    private String fromLevel;
-    private String toLevel;
+    Long id;
+    String name;
+    Long topicId;
+    String fromLevel;
+    String toLevel;
+    TopicResponse topic;
 }

@@ -23,8 +23,12 @@ public class LevelServiceImpl
     private final TopicRepository topicRepository;
 
     @Autowired
-    public LevelServiceImpl(LevelRepository repository, TopicRepository topicRepository) {
-        super(repository, LevelMapper.INSTANCE);
+    public LevelServiceImpl(
+            LevelRepository repository,
+            LevelMapper levelMapper,
+            TopicRepository topicRepository
+    ) {
+        super(repository, levelMapper);
         this.topicRepository = topicRepository;
     }
 

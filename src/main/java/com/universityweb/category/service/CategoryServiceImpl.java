@@ -18,8 +18,11 @@ public class CategoryServiceImpl
         implements CategoryService {
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository repository) {
-        super(repository, CategoryMapper.INSTANCE);
+    public CategoryServiceImpl(
+            CategoryRepository repository,
+            CategoryMapper categoryMapper
+    ) {
+        super(repository, categoryMapper);
     }
 
     public void createCategory(CategoryRequest categoryRequest) {
