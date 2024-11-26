@@ -1,5 +1,6 @@
 package com.universityweb.common.media.service;
 
+import com.universityweb.common.exception.CustomException;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -57,7 +58,7 @@ public class MediaServiceImpl implements MediaService {
         } catch (ServerException | XmlParserException | InternalException | InvalidResponseException |
                  InvalidKeyException | NoSuchAlgorithmException | IOException | ErrorResponseException |
                  InsufficientDataException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -76,7 +77,7 @@ public class MediaServiceImpl implements MediaService {
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -113,11 +114,11 @@ public class MediaServiceImpl implements MediaService {
                             .build());
             return "/" + uniqueFileName;
         } catch (MinioException e) {
-            throw new RuntimeException("MinIO error occurred during file upload", e);
+            throw new CustomException("MinIO error occurred during file upload" + e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read file input stream", e);
+            throw new CustomException("Failed to read file input stream" + e.getMessage());
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error while uploading file to MinIO", e);
+            throw new CustomException("Error while uploading file to MinIO" + e.getMessage());
         }
     }
 

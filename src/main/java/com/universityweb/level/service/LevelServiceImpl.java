@@ -1,5 +1,6 @@
 package com.universityweb.level.service;
 
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.level.LevelRepository;
 import com.universityweb.level.entity.Level;
@@ -36,7 +37,7 @@ public class LevelServiceImpl
     public void createLevel(LevelRequest levelRequest) {
         Level level = mapper.toEntity(levelRequest);
         Topic topic = topicRepository.findById(levelRequest.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         level.setTopic(topic);
         repository.save(level);
     }
@@ -62,13 +63,13 @@ public class LevelServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Level not found");
+        throw new CustomException("Level not found");
     }
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(Level entity, LevelResponse dto) {
         Topic topic = topicRepository.findById(dto.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         entity.setTopic(topic);
     }
 

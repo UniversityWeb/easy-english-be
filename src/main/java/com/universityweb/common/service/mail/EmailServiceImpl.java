@@ -1,5 +1,6 @@
 package com.universityweb.common.service.mail;
 
+import com.universityweb.common.exception.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +50,7 @@ public class EmailServiceImpl implements EmailService {
             transport.sendMessage(emailMessage, emailMessage.getAllRecipients());
             transport.close();
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(e.getMessage());
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.universityweb.faq.service;
 
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.faq.FAQRepository;
@@ -25,7 +26,7 @@ public class FAQService {
     public FAQResponse createFAQ(FAQRequest faqRequest) {
         FAQ faq = new FAQ();
         Course course = courseRepository.findById(faqRequest.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new CustomException("Course not found"));
         BeanUtils.copyProperties(faqRequest, faq);
         faq.setCourse(course);
 
@@ -36,7 +37,7 @@ public class FAQService {
     }
     public FAQResponse updateFAQ(FAQRequest faqRequest) {
         FAQ faq = faqRepository.findById(faqRequest.getId())
-                .orElseThrow(() -> new RuntimeException("FAQ not found"));
+                .orElseThrow(() -> new CustomException("FAQ not found"));
         BeanUtils.copyProperties(faqRequest, faq);
         FAQResponse faqResponse = new FAQResponse();
         BeanUtils.copyProperties(faqRepository.save(faq), faqResponse);

@@ -1,6 +1,7 @@
 package com.universityweb.drip.service;
 
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
@@ -59,7 +60,7 @@ public class DripServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find any drip with id " + id);
+        throw new CustomException("Could not find any drip with id " + id);
     }
 
     @Override

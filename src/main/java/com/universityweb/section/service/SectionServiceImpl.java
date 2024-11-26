@@ -1,5 +1,6 @@
 package com.universityweb.section.service;
 
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
@@ -65,7 +66,7 @@ public class SectionServiceImpl
     @Override
     protected void throwNotFoundException(Long id) {
         String msg = "Could not find any sections with id=" + id;
-        throw new RuntimeException(msg);
+        throw new CustomException(msg);
     }
 
     @Override

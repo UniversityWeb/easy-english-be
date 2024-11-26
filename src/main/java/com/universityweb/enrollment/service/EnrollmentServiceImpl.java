@@ -2,6 +2,7 @@ package com.universityweb.enrollment.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.response.CourseResponse;
@@ -96,7 +97,7 @@ public class EnrollmentServiceImpl
     public EnrollmentDTO isEnrolled(String username, Long courseId) {
         String errMsg = String.format("No enrollment found for user '%s' in course with ID '%s'", username, courseId);
         Enrollment enrollment = repository.findByUserUsernameAndCourseId(username, courseId)
-                .orElseThrow(() -> new RuntimeException(errMsg));
+                .orElseThrow(() -> new CustomException(errMsg));
         return mapper.toDTO(enrollment);
     }
 
@@ -141,7 +142,7 @@ public class EnrollmentServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find any enrollments with id=" + id);
+        throw new CustomException("Could not find any enrollments with id=" + id);
     }
 
     @Override
@@ -165,7 +166,7 @@ public class EnrollmentServiceImpl
     @Override
     public int refreshProgress(String username, Long courseId) {
         Enrollment enrollment = repository.findByUser_UsernameAndCourse_Id(username, courseId)
-                .orElseThrow(() -> new RuntimeException("Could not find any enrollments with username=" + username + ", courseId=" + courseId));
+                .orElseThrow(() -> new CustomException("Could not find any enrollments with username=" + username + ", courseId=" + courseId));
 
         int progress = calculateProgress(username, courseId);
         enrollment.setProgress(progress);

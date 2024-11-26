@@ -3,6 +3,7 @@ package com.universityweb.testresult.service;
 import com.universityweb.common.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.test.entity.Test;
@@ -80,7 +81,7 @@ public class TestResultServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find any test results with id=" + id);
+        throw new CustomException("Could not find any test results with id=" + id);
     }
 
     @Override
@@ -115,7 +116,7 @@ public class TestResultServiceImpl
     public TestResultDTO submit(String username, SubmitTestRequest req) {
         List<SubmitTestRequest.UserAnswerDTO> answerDTOs = req.getUserAnswers();
         if (answerDTOs == null || answerDTOs.isEmpty()) {
-            throw new RuntimeException("Could not find any user answers");
+            throw new CustomException("Could not find any user answers");
         }
 
         Long testId = req.getTestId();

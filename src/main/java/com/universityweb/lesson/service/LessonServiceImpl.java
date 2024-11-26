@@ -1,6 +1,7 @@
 package com.universityweb.lesson.service;
 
 
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.drip.Drip;
 import com.universityweb.drip.DripRepos;
@@ -95,7 +96,7 @@ public class LessonServiceImpl
             lessonResponse.setSectionId(currentLesson.getSection().getId());
             return lessonResponse;
         } else {
-            throw new RuntimeException("Lesson not found");
+            throw new CustomException("Lesson not found");
         }
     }
 
@@ -106,7 +107,7 @@ public class LessonServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Lesson not found");
+        throw new CustomException("Lesson not found");
     }
 
     @Override

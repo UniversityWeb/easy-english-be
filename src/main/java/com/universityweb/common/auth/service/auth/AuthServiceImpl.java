@@ -15,6 +15,7 @@ import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.service.GoogleAuthService;
 import com.universityweb.common.auth.service.otp.OtpService;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.security.JwtGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -294,7 +295,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void generateOtpToResetPassword(String email) {
         if (email == null || email.isEmpty() || !AuthUtils.isValidEmail(email)) {
-            throw new RuntimeException("Email is not valid");
+            throw new CustomException("Email is not valid");
         }
         userService.getUserByEmail(email);
         otpService.generateAndSendOtp(email, OtpService.EPurpose.RESET_PASS);
@@ -348,7 +349,7 @@ public class AuthServiceImpl implements AuthService {
                     .accountStatus(User.EStatus.ACTIVE)
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Error during verify Google Account: ", e);
+            throw new CustomException("Error during verify Google Account: " + e.getMessage());
         }
     }
 

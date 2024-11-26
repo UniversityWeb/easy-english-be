@@ -5,6 +5,7 @@ import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.exception.CourseNotFoundException;
@@ -90,15 +91,15 @@ public class CourseServiceImpl
         mapper.updateEntityFromDTO(req, currentCourse);
 
         Level level = levelRepository.findById(req.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Level not found"));
+                .orElseThrow(() -> new CustomException("Level not found"));
         currentCourse.setLevel(level);
         Topic topic = topicRepository.findById(req.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         currentCourse.setTopic(topic);
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : req.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new CustomException("Category not found"));
             categories.add(category);
         }
         currentCourse.setCategories(categories);
@@ -118,17 +119,17 @@ public class CourseServiceImpl
         price.setCourse(course);
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Level not found"));
+                .orElseThrow(() -> new CustomException("Level not found"));
         course.setLevel(level);
 
         Topic topic = topicRepository.findById(courseRequest.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         course.setTopic(topic);
 
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : courseRequest.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new CustomException("Category not found"));
             categories.add(category);
         }
         course.setCategories(categories);
@@ -149,7 +150,7 @@ public class CourseServiceImpl
     @Override
     public CourseResponse getMainCourse(CourseRequest courseRequest) {
         Course course = repository.findById(courseRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new CustomException("Course not found"));
         return mapCourseToResponse(course);
     }
 
@@ -396,7 +397,7 @@ public class CourseServiceImpl
             if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
                 for (Long categoryId : req.getCategoryIds()) {
                     Category category = categoryRepository.findById(categoryId)
-                            .orElseThrow(() -> new RuntimeException("Category not found"));
+                            .orElseThrow(() -> new CustomException("Category not found"));
                     categories.add(category);
                 }
                 currentCourse.setCategories(categories);
@@ -405,7 +406,7 @@ public class CourseServiceImpl
             return savedAndConvertToDTO(currentCourse);
         } catch (Exception e) {
             log.error(e);
-            throw new RuntimeException("Failed to update course", e);
+            throw new CustomException("Failed to update course" + e.getMessage());
         }
     }
 
