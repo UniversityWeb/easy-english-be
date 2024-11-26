@@ -12,6 +12,7 @@ import com.universityweb.course.exception.CourseNotFoundException;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.request.GetRelatedCourseReq;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
@@ -58,7 +59,8 @@ public class CourseServiceImpl
             TopicRepository topicRepository,
             EnrollmentRepos enrollmentRepos,
             ReviewRepository reviewRepository,
-            UserService userService) {
+            UserService userService
+    ) {
 
         super(repository, mapper);
         this.categoryRepository = categoryRepository;
@@ -408,6 +410,23 @@ public class CourseServiceImpl
             log.error(e);
             throw new CustomException("Failed to update course" + e.getMessage());
         }
+    }
+
+    @Override
+    public List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req) {
+        Long courseId = req.getCourseId();
+        int numberOfCourses = req.getNumberOfCourses();
+        Pageable pageable = PageRequest.of(0, numberOfCourses);
+
+        List<Course> courses = switch (req.getType()) {
+            case LEVEL -> levelRepository.getRelatedCoursesByLevel(courseId, pageable);
+            case TOPIC -> topicRepository.getRelatedCoursesByTopic(courseId, pageable);
+            default -> new ArrayList<>();
+        };
+
+        return courses.stream()
+                .map(this::mapCourseToResponse)
+                .toList();
     }
 
     @Override
