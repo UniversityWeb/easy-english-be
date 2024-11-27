@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EnrollmentServiceImpl
@@ -65,6 +66,11 @@ public class EnrollmentServiceImpl
     public EnrollmentDTO addNewEnrollment(AddEnrollmentRequest addRequest) {
         User user = userService.loadUserByUsername(addRequest.username());
         Course course = courseService.getEntityById(addRequest.courseId());
+
+        Optional<Enrollment> optionalEnrollment = repository.findByUserAndCourse(user, course);
+        if (optionalEnrollment.isPresent()) {
+            throw new CustomException("Enrollment already exists");
+        }
 
         Enrollment enrollment = Enrollment.builder()
                 .progress(0)

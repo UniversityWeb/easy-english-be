@@ -14,6 +14,7 @@ import com.universityweb.lessontracker.LessonTrackerMapper;
 import com.universityweb.level.mapper.LevelMapper;
 import com.universityweb.message.MessageMapper;
 import com.universityweb.notification.NotificationMapper;
+import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
@@ -133,5 +134,11 @@ public class MapperProvider {
     @Primary
     public CategoryMapper categoryMapper() {
         return Mappers.getMapper(CategoryMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public OrderMapper orderMapper() {
+        return Mappers.getMapper(OrderMapper.class);
     }
 }

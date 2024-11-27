@@ -10,4 +10,5 @@ public interface BaseService<E, D, ID> {
     D update(ID id, D dto);
     void softDelete(ID id);
     E save(E entity);
+    D savedAndConvertToDTO(E entity);
 }

@@ -1,5 +1,6 @@
 package com.universityweb.order.service;
 
+import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.order.entity.Order;
@@ -10,10 +11,11 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface OrderService {
+public interface OrderService extends BaseService<Order, OrderDTO, Long> {
     Order createOrderFromUserCart(String username);
     OrderDTO updateOrder(OrderDTO orderDTO);
     Page<OrderDTO> getOrders(String username, Order.EStatus status, Pageable pageable);
+    Page<OrderDTO> getOrders(Order.EStatus status, Pageable pageable);
     Order getOrderEntityById(Long orderId);
     OrderDTO getOrderById(Long orderId);
 
