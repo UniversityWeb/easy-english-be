@@ -11,14 +11,10 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper extends BaseMapper<Category, CategoryResponse> {
-    CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
-
+    @Override
     CategoryResponse toDTO(Category entity);
 
-    List<CategoryResponse> toDTOs(List<Category> entities);
-
     @Mapping(target = "courses", ignore = true)
+    @Override
     Category toEntity(CategoryResponse dto);
-
-    List<Category> toEntities(List<CategoryResponse> dtos);
 }

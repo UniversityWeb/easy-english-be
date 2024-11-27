@@ -2,6 +2,7 @@ package com.universityweb.review.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.repos.UserRepos;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.repository.CourseRepository;
@@ -44,13 +45,13 @@ public class ReviewServiceImpl implements ReviewService {
             BeanUtils.copyProperties(reviewSave, reviewResponse);
             return reviewResponse;
         } else {
-            throw new RuntimeException("Course not found");
+            throw new CustomException("Course not found");
         }
     }
 
     @Override
     public ReviewResponse createResponse(ReviewRequest reviewRequest) {
-        Review review = reviewRepository.findById(reviewRequest.getId()).orElseThrow(() -> new RuntimeException("Review not found"));
+        Review review = reviewRepository.findById(reviewRequest.getId()).orElseThrow(() -> new CustomException("Review not found"));
         review.setResponse(reviewRequest.getResponse());
         Review reviewSave = reviewRepository.save(review);
         ReviewResponse reviewResponse = new ReviewResponse();

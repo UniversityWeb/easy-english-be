@@ -6,6 +6,7 @@ import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.request.GetRelatedCourseReq;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -146,6 +147,14 @@ public class CourseController {
         User curUser = authService.getCurUser();
         CourseResponse courseResponse = courseService.updateStatus(curUser, courseId, status);
         return ResponseEntity.ok(courseResponse);
+    }
+
+    @PostMapping("/get-related-courses")
+    public ResponseEntity<List<CourseResponse>> getRelatedCourses(
+            @RequestBody GetRelatedCourseReq req
+    ){
+        List<CourseResponse> courses = courseService.getRelatedCourses(req);
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courses));
     }
 
     @PostMapping("/admin/get")

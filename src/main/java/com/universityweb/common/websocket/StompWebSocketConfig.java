@@ -18,6 +18,8 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns(frontendUrls.split(","))
+                .setAllowedOrigins("*")
+                .setAllowedOrigins(frontendUrls.split(","))
                 .withSockJS();
     }
 

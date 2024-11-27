@@ -2,6 +2,7 @@ package com.universityweb.favourite.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
@@ -56,7 +57,7 @@ public class FavouriteServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find Favourite with ID " + id);
+        throw new CustomException("Could not find Favourite with ID " + id);
     }
 
     @Override
@@ -116,6 +117,6 @@ public class FavouriteServiceImpl
     @Override
     public Favourite getByUsernameAndCourseId(String username, Long courseId) {
         return repository.findByUser_UsernameAndCourse_IdAndIsDeletedFalse(username, courseId)
-                .orElseThrow(() -> new RuntimeException("Could not find Favourite with ID " + courseId));
+                .orElseThrow(() -> new CustomException("Could not find Favourite with ID " + courseId));
     }
 }

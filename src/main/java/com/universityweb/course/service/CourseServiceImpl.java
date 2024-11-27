@@ -5,12 +5,14 @@ import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.exception.CourseNotFoundException;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.request.GetRelatedCourseReq;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
@@ -57,7 +59,8 @@ public class CourseServiceImpl
             TopicRepository topicRepository,
             EnrollmentRepos enrollmentRepos,
             ReviewRepository reviewRepository,
-            UserService userService) {
+            UserService userService
+    ) {
 
         super(repository, mapper);
         this.categoryRepository = categoryRepository;
@@ -90,15 +93,15 @@ public class CourseServiceImpl
         mapper.updateEntityFromDTO(req, currentCourse);
 
         Level level = levelRepository.findById(req.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Level not found"));
+                .orElseThrow(() -> new CustomException("Level not found"));
         currentCourse.setLevel(level);
         Topic topic = topicRepository.findById(req.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         currentCourse.setTopic(topic);
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : req.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new CustomException("Category not found"));
             categories.add(category);
         }
         currentCourse.setCategories(categories);
@@ -118,17 +121,17 @@ public class CourseServiceImpl
         price.setCourse(course);
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Level not found"));
+                .orElseThrow(() -> new CustomException("Level not found"));
         course.setLevel(level);
 
         Topic topic = topicRepository.findById(courseRequest.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         course.setTopic(topic);
 
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : courseRequest.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new CustomException("Category not found"));
             categories.add(category);
         }
         course.setCategories(categories);
@@ -149,7 +152,7 @@ public class CourseServiceImpl
     @Override
     public CourseResponse getMainCourse(CourseRequest courseRequest) {
         Course course = repository.findById(courseRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new CustomException("Course not found"));
         return mapCourseToResponse(course);
     }
 
@@ -385,23 +388,45 @@ public class CourseServiceImpl
     @Transactional
     @Override
     public CourseResponse updateCourseAdmin(Long courseId, CourseRequest req) {
-        Course currentCourse = getEntityById(req.getId());
-        mapper.updateEntityFromDTO(req, currentCourse);
+        try {
+            Course currentCourse = getEntityById(req.getId());
+            mapper.updateEntityFromDTO(req, currentCourse);
 
-        levelRepository.findById(req.getLevelId()).ifPresent(currentCourse::setLevel);
-        topicRepository.findById(req.getTopicId()).ifPresent(currentCourse::setTopic);
+            levelRepository.findById(req.getLevelId()).ifPresent(currentCourse::setLevel);
+            topicRepository.findById(req.getTopicId()).ifPresent(currentCourse::setTopic);
 
-        List<Category> categories = new ArrayList<>();
-        if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
-            for (Long categoryId : req.getCategoryIds()) {
-                Category category = categoryRepository.findById(categoryId)
-                        .orElseThrow(() -> new RuntimeException("Category not found"));
-                categories.add(category);
+            List<Category> categories = new ArrayList<>();
+            if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
+                for (Long categoryId : req.getCategoryIds()) {
+                    Category category = categoryRepository.findById(categoryId)
+                            .orElseThrow(() -> new CustomException("Category not found"));
+                    categories.add(category);
+                }
+                currentCourse.setCategories(categories);
             }
-            currentCourse.setCategories(categories);
-        }
 
-        return savedAndConvertToDTO(currentCourse);
+            return savedAndConvertToDTO(currentCourse);
+        } catch (Exception e) {
+            log.error(e);
+            throw new CustomException("Failed to update course" + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req) {
+        Long courseId = req.getCourseId();
+        int numberOfCourses = req.getNumberOfCourses();
+        Pageable pageable = PageRequest.of(0, numberOfCourses);
+
+        List<Course> courses = switch (req.getType()) {
+            case LEVEL -> levelRepository.getRelatedCoursesByLevel(courseId, pageable);
+            case TOPIC -> topicRepository.getRelatedCoursesByTopic(courseId, pageable);
+            default -> new ArrayList<>();
+        };
+
+        return courses.stream()
+                .map(this::mapCourseToResponse)
+                .toList();
     }
 
     @Override

@@ -18,6 +18,7 @@ public class SecurityUtils {
             "api/v1/auth/reset-password-with-otp/**",
             "api/v1/auth/login-with-google/**",
             "/ws/**",
+            "ws://localhost:8001/ws",
     };
 
     public static final String[] SWAGGER_URLS = {

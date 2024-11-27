@@ -63,6 +63,7 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             Pageable pageable);
 
     Optional<Enrollment> findByUser_UsernameAndCourse_Id(String username, Long courseId);
+    Optional<Enrollment> findByUserAndCourse(User user, Course course);
 
     boolean existsByCourseId(Long courseId);
 }

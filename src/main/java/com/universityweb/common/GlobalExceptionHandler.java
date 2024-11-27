@@ -1,5 +1,6 @@
 package com.universityweb.common;
 
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.response.ErrorResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,10 +27,10 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleCommonException(RuntimeException e) {
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleCommonException(CustomException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), LocalDateTime.now());
-        log.error("Runtime Exception - Internal server error", e);
+        log.error("Internal server error", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(errorResponse);
     }

@@ -12,16 +12,13 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface LevelMapper extends BaseMapper<Level, LevelResponse> {
-    LevelMapper INSTANCE = Mappers.getMapper(LevelMapper.class);
-
+    @Mapping(source = "topic.id", target = "topicId")
+    @Override
     LevelResponse toDTO(Level entity);
 
-    @Mapping(source = "topic.id", target = "orderId")
-    List<LevelResponse> toDTOs(List<Level> entities);
-
     @Mapping(target = "topic", ignore = true)
+    @Override
     Level toEntity(LevelResponse dto);
-    List<Level> toEntities(List<LevelResponse> dtos);
 
     @Mapping(target = "topic", ignore = true)
     Level toEntity(LevelRequest dto);

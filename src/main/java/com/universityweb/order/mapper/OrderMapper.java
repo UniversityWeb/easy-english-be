@@ -1,5 +1,6 @@
 package com.universityweb.order.mapper;
 
+import com.universityweb.common.infrastructure.BaseMapper;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.order.entity.Order;
@@ -11,16 +12,14 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface OrderMapper {
-    OrderMapper INSTANCE = Mappers.getMapper(OrderMapper.class);
-
+public interface OrderMapper extends BaseMapper<Order, OrderDTO> {
     @Mapping(source = "user.username", target = "username")
-    OrderDTO toOrderDTO(Order entity);
-    List<OrderDTO> toOrderDTOs(List<Order> entities);
+    @Override
+    OrderDTO toDTO(Order entity);
 
     @Mapping(target = "user", ignore = true)
-    Order toOrder(OrderDTO dto);
-    List<Order> toOrders(List<OrderDTO> dtos);
+    @Override
+    Order toEntity(OrderDTO dto);
 
     @Mapping(source = "order.id", target = "orderId")
     OrderItemDTO toOrderItemDTO(OrderItem entity);

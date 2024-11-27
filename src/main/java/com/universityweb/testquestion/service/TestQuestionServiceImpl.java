@@ -1,5 +1,6 @@
 package com.universityweb.testquestion.service;
 
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.service.QuestionGroupService;
@@ -37,7 +38,7 @@ public class TestQuestionServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("TestQuestion Not Found with id=" + id);
+        throw new CustomException("TestQuestion Not Found with id=" + id);
     }
 
     @Override
@@ -45,6 +46,7 @@ public class TestQuestionServiceImpl
         entity.setQuestionGroup(questionGroupService.getEntityById(dto.questionGroupId()));
     }
 
+    @Transactional
     @Override
     public TestQuestionDTO update(Long id, TestQuestionDTO dto) {
         TestQuestion testQuestion = getEntityById(id);

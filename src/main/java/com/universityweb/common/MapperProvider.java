@@ -2,6 +2,7 @@ package com.universityweb.common;
 
 import com.universityweb.cart.mapper.CartItemMapper;
 import com.universityweb.cart.mapper.CartMapper;
+import com.universityweb.category.mapper.CategoryMapper;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.drip.DripMapper;
@@ -10,11 +11,14 @@ import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
+import com.universityweb.level.mapper.LevelMapper;
 import com.universityweb.message.MessageMapper;
 import com.universityweb.notification.NotificationMapper;
+import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
+import com.universityweb.topic.mapper.TopicMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
 import org.aspectj.weaver.patterns.TypePatternQuestions;
 import org.mapstruct.factory.Mappers;
@@ -112,5 +116,29 @@ public class MapperProvider {
     @Primary
     public CartItemMapper cartItemMapper() {
         return Mappers.getMapper(CartItemMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public TopicMapper topicMapper() {
+        return Mappers.getMapper(TopicMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public LevelMapper levelMapper() {
+        return Mappers.getMapper(LevelMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public CategoryMapper categoryMapper() {
+        return Mappers.getMapper(CategoryMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public OrderMapper orderMapper() {
+        return Mappers.getMapper(OrderMapper.class);
     }
 }

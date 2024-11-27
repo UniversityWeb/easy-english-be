@@ -1,6 +1,5 @@
 package com.universityweb.order.repository;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.order.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,4 +33,6 @@ public interface OrderRepos extends JpaRepository<Order, Long> {
     );
 
     List<Order> findByUser_Username(String username);
+
+    Page<Order> findByStatus(Order.EStatus status, Pageable pageable);
 }

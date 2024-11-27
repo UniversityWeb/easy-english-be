@@ -4,6 +4,7 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.request.GetRelatedCourseReq;
 import com.universityweb.course.response.CourseResponse;
 import org.springframework.data.domain.Page;
 
@@ -29,4 +30,5 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     CourseResponse updateStatus(User curUser, Long courseId, Course.EStatus status);
     Page<CourseResponse> getCourseForAdmin(CourseRequest req);
     CourseResponse updateCourseAdmin(Long courseId, CourseRequest req);
+    List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req);
 }
