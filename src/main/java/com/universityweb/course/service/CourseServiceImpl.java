@@ -204,13 +204,7 @@ public class CourseServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = repository.findByStatus(Course.EStatus.PUBLISHED,pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = mapper.toDTO(course);
-            List<Review> reviews = reviewRepository.findByCourseId(course.getId());
-            courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
-            courseResponse.setRatingCount((long) reviews.size());
-            return courseResponse;
-        });
+        return coursePage.map(this::mapCourseToResponse);
     }
 
     @Override
