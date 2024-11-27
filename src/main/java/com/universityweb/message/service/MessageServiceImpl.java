@@ -97,8 +97,16 @@ public class MessageServiceImpl
     @Override
     public MessageDTO sendRealtimeMessage(MessageDTO dto) {
         MessageDTO messageDTO = super.create(dto);
-        String destination = WebSocketConstants.getMessageTopic(dto.getRecipientUsername());
-        simpMessagingTemplate.convertAndSend(destination, messageDTO);
+        String chatBoxOfRecipientTopic = WebSocketConstants.getMessageTopic(dto.getRecipientUsername());
+        sendToTopic(chatBoxOfRecipientTopic, messageDTO);
+
+        String recentChatsOfRecipientTopic = WebSocketConstants.getRecentChatsTopic(dto.getRecipientUsername());
+        sendToTopic(recentChatsOfRecipientTopic, messageDTO);
+
         return messageDTO;
+    }
+
+    private void sendToTopic(String topic, MessageDTO message) {
+        simpMessagingTemplate.convertAndSend(topic, message);
     }
 }

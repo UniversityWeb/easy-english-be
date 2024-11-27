@@ -20,4 +20,8 @@ public class WebSocketConstants {
     public static String getMessageTopic(String recipientUsername) {
         return String.format("/topic/messages/%s", recipientUsername);
     }
+
+    public static String getRecentChatsTopic(String username) {
+        return String.format("/topic/recent-chats/%s", username);
+    }
 }
