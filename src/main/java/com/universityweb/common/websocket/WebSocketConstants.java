@@ -5,6 +5,8 @@ public class WebSocketConstants {
     public static final String CART_ITEM_COUNT_DESTINATION = "/cart-item-count";
     public static final String MESSAGE_DESTINATION = "/messages";
 
+    public static final String ONLINE_USERS_TOPIC = "/topic/online-users";
+
     public static String getNotificationTopic(String username) {
         return String.format("/topic/notifications/%s", username);
     }

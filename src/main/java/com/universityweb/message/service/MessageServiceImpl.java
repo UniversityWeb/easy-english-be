@@ -102,7 +102,6 @@ public class MessageServiceImpl
 
         String recentChatsOfRecipientTopic = WebSocketConstants.getRecentChatsTopic(dto.getRecipientUsername());
         sendToTopic(recentChatsOfRecipientTopic, messageDTO);
-
         return messageDTO;
     }
 
