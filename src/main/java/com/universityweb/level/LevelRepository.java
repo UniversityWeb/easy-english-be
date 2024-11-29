@@ -21,6 +21,7 @@ public interface LevelRepository extends JpaRepository<Level, Long> {
         WHERE c.level.id = (SELECT cl.level.id FROM Course cl WHERE cl.id = :courseId)
           AND c.id != :courseId
           AND c.status = 'PUBLISHED'
+        ORDER BY function('random')
     """)
     List<Course> getRelatedCoursesByLevel(Long courseId, Pageable pageable);
 }
