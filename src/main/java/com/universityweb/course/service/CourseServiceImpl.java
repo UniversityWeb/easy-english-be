@@ -423,6 +423,26 @@ public class CourseServiceImpl
                 .toList();
     }
 
+    @Transactional
+    @Override
+    public CourseResponse updateNotice(CourseRequest req) {
+        try {
+            Course currentCourse = getEntityById(req.getId());
+            currentCourse.setNotice(req.getNotice());
+            return savedAndConvertToDTO(currentCourse);
+        } catch (Exception e) {
+            log.error(e);
+            throw new CustomException("Failed to update course notice");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void incrementViewCount(Long courseId) {
+        getEntityById(courseId);
+        repository.incrementViewCount(courseId);
+    }
+
     @Override
     public void softDelete(Long id) {
         Course course = getEntityById(id);

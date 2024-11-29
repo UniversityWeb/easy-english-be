@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -201,6 +202,25 @@ public class OrderServiceImpl
 
                     return isPaidOrder && isSuccessPayment;
                 });
+    }
+
+    @Override
+    public boolean hasPurchasedItems(String username, Long orderId) {
+        List<Order> paidOrders = repository.findByUserUsernameAndStatus(username, Order.EStatus.PAID);
+        List<Long> paidCourseIds = new ArrayList<>();
+        for (Order order : paidOrders) {
+            for (OrderItem orderItem : order.getItems()) {
+                paidCourseIds.add(orderItem.getCourse().getId());
+            }
+        }
+        Order order = getOrderEntityById(orderId);
+        for (OrderItem orderItem : order.getItems()) {
+            Long courseId = orderItem.getCourse().getId();
+            if (paidCourseIds.contains(courseId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Scheduled(fixedRate = EXPIRATION_CHECK_RATE_MS)

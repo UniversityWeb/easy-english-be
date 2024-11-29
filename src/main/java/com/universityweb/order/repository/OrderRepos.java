@@ -17,6 +17,7 @@ public interface OrderRepos extends JpaRepository<Order, Long> {
     Page<Order> findByUserUsername(String username, Pageable pageable);
 
     Page<Order> findByUserUsernameAndStatus(String username, Order.EStatus status, Pageable pageable);
+    List<Order> findByUserUsernameAndStatus(String username, Order.EStatus status);
 
     @Query("SELECT o FROM Order o WHERE o.createdAt < :fiveMinutesAgo AND o.status <> :status")
     List<Order> findAllByCreatedAtBeforeAndStatusNot(LocalDateTime fiveMinutesAgo, Order.EStatus status);

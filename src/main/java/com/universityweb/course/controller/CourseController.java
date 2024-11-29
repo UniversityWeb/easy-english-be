@@ -176,6 +176,23 @@ public class CourseController {
         return ResponseEntity.ok(courseResponse);
     }
 
+    @PutMapping("/update-notice")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<CourseResponse> updateNotice(
+            @RequestBody CourseRequest req
+    ) {
+        CourseResponse courseResponse = courseService.updateNotice(req);
+        return ResponseEntity.ok(courseResponse);
+    }
+
+    @PutMapping("/count-view/{courseId}")
+    public ResponseEntity<Void> countView(
+            @PathVariable Long courseId
+    ) {
+        courseService.incrementViewCount(courseId);
+        return ResponseEntity.noContent().build();
+    }
+
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {
         if (video != null && !video.isEmpty()) {
             try {
@@ -195,26 +212,4 @@ public class CourseController {
             }
         }
     }
-
-//    @GetMapping("")
-//    public ResponseEntity<List<Course>> getAllCourse() {
-//        return ResponseEntity.ok(courseService.getAllCourses());
-//    }
-//
-//    @GetMapping("/filter")
-//    public ResponseEntity<List<Course>> filterCourse(@RequestParam int price, @RequestParam String name) {
-//        return ResponseEntity.ok(courseService.filterCourse(price, name));
-//    }
-//
-//    @GetMapping("/{courseId}/sales-count")
-//    public ResponseEntity<Long> getSalesCountForCourse(@PathVariable Long courseId) {
-//        Long sales = enrollmentService.countSalesByCourseId(courseId);
-//        return ResponseEntity.ok(sales);
-//    }
-//
-//    @GetMapping("/top-10-sales")
-//    public ResponseEntity<List<Course>> getTop10CoursesBySales() {
-//        List<Course> courses = courseService.getTop10Courses();
-//        return ResponseEntity.ok(courses);
-//    }
 }

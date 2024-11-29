@@ -55,7 +55,6 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
         return mapper.toDTO(savedEntity);
     }
 
-    @Transactional
     @Override
     public D savedAndConvertToDTO(E entity) {
         E saved = repository.save(entity);

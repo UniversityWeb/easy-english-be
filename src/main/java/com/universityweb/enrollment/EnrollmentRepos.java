@@ -43,7 +43,7 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
         AND (:categoryIds IS NULL OR cat.id IN :categoryIds) 
         AND (:levelId IS NULL OR l.id = :levelId) 
         AND (:topicId IS NULL OR t.id = :topicId) 
-        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))) 
+        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
         AND (:progress IS NULL OR :progress = 0 OR e.progress >= :progress) 
         AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) 
         AND (:enrollmentType IS NULL OR e.type = :enrollmentType) 
