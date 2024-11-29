@@ -118,8 +118,8 @@ public class OrderController {
             throw new CustomException("The status can only be updated to PAID");
         }
 
-        Page<OrderDTO> orders = orderService.getOrders(order.getUser().getUsername(), Order.EStatus.PAID, PageRequest.of(0, 10));
-        if (!orders.getContent().isEmpty()) {
+        String username = authService.getCurrentUsername();
+        if (orderService.hasPurchasedItems(username, orderId)) {
             throw new CustomException("The order already has purchased");
         }
 

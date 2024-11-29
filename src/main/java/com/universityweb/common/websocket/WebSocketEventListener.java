@@ -1,8 +1,8 @@
 package com.universityweb.common.websocket;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -13,11 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class WebSocketEventListener {
 
     private static final Logger log = LogManager.getLogger(WebSocketEventListener.class);
 
-    @Autowired private CustomMessageHandler messageHandler;
+    private final CustomMessageHandler messageHandler;
 
     @EventListener
     public void handleWebsocketConnectListener(SessionConnectedEvent event) {

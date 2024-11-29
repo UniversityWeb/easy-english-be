@@ -29,4 +29,6 @@ public interface OrderService extends BaseService<Order, OrderDTO, Long> {
     List<OrderItem> getOrderItemsByCourseId(String username, Long courseId);
 
     boolean isPurchasedCourse(String username, Long courseId);
+
+    boolean hasPurchasedItems(String username, Long orderId);
 }

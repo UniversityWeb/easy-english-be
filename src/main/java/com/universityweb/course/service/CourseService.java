@@ -31,4 +31,6 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     Page<CourseResponse> getCourseForAdmin(CourseRequest req);
     CourseResponse updateCourseAdmin(Long courseId, CourseRequest req);
     List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req);
+    CourseResponse updateNotice(CourseRequest req);
+    void incrementViewCount(Long courseId);
 }
