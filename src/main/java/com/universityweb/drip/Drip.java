@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "course_drips")
@@ -39,5 +40,22 @@ public class Drip implements Serializable {
     public enum ESourceType {
         LESSON,
         TEST
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Drip drip = (Drip) o;
+        return Objects.equals(prevId, drip.prevId) &&
+                prevType == drip.prevType &&
+                Objects.equals(nextId, drip.nextId) &&
+                nextType == drip.nextType &&
+                Objects.equals(course.getId(), drip.course.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(prevId, prevType, nextId, nextType, course.getId());
     }
 }
