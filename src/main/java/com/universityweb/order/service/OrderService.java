@@ -26,7 +26,6 @@ public interface OrderService extends BaseService<Order, OrderDTO, Long> {
     Order updateOrder(Order order);
 
     TotalAmountResponse getTotalAmountByUsernameAndStatus(String username, String status);
-    List<OrderItem> getOrderItemsByCourseId(String username, Long courseId);
 
     boolean isPurchasedCourse(String username, Long courseId);
 

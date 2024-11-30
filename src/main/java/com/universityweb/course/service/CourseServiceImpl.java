@@ -7,6 +7,7 @@ import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.course.customenum.ECourseDetailButtonStatus;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.exception.CourseNotFoundException;
 import com.universityweb.course.mapper.CourseMapper;

@@ -1,16 +1,24 @@
 package com.universityweb.course.controller;
 
+import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
+import com.universityweb.course.customenum.ECourseDetailButtonStatus;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.request.GetRelatedCourseReq;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.enrollment.dto.EnrollmentDTO;
+import com.universityweb.enrollment.service.EnrollmentService;
+import com.universityweb.order.service.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -34,6 +42,9 @@ public class CourseController {
     private final CourseService courseService;
     private final MediaService mediaService;
     private final AuthService authService;
+    private final CartService cartService;
+    private final OrderService orderService;
+    private final EnrollmentService enrollmentService;
 
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
@@ -191,6 +202,30 @@ public class CourseController {
     ) {
         courseService.incrementViewCount(courseId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/get-button-status/{courseId}")
+    public ResponseEntity<ECourseDetailButtonStatus> getCourseDetailButtonStatus(
+            @PathVariable
+            Long courseId
+    ) {
+        String username = authService.getCurrentUsername();
+
+        boolean isPurchasedCourse = orderService.isPurchasedCourse(username, courseId);
+        EnrollmentDTO enrollmentDTO = enrollmentService.isEnrolled(username, courseId);
+        if (isPurchasedCourse && enrollmentDTO != null) {
+            if (enrollmentDTO.progress() == 0) {
+                return ResponseEntity.ok(ECourseDetailButtonStatus.START_COURSE);
+            }
+            return ResponseEntity.ok(ECourseDetailButtonStatus.CONTINUE_COURSE);
+        }
+
+        boolean existNotInCart = cartService.existNotInCart(username, courseId);
+        if (!existNotInCart) {
+            return ResponseEntity.ok(ECourseDetailButtonStatus.IN_CART);
+        }
+
+        return ResponseEntity.ok(ECourseDetailButtonStatus.ADD_TO_CART);
     }
 
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {

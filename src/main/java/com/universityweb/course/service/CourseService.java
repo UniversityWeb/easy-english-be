@@ -2,6 +2,7 @@ package com.universityweb.course.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.infrastructure.service.BaseService;
+import com.universityweb.course.customenum.ECourseDetailButtonStatus;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.request.GetRelatedCourseReq;
