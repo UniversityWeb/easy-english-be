@@ -184,24 +184,10 @@ public class OrderServiceImpl
     }
 
     @Override
-    public List<OrderItem> getOrderItemsByCourseId(String username, Long courseId) {
-        List<Order> orders = repository.findByUser_Username(username);
-        return orderItemRepos.findByCourseIdAndOrderIn(courseId, orders);
-    }
-
-    @Override
     public boolean isPurchasedCourse(String username, Long courseId) {
-        List<OrderItem> orderItems = getOrderItemsByCourseId(username, courseId);
-        return orderItems.stream()
-                .anyMatch(orderItem -> {
-                    Order order = orderItem.getOrder();
-                    Payment payment = order != null ? order.getPayment() : null;
-
-                    boolean isPaidOrder = order != null && order.getStatus() == Order.EStatus.PAID;
-                    boolean isSuccessPayment = payment != null && payment.getStatus() == Payment.EStatus.SUCCESS;
-
-                    return isPaidOrder && isSuccessPayment;
-                });
+        return repository.findByUserUsernameAndStatus(username, Order.EStatus.PAID).stream()
+                .flatMap(order -> order.getItems().stream())
+                .anyMatch(item -> item.getCourse().getId().equals(courseId));
     }
 
     @Override

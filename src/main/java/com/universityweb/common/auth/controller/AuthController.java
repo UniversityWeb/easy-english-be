@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +49,7 @@ public class AuthController {
             })
     @PostMapping("/register")
     public ResponseEntity<String> register(
-            @RequestBody RegisterRequest registerRequest
+            @Valid @RequestBody RegisterRequest registerRequest
     ) {
         log.info("Register method called with request: {}", registerRequest);
         authService.registerStudentAccount(registerRequest);
