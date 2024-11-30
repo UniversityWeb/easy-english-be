@@ -161,7 +161,7 @@ public class DripServiceImpl
         repository.deleteByCourseId(courseId);
         Course course = courseService.getEntityById(courseId);
 
-        List<Drip> drips = new ArrayList<>();
+        Set<Drip> uniqueDrips = new HashSet<>();
         for (DripsOfPrevDTO dripsOfPrevDTO : dripsUpdateRequest) {
             Drip.ESourceType prevType = dripsOfPrevDTO.getPrevType();
             Long prevId = dripsOfPrevDTO.getPrevId();
@@ -177,10 +177,10 @@ public class DripServiceImpl
                         .nextId(nextId)
                         .course(course)
                         .build();
-                drips.add(drip);
+                uniqueDrips .add(drip);
             });
         }
-        repository.saveAll(drips);
+        repository.saveAll(uniqueDrips);
         return dripsUpdateRequest;
     }
 
