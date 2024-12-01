@@ -43,6 +43,8 @@ public class EnrollmentServiceImpl
     private final SectionRepository sectionRepository;
     private final LessonTrackerRepository lessonTrackerRepository;
     private final TestResultRepos testResultRepository;
+    private final LessonRepository lessonRepository;
+    private final TestRepos testRepos;
 
     @Autowired
     public EnrollmentServiceImpl(
@@ -52,7 +54,9 @@ public class EnrollmentServiceImpl
             CourseService courseService,
             SectionRepository sectionRepository,
             LessonTrackerRepository lessonTrackerRepository,
-            TestResultRepos testResultRepository
+            TestResultRepos testResultRepository,
+            LessonRepository lessonRepository,
+            TestRepos testRepos
     ) {
         super(repository, enrollmentMapper);
         this.userService = userService;
@@ -60,6 +64,8 @@ public class EnrollmentServiceImpl
         this.sectionRepository = sectionRepository;
         this.lessonTrackerRepository = lessonTrackerRepository;
         this.testResultRepository = testResultRepository;
+        this.lessonRepository = lessonRepository;
+        this.testRepos = testRepos;
     }
 
     @Override
@@ -185,8 +191,11 @@ public class EnrollmentServiceImpl
         int totalTests = 0;
 
         for (Section section : sections) {
-            totalLessons += section.getLessons().size();
-            totalTests += section.getTests().size();
+            Long sectionId = section.getId();
+            List<Lesson> lessons = lessonRepository.findBySectionId(sectionId);
+            List<Test> tests = testRepos.findBySectionId(sectionId);
+            totalLessons += lessons.size();
+            totalTests += tests.size();
         }
 
         int totalItems = totalLessons + totalTests;

@@ -1,5 +1,6 @@
 package com.universityweb.lesson.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.universityweb.lesson.customenum.LessonType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,5 +30,6 @@ public class LessonResponse {
 
     boolean isCompleted;
 
+    @JsonProperty("isLocked")
     boolean isLocked;
 }
