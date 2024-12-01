@@ -26,4 +26,8 @@ public class WebSocketConstants {
     public static String getRecentChatsTopic(String username) {
         return String.format("/topic/recent-chats/%s", username);
     }
+
+    public static String getNotificationsCountTopic(String username) {
+        return String.format("/topic/notifications-count/%s", username);
+    }
 }

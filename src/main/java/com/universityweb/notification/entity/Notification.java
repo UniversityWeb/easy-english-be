@@ -23,6 +23,9 @@ public class Notification {
     @Column(columnDefinition = "text")
     private String message;
 
+    @Column(columnDefinition = "text")
+    private String url;
+
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 

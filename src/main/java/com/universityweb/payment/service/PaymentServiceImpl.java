@@ -1,5 +1,6 @@
 package com.universityweb.payment.service;
 
+import com.universityweb.FrontendRoutes;
 import com.universityweb.common.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
@@ -193,6 +194,7 @@ public class PaymentServiceImpl implements PaymentService {
                 : PaymentContentNotification.paymentFailed(username, orderIdStr, totalAmountStr);
         AddNotificationRequest notificationRequest = new AddNotificationRequest(
                 msg,
+                FrontendRoutes.getOrderDetailRoute(orderIdStr),
                 username,
                 paymentTime);
         notificationService.sendRealtimeNotification(notificationRequest);
