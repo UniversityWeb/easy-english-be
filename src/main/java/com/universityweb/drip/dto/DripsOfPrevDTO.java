@@ -2,6 +2,7 @@ package com.universityweb.drip.dto;
 
 import com.universityweb.drip.Drip;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
@@ -10,14 +11,15 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class DripsOfPrevDTO {
-    private Long id;
-    private Long prevId;
-    private Drip.ESourceType prevType;
-    private String prevTitle;
-    private String prevDetailType;
-    private Long courseId;
-    private List<DripOfPrevDTO> nextDrips;
+    Long id;
+    Long prevId;
+    Drip.ESourceType prevType;
+    String prevTitle;
+    String prevDetailType;
+    Long courseId;
+    List<DripOfPrevDTO> nextDrips;
 
     @AllArgsConstructor
     @NoArgsConstructor

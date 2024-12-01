@@ -42,12 +42,15 @@ public class CourseController {
     private final OrderService orderService;
     private final EnrollmentService enrollmentService;
 
+    @PreAuthorize("hasRole('TEACHER')")
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
-        Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(courseRequest);
+        String username = authService.getCurrentUsername();
+        Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(username, courseRequest);
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/get-all-course-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseOfStudent(@RequestBody CourseRequest courseRequest) {
         List<CourseResponse> courseResponses = courseService.getAllCourseOfStudent(courseRequest);
@@ -116,11 +119,13 @@ public class CourseController {
         courseService.softDelete(courseRequest.getId());
         return ResponseEntity.status(HttpStatus.OK).body("Course deleted successfully");
     }
+
     @PostMapping("/get-main-course")
     public ResponseEntity<CourseResponse> getMainCourse(@RequestBody CourseRequest courseRequest) {
         CourseResponse courseResponse = courseService.getMainCourse(courseRequest);
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponse));
     }
+
     @PostMapping("/get-all-course-by-list-category")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByListCategory(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourseByListCategory(courseRequest);

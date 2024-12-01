@@ -1,5 +1,6 @@
 package com.universityweb.test.dto;
 
+import com.universityweb.drip.dto.PrevDripDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.testpart.dto.TestPartDTO;
 import lombok.*;
@@ -7,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,4 +33,6 @@ public class TestDTO {
     Boolean isDone;
 
     boolean isLocked;
+
+    Set<PrevDripDTO> prevDrips;
 }
