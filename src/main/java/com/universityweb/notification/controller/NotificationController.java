@@ -121,4 +121,11 @@ public class NotificationController {
         log.info("Notification with ID: {} marked as read", notificationId);
         return ResponseEntity.ok("Mark as read successfully");
     }
+
+    @GetMapping("/count-unread-notifications")
+    public ResponseEntity<Integer> countUnreadNotifications() {
+        String username = authService.getCurrentUsername();
+        int numberOfUnreadNotifications = notificationService.countUnreadNotifications(username);
+        return ResponseEntity.ok(numberOfUnreadNotifications);
+    }
 }

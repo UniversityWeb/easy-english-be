@@ -53,7 +53,8 @@ public class NotificationServiceImpl
 
     @Override
     public NotificationResponse addNewNotification(AddNotificationRequest request) {
-        User user = userService.loadUserByUsername(request.username());
+        String username = request.username();
+        User user = userService.loadUserByUsername(username);
 
         Notification notification = Notification.builder()
                 .message(request.message())
@@ -85,10 +86,26 @@ public class NotificationServiceImpl
 
     @Override
     public NotificationResponse sendRealtimeNotification(AddNotificationRequest request) {
+        String username = request.username();
         NotificationResponse notificationResponse = addNewNotification(request);
-        String destination = WebSocketConstants.getNotificationTopic(request.username());
-        simpMessagingTemplate.convertAndSend(destination, notificationResponse);
+
+        try {
+            String sendNotificationDestination = WebSocketConstants.getNotificationTopic(username);
+            simpMessagingTemplate.convertAndSend(sendNotificationDestination, notificationResponse);
+
+            int numberOfUnreadNotifications = countUnreadNotifications(username);
+            String refreshUnreadNotiDestination = WebSocketConstants.getNotificationsCountTopic(username);
+            simpMessagingTemplate.convertAndSend(refreshUnreadNotiDestination, numberOfUnreadNotifications);
+        } catch (Exception e) {
+            log.error(e);
+        }
+
         return notificationResponse;
+    }
+
+    @Override
+    public int countUnreadNotifications(String username) {
+        return repository.countUnreadNotificationsByUser(username);
     }
 
     @Override
