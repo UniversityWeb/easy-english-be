@@ -129,12 +129,12 @@ public class LessonServiceImpl
 
     private boolean isLocked(String username, Long lessonId) {
         boolean isCompleted = lessonTrackerRepository.isLessonCompleted(username, lessonId);
-        if (!isCompleted) {
+        if (isCompleted) {
             return false;
         }
 
         // Step 2: Check for prerequisite lessons or tests using Drip
-        List<Drip> drips = dripRepos.findDripByNextId(lessonId, Drip.ESourceType.TEST);
+        List<Drip> drips = dripRepos.findDripByNextId(lessonId, Drip.ESourceType.LESSON);
         for (Drip drip : drips) {
             if (drip.getPrevType() == Drip.ESourceType.LESSON) {
                 if (!lessonTrackerRepository.isLessonCompleted(username, drip.getPrevId())) {

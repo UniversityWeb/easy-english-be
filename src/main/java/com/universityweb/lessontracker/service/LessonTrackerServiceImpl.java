@@ -95,12 +95,7 @@ public class LessonTrackerServiceImpl
 
     @Override
     public Boolean isLearned(String username, Long lessonId) {
-        Optional<LessonTracker> optional = repository.findByUser_UsernameAndLesson_Id(username, lessonId);
-        if (optional.isEmpty()) {
-            return false;
-        }
-        LessonTracker lessonTracker = optional.get();
-        return lessonTracker.getIsCompleted() && !lessonTracker.getIsDeleted();
+        return repository.isLessonCompleted(username, lessonId);
     }
 
     @Override
