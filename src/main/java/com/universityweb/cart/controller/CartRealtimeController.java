@@ -21,8 +21,9 @@ public class CartRealtimeController {
 
     @MessageMapping(WebSocketConstants.CART_ITEM_COUNT_DESTINATION)
     public void refreshCartItemCount(AddNotificationRequest request) {
-        String topic = WebSocketConstants.getCartItemCountTopic(request.username());
-        int count = cartService.countItems(request.username());
+        String username = request.getUsername();
+        String topic = WebSocketConstants.getCartItemCountTopic(username);
+        int count = cartService.countItems(username);
         simpMessagingTemplate.convertAndSend(topic, count);
     }
 }

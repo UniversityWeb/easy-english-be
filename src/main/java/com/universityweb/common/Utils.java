@@ -1,11 +1,13 @@
 package com.universityweb.common;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Utils {
     public static final BigDecimal MIN_PRICE_LIMIT = new BigDecimal(10_000);
@@ -93,5 +95,14 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             return null; // Return null or a fallback value
         }
+    }
+
+    public static String formatVND(BigDecimal amount) {
+        if (amount == null) {
+            return "0 ₫";
+        }
+        Locale vietnam = new Locale("vi", "VN");
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(vietnam);
+        return formatter.format(amount).replace("₫", "").trim() + " ₫";
     }
 }
