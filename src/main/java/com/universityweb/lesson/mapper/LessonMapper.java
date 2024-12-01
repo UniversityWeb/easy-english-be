@@ -28,6 +28,7 @@ public interface LessonMapper extends BaseMapper<Lesson, LessonResponse> {
     default LessonResponse toDTOBasedOnIsLocked(boolean isLocked, Lesson lesson) {
         if (isLocked) {
             LessonResponse lockedDTO = toLockedDTO(lesson);
+            lockedDTO.setType(lesson.getType());
             lockedDTO.setLocked(true);
             return lockedDTO;
         } else {
