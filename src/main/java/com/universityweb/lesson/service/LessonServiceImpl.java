@@ -5,6 +5,9 @@ import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.drip.Drip;
 import com.universityweb.drip.DripRepos;
+import com.universityweb.drip.dto.DripDTO;
+import com.universityweb.drip.dto.PrevDripDTO;
+import com.universityweb.lesson.LessonController;
 import com.universityweb.lesson.LessonRepository;
 import com.universityweb.lesson.customenum.LessonType;
 import com.universityweb.lesson.entity.Lesson;
@@ -14,6 +17,8 @@ import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.lessontracker.LessonTrackerRepository;
 import com.universityweb.section.entity.Section;
 import com.universityweb.section.service.SectionService;
+import com.universityweb.test.TestRepos;
+import com.universityweb.test.entity.Test;
 import com.universityweb.testresult.TestResultRepos;
 import com.universityweb.testresult.entity.TestResult;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LessonServiceImpl
@@ -34,6 +40,7 @@ public class LessonServiceImpl
     private final LessonTrackerRepository lessonTrackerRepository;
     private final TestResultRepos testResultRepos;
     private final DripRepos dripRepos;
+    private final TestRepos testRepos;
 
     @Autowired
     public LessonServiceImpl(
@@ -43,7 +50,8 @@ public class LessonServiceImpl
             SectionService sectionService,
             LessonTrackerRepository lessonTrackerRepository,
             TestResultRepos testResultRepos,
-            DripRepos dripRepos
+            DripRepos dripRepos,
+            TestRepos testRepos
     ) {
         super(repository, mapper);
         this.lessonRepository = lessonRepository;
@@ -51,6 +59,7 @@ public class LessonServiceImpl
         this.lessonTrackerRepository = lessonTrackerRepository;
         this.testResultRepos = testResultRepos;
         this.dripRepos = dripRepos;
+        this.testRepos = testRepos;
     }
 
     @Override
@@ -64,8 +73,37 @@ public class LessonServiceImpl
         List<LessonResponse> lessonResponses = new ArrayList<>();
         for (Lesson lesson : lessons) {
             Long lessonId = lesson.getId();
+            List<Drip> drips = dripRepos.findDripByNextId(lessonId, Drip.ESourceType.LESSON);
+
             boolean isLocked = this.isLocked(username, lessonId);
             LessonResponse lessonResponse = mapper.toDTOBasedOnIsLocked(isLocked, lesson);
+
+            lessonResponse.setPrevDrips(drips.stream()
+                    .map(drip -> {
+                        Long prevId = drip.getPrevId();
+                        String title = "";
+                        String type = "";
+                        switch (drip.getPrevType()) {
+                            case LESSON:
+                                Lesson tempLesson = lessonRepository.findById(prevId).orElse(null);
+                                if (tempLesson != null) {
+                                    title = tempLesson.getTitle() != null ? tempLesson.getTitle() : "Unnamed Lesson";
+                                    type = tempLesson.getType() != null ? tempLesson.getType().toString() : "Unknown Lesson Type";
+                                }
+                                break;
+
+                            case TEST:
+                                Test tempTest = testRepos.findById(prevId).orElse(null);
+                                if (tempTest != null) {
+                                    title = tempTest.getTitle() != null ? tempTest.getTitle() : "Unnamed Test";
+                                    type = Drip.ESourceType.TEST.toString();
+                                }
+                                break;
+                        }
+                        return new PrevDripDTO(drip.getPrevId(), title, type);
+                    })
+                    .collect(Collectors.toSet()));
+
             lessonResponses.add(lessonResponse);
         }
         return lessonResponses;

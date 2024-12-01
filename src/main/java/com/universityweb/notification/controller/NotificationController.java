@@ -83,7 +83,7 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse> send(
             @RequestBody AddNotificationRequest request
     ) {
-        log.info("Send notification: `{}` to username: `{}`", request.message(), request.username());
+        log.info("Send notification: `{}` to username: `{}`", request.getMessage(), request.getUsername());
         NotificationResponse savedNotificationDTO = notificationService.addNewNotification(request);
         log.info("Notification sent successfully with id: {}", savedNotificationDTO.getId());
         return ResponseEntity

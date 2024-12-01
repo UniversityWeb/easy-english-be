@@ -27,6 +27,9 @@ import com.universityweb.payment.util.PaymentUtils;
 import com.universityweb.payment.vnpay.VNPayConfig;
 import com.universityweb.payment.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,26 +44,16 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
-    private final PaymentMapper paymentMapper = PaymentMapper.INSTANCE;
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
-    @Autowired
-    private PaymentRepos paymentRepos;
-
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private VNPayService vnPayService;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
-
-    @Autowired
-    private OrderRepos orderRepos;
-
-    @Autowired
-    private NotificationService notificationService;
+    private final PaymentMapper paymentMapper;
+    private final PaymentRepos paymentRepos;
+    private final OrderService orderService;
+    private final VNPayService vnPayService;
+    private final EnrollmentService enrollmentService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -131,9 +124,14 @@ public class PaymentServiceImpl implements PaymentService {
                 Payment savedPayment = paymentRepos.save(payment);
                 orderService.updateOrder(order);
                 addEnrollmentsByOrderId(orderId);
-
+                String imagePreview = "";
+                try {
+                    imagePreview = order.getItems().get(0).getCourse().getImagePreview();
+                } catch (Exception e) {
+                    log.error(e.toString());
+                }
                 String username = order.getUser().getUsername();
-                sendNotification(isPaymentSuccess, username, orderIdStr, transactionNoStr, totalAmountStr, paymentTime);
+                sendNotification(isPaymentSuccess, imagePreview, username, orderIdStr, transactionNoStr, totalAmount, paymentTime);
 
                 return paymentMapper.toDTO(savedPayment);
             }
@@ -181,22 +179,26 @@ public class PaymentServiceImpl implements PaymentService {
 
         addEnrollmentsByOrderId(orderId);
 
+        String imagePreview = "";
         String username = order.getUser().getUsername();
-        sendNotification(true, username, String.valueOf(orderId),
-                String.valueOf(transactionNo), order.getTotalAmount().toString(), paymentTime);
+        sendNotification(true, imagePreview, username, String.valueOf(orderId),
+                String.valueOf(transactionNo), order.getTotalAmount(), paymentTime);
         return paymentMapper.toDTO(savedPayment);
     }
 
-    private void sendNotification(boolean isPaymentSuccess, String username,
-                                  String orderIdStr, String transactionNoStr, String totalAmountStr, LocalDateTime paymentTime) {
+    private void sendNotification(boolean isPaymentSuccess, String imagePreview, String username,
+                                  String orderIdStr, String transactionNoStr, BigDecimal totalAmount, LocalDateTime paymentTime) {
         String msg = isPaymentSuccess
-                ? PaymentContentNotification.paymentSuccess(username, orderIdStr, transactionNoStr, totalAmountStr)
-                : PaymentContentNotification.paymentFailed(username, orderIdStr, totalAmountStr);
-        AddNotificationRequest notificationRequest = new AddNotificationRequest(
-                msg,
-                FrontendRoutes.getOrderDetailRoute(orderIdStr),
-                username,
-                paymentTime);
+                ? PaymentContentNotification.paymentSuccess(username, orderIdStr, transactionNoStr, Utils.formatVND(totalAmount))
+                : PaymentContentNotification.paymentFailed(username, orderIdStr, transactionNoStr);
+        AddNotificationRequest notificationRequest = AddNotificationRequest.builder()
+                .previewImage(imagePreview)
+                .message(msg)
+                .url(FrontendRoutes.getOrderDetailRoute(orderIdStr))
+                .username(username)
+                .createdDate(paymentTime)
+                .build();
+
         notificationService.sendRealtimeNotification(notificationRequest);
     }
 

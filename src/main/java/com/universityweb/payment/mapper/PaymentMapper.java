@@ -11,15 +11,11 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper extends BaseMapper<Payment, PaymentResponse> {
-    PaymentMapper INSTANCE = Mappers.getMapper(PaymentMapper.class);
-
     @Mapping(source = "order.id", target = "orderId")
+    @Override
     PaymentResponse toDTO(Payment entity);
 
-    List<PaymentResponse> toDTOs(List<Payment> entities);
-
     @Mapping(target = "order", ignore = true)
+    @Override
     Payment toEntity(PaymentResponse dto);
-
-    List<Payment> toEntities(List<PaymentResponse> dtos);
 }

@@ -53,12 +53,12 @@ public class NotificationServiceImpl
 
     @Override
     public NotificationResponse addNewNotification(AddNotificationRequest request) {
-        String username = request.username();
+        String username = request.getUsername();
         User user = userService.loadUserByUsername(username);
 
         Notification notification = Notification.builder()
-                .message(request.message())
-                .createdDate(request.createdDate())
+                .message(request.getMessage())
+                .createdDate(request.getCreatedDate())
                 .read(false)
                 .user(user)
                 .build();
@@ -86,7 +86,7 @@ public class NotificationServiceImpl
 
     @Override
     public NotificationResponse sendRealtimeNotification(AddNotificationRequest request) {
-        String username = request.username();
+        String username = request.getUsername();
         NotificationResponse notificationResponse = addNewNotification(request);
 
         try {

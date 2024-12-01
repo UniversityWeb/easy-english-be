@@ -73,18 +73,24 @@ public class CourseServiceImpl
     }
 
     @Override
-    public Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest) {
+    public Page<CourseResponse> getAllCourseOfTeacher(String ownerUsername, CourseRequest courseRequest) {
         int pageNumber = courseRequest.getPageNumber();
         int size = courseRequest.getSize();
-        User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
 
-        List<Course.EStatus> excludedStatuses = List.of(Course.EStatus.DELETED);
+        List<Long> categoryIds = courseRequest.getCategoryIds();
+        Long topicId = courseRequest.getTopicId();
+        Long levelId = courseRequest.getLevelId();
+        BigDecimal price = courseRequest.getPrice();
+        Double rating = courseRequest.getRating();
+        String title = courseRequest.getTitle();
+        Course.EStatus status = courseRequest.getStatus();
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByStatusNotInAndOwner(excludedStatuses,user, pageable);
+        Page<Course> coursePage = repository.findCourseForTeacher(ownerUsername, categoryIds,topicId,
+                levelId,price,rating,title,status,pageable);
 
-        return coursePage.map(mapper::toDTO);
+        return coursePage.map(this::mapCourseToResponse);
     }
 
     @Transactional

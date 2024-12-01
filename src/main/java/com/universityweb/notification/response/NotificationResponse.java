@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationResponse {
     Long id;
+    String previewImage;
     String message;
     String url;
     LocalDateTime createdDate;

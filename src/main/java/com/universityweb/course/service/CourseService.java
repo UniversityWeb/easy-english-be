@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface CourseService extends BaseService<Course, CourseResponse, Long> {
-    Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest);
+    Page<CourseResponse> getAllCourseOfTeacher(String username, CourseRequest courseRequest);
     CourseResponse updateCourse(CourseRequest courseRequest);
     CourseResponse createCourse(CourseRequest courseRequest);
     void deleteCourse(CourseRequest courseRequest);
