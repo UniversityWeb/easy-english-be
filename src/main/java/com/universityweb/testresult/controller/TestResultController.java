@@ -31,14 +31,14 @@ public class TestResultController
         this.authService = authService;
     }
 
-    @GetMapping("/get-all-by-page")
-    public ResponseEntity<Page<TestResultDTO>> getAll(
+    @GetMapping
+    public ResponseEntity<Page<TestResultDTO>> getByCurUser(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         String username = authService.getCurrentUsername();
         log.info("Fetching TestResults for user: {}", username);
-        Page<TestResultDTO> testResults = service.getAll(page, size);
+        Page<TestResultDTO> testResults = service.getByCurUser(username, page, size);
         log.info("TestResults found for user {}: size-{}", username, testResults.getSize());
         return ResponseEntity.ok(testResults);
     }

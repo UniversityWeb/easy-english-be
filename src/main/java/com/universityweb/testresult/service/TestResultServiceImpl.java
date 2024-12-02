@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,13 +93,6 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public Page<TestResultDTO> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<TestResult> testResultsPage = repository.findAll(pageable);
-        return testResultsPage.map(this::enrichTestResultDTO);
-    }
-
-    @Override
     public List<TestResult> getByUsernameAndTestId(String username, Long testId) {
         return repository.findByUser_UsernameAndTest_IdOrderByFinishedAtDesc(username, testId);
     }
@@ -143,6 +137,14 @@ public class TestResultServiceImpl
         TestResult savedResult = updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
         sendRealtimeNewResult(savedResult);
         return mapper.toDTO(savedResult);
+    }
+
+    @Override
+    public Page<TestResultDTO> getByCurUser(String username, int page, int size) {
+        Sort sort = Sort.by("startedAt").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<TestResult> testResultPage = repository.findAllByUsername(username, pageable);
+        return mapper.mapPageToPageDTO(testResultPage);
     }
 
     @Override

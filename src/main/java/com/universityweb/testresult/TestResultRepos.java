@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -41,4 +42,14 @@ public interface TestResultRepos extends JpaRepository<TestResult, Long> {
         AND tr.isDeleted = false
         """)
     boolean isTestDone(String username, Long testId);
+
+    @Query("""
+        SELECT tr FROM TestResult tr
+        JOIN tr.user u
+        WHERE u.username = :username
+        AND tr.isDeleted = false
+    """)
+    Page<TestResult> findAllByUsername(
+            @Param("username") String username,
+            Pageable pageable);
 }
