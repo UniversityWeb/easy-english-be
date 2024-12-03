@@ -279,7 +279,7 @@ public class AuthServiceImpl implements AuthService {
     public void generateOtpToUpdatePassword(UpdatePasswordRequest request) {
         User user = getCurUser();
         String email = user.getEmail();
-        if (AuthUtils.isValidEmail(email)) {
+        if (!AuthUtils.isValidEmail(email)) {
             throw new EmailNotFoundException("Email is not valid");
         }
 
