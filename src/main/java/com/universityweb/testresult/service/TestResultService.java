@@ -15,5 +15,5 @@ public interface TestResultService extends BaseService<TestResult, TestResultDTO
     List<TestResult> getByUsernameAndTestId(String username, Long targetId);
     Boolean isDone(String username, Long targetId);
     TestResultDTO submit(String username, SubmitTestRequest submitTestRequest);
-    Page<TestResultDTO> getByCurUser(String username, int page, int size);
+    Page<TestResultWithoutListDTO> getByCurUser(String username, int page, int size);
 }

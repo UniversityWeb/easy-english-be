@@ -246,12 +246,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserDTO resendOTPToActiveAccount(String username) {
+    public UserDTO resendOTPToActiveAccount(String usernameOrEmail) {
+        String username = AuthUtils.isValidEmail(usernameOrEmail)
+                ? userRepos.getUsernameByEmail(usernameOrEmail)
+                : usernameOrEmail;
+
         User user = userService.loadUserByUsername(username);
         String email = user.getEmail();
 
         if (user.getStatus() == User.EStatus.ACTIVE) {
             String msg = "User account is already active. No OTP can be resent.";
+            throw new UserAlreadyActiveException(msg);
+        }
+
+        if (user.getStatus() == User.EStatus.DELETED) {
+            String msg = "User account is deleted. No OTP can be resent.";
             throw new UserAlreadyActiveException(msg);
         }
 

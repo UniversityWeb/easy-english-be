@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,18 +32,20 @@ public class TestResultController
         this.authService = authService;
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @GetMapping
-    public ResponseEntity<Page<TestResultDTO>> getByCurUser(
+    public ResponseEntity<Page<TestResultWithoutListDTO>> getByCurUser(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         String username = authService.getCurrentUsername();
         log.info("Fetching TestResults for user: {}", username);
-        Page<TestResultDTO> testResults = service.getByCurUser(username, page, size);
+        Page<TestResultWithoutListDTO> testResults = service.getByCurUser(username, page, size);
         log.info("TestResults found for user {}: size-{}", username, testResults.getSize());
         return ResponseEntity.ok(testResults);
     }
 
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     @GetMapping("/get-test-history-by-test-id")
     public ResponseEntity<Page<TestResultWithoutListDTO>> getTestHistoryByTestId(
             @RequestParam Long testId,
@@ -56,6 +59,7 @@ public class TestResultController
         return ResponseEntity.ok(testResults);
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/submit-test")
     public ResponseEntity<TestResultDTO> submit(
             @RequestBody SubmitTestRequest submitTestRequest

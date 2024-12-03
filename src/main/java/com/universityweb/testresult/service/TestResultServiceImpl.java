@@ -140,11 +140,11 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public Page<TestResultDTO> getByCurUser(String username, int page, int size) {
+    public Page<TestResultWithoutListDTO> getByCurUser(String username, int page, int size) {
         Sort sort = Sort.by("startedAt").descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<TestResult> testResultPage = repository.findAllByUsername(username, pageable);
-        return mapper.mapPageToPageDTO(testResultPage);
+        return testResultPage.map(this::enrichTestResultWithoutListDTO);
     }
 
     @Override
