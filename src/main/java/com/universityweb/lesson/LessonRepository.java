@@ -12,7 +12,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
         SELECT l FROM Lesson l
         WHERE l.section.id = :sectionId
         AND l.isDeleted = false
-        ORDER BY l.ordinalNumber ASC
+        ORDER BY l.id, l.ordinalNumber ASC
     """)
     List<Lesson> findBySectionId(Long sectionId);
 }

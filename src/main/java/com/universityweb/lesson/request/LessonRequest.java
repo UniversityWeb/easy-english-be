@@ -1,9 +1,7 @@
 package com.universityweb.lesson.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,28 +11,29 @@ import java.time.LocalTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LessonRequest {
-    private Long id;
+    Long id;
 
-    private Long sectionId;
+    Long sectionId;
 
-    private String title;
+    String title;
 
-    private String type;
+    String type;
 
-    private String content;
+    String content;
 
-    private String contentUrl;
+    String contentUrl;
 
-    private String description;
+    String description;
 
-    private int duration;
+    int duration;
 
-    private Boolean isPreview;
+    Boolean isPreview;
 
-    private LocalDate startDate;
+    LocalDate startDate;
 
-    private LocalTime startTime;
+    LocalTime startTime;
 
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 }
