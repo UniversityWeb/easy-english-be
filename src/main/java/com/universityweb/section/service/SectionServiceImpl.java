@@ -42,7 +42,6 @@ public class SectionServiceImpl
         section.setTitle(sectionRequest.getTitle());
         section.setCreatedAt(sectionRequest.getCreatedAt());
         section.setUpdatedAt(sectionRequest.getUpdatedAt());
-        section.setOrdinalNumber(sectionRequest.getOrdinalNumber());
         return savedAndConvertToDTO(section);
     }
 
@@ -82,7 +81,6 @@ public class SectionServiceImpl
         section.setTitle(dto.getTitle());
         section.setCreatedAt(dto.getCreatedAt());
         section.setUpdatedAt(dto.getUpdatedAt());
-        section.setOrdinalNumber(dto.getOrdinalNumber());
         return savedAndConvertToDTO(section);
     }
 

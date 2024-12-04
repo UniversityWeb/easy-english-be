@@ -196,7 +196,6 @@ public class TestServiceImpl
         existingTest.setStatus(dto.getStatus());
         existingTest.setTitle(dto.getTitle());
         existingTest.setDescription(dto.getDescription());
-        existingTest.setOrdinalNumber(dto.getOrdinalNumber());
         existingTest.setDurationInMilis(dto.getDurationInMilis());
         existingTest.setPassingGrade(dto.getPassingGrade());
 

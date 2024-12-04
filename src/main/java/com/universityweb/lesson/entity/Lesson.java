@@ -35,8 +35,6 @@ public class Lesson {
     @Column(columnDefinition = "TEXT")
     private String description;
     private int duration;
-    @Column(columnDefinition = "integer default 1")
-    private int ordinalNumber;
     @Column(name = "preview")
     private Boolean isPreview;
     private LocalDate startDate;

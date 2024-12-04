@@ -13,7 +13,7 @@ public interface TestRepos extends JpaRepository<Test, Long> {
     @Query("""
             SELECT t FROM Test t
             WHERE t.section.id = :sectionId AND t.status <> 'DELETED'
-            ORDER BY t.ordinalNumber ASC
+            ORDER BY t.id ASC
             """)
     List<Test> findBySectionId(Long sectionId);
 
