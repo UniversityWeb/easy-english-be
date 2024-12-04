@@ -148,14 +148,6 @@ public class CourseServiceImpl
         return savedAndConvertToDTO(course);
     }
 
-    @Transactional
-    @Override
-    public void deleteCourse(CourseRequest courseRequest) {
-        Course currentCourse = getEntityById(courseRequest.getId());
-        currentCourse.setStatus(Course.EStatus.DELETED);
-        repository.save(currentCourse);
-    }
-
     @Override
     public CourseResponse getMainCourse(CourseRequest courseRequest) {
         Course course = repository.findById(courseRequest.getId())
@@ -212,21 +204,6 @@ public class CourseServiceImpl
         Page<Course> coursePage = repository.findByStatus(Course.EStatus.PUBLISHED,pageable);
 
         return coursePage.map(this::mapCourseToResponse);
-    }
-
-    @Override
-    public List<Course> getAllCourses() {
-        return repository.findAll();
-    }
-
-    @Override
-    public List<Course> filterCourse(int price, String name) {
-        return repository.findAll();
-    }
-
-    @Override
-    public List<Course> getTop10Courses() {
-        return repository.findAll();
     }
 
     @Override

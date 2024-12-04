@@ -15,5 +15,5 @@ public interface NotificationService extends BaseService<Notification, Notificat
     User getUserByNotificationId(Long notificationId);
     NotificationResponse sendRealtimeNotification(AddNotificationRequest request);
     int countUnreadNotifications(String username);
-    void sendRealtimeNotification(String destination, Object payload);
+    void sendRealtimeNotification(String topic, Object payload);
 }

@@ -15,15 +15,11 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     Page<CourseResponse> getAllCourseOfTeacher(String username, CourseRequest courseRequest);
     CourseResponse updateCourse(CourseRequest courseRequest);
     CourseResponse createCourse(CourseRequest courseRequest);
-    void deleteCourse(CourseRequest courseRequest);
     CourseResponse getMainCourse(CourseRequest courseRequest);
     Page<CourseResponse> getAllCourseByTopic(CourseRequest courseRequest);
     Page<CourseResponse> getAllCourseByLevel(CourseRequest courseRequest);
     Page<CourseResponse> getAllCourseByListCategory(CourseRequest courseRequest);
     Page<CourseResponse> getAllCourse(CourseRequest courseRequest);
-    List<Course> getAllCourses();
-    List<Course> filterCourse(int price, String name);
-    List<Course> getTop10Courses();
     List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest);
     List<CourseResponse> getAllCourseNotOfStudent(CourseRequest courseRequest);
     Page<CourseResponse> getCourseByFilter(CourseRequest courseRequest);

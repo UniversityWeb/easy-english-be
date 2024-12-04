@@ -1,5 +1,6 @@
 package com.universityweb.notification.service;
 
+import com.universityweb.FrontendRoutes;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.UserNotFoundException;
 import com.universityweb.common.auth.service.user.UserService;
@@ -12,12 +13,15 @@ import com.universityweb.notification.entity.Notification;
 import com.universityweb.notification.exception.NotificationNotFoundException;
 import com.universityweb.notification.request.AddNotificationRequest;
 import com.universityweb.notification.response.NotificationResponse;
+import com.universityweb.notification.util.CourseContentNotification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class NotificationServiceImpl
@@ -109,8 +113,8 @@ public class NotificationServiceImpl
     }
 
     @Override
-    public void sendRealtimeNotification(String destination, Object payload) {
-        simpMessagingTemplate.convertAndSend(destination, payload);
+    public void sendRealtimeNotification(String topic, Object payload) {
+        simpMessagingTemplate.convertAndSend(topic, payload);
     }
 
     @Override

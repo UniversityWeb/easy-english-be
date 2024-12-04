@@ -4,6 +4,9 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.io.Serializable;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,26 +15,27 @@ import lombok.*;
 @Getter
 @Builder
 @Table(name = "reviews")
-public class Review {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Review implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    Long id;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
-    private Course course;
+    Course course;
 
     @Column(name = "rating")
-    private double rating;
+    double rating;
 
     @Column(name = "comment")
-    private String comment;
+    String comment;
 
     @Column(name = "response")
-    private String response;
+    String response;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    User user;
 }
