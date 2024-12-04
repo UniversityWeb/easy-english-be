@@ -1,5 +1,6 @@
 package com.universityweb.test.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.universityweb.drip.dto.PrevDripDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.testpart.dto.TestPartDTO;
@@ -32,6 +33,7 @@ public class TestDTO {
 
     Boolean isDone;
 
+    @JsonProperty("isLocked")
     boolean isLocked;
 
     Set<PrevDripDTO> prevDrips;

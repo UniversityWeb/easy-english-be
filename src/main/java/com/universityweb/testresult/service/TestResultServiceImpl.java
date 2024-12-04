@@ -6,6 +6,7 @@ import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.websocket.WebSocketConstants;
+import com.universityweb.notification.service.NotificationService;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
 import com.universityweb.testquestion.entity.TestQuestion;
@@ -23,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +40,7 @@ public class TestResultServiceImpl
     private final UserService userService;
     private final TestQuestionService testQuestionService;
     private final UserAnswerRepos userAnswerRepos;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final NotificationService notificationService;
 
     @Autowired
     public TestResultServiceImpl(
@@ -49,14 +50,14 @@ public class TestResultServiceImpl
             UserService userService,
             TestQuestionService testQuestionService,
             UserAnswerRepos userAnswerRepos,
-            SimpMessagingTemplate simpMessagingTemplate
+            NotificationService notificationService
     ) {
         super(repository, mapper);
         this.testService = testService;
         this.userService = userService;
         this.testQuestionService = testQuestionService;
         this.userAnswerRepos = userAnswerRepos;
-        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -89,13 +90,6 @@ public class TestResultServiceImpl
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize());
         Page<TestResult> results = repository.findByTest_IdOrderByFinishedAtDesc(req.getTestId(), pageable);
         return results.map(this::enrichTestResultWithoutListDTO);
-    }
-
-    @Override
-    public Page<TestResultDTO> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<TestResult> testResultsPage = repository.findAll(pageable);
-        return testResultsPage.map(this::enrichTestResultDTO);
     }
 
     @Override
@@ -143,6 +137,14 @@ public class TestResultServiceImpl
         TestResult savedResult = updateTestResult(savedTestResult, numberOfCorrectAnswers, numberOfQuestions, test);
         sendRealtimeNewResult(savedResult);
         return mapper.toDTO(savedResult);
+    }
+
+    @Override
+    public Page<TestResultWithoutListDTO> getByCurUser(String username, int page, int size) {
+        Sort sort = Sort.by("startedAt").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<TestResult> testResultPage = repository.findAllByUsername(username, pageable);
+        return testResultPage.map(this::enrichTestResultWithoutListDTO);
     }
 
     @Override
@@ -217,6 +219,6 @@ public class TestResultServiceImpl
     private void sendRealtimeNewResult(TestResult savedResult) {
         TestResultWithoutListDTO testResultWithoutListDTO = mapper.toTestResultWithoutListDTO(savedResult);
         String destination = WebSocketConstants.testResultNotificationTopic(testResultWithoutListDTO.getTestId());
-        simpMessagingTemplate.convertAndSend(destination, testResultWithoutListDTO);
+        notificationService.sendRealtimeNotification(destination, testResultWithoutListDTO);
     }
 }

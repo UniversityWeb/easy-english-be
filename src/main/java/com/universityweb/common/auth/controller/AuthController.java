@@ -291,11 +291,11 @@ public class AuthController {
     )
     @PostMapping("/resend-otp-to-active-account/{username}")
     public ResponseEntity<UserDTO> resendOTPToActiveAccount(
-            @PathVariable String username
+            @PathVariable("username") String usernameOrEmail
     ) {
-        log.info("Received request to resend OTP for user: {}", username);
-        UserDTO userDTO = authService.resendOTPToActiveAccount(username);
-        log.info("OTP resent successfully for user: {}", username);
+        log.info("Received request to resend OTP for user: {}", usernameOrEmail);
+        UserDTO userDTO = authService.resendOTPToActiveAccount(usernameOrEmail);
+        log.info("OTP resent successfully for user: {}", usernameOrEmail);
         userDTO = MediaUtils.attachUserMediaUrls(mediaService, userDTO);
         return ResponseEntity.ok(userDTO);
     }

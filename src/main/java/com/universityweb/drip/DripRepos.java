@@ -20,4 +20,13 @@ public interface DripRepos extends JpaRepository<Drip, Long> {
             SELECT d FROM Drip d WHERE d.nextId = :nextId AND d.nextType = :nextType
             """)
     List<Drip> findDripByNextId(Long nextId, Drip.ESourceType nextType);
+
+    @Query("""
+            SELECT d FROM Drip d 
+            LEFT JOIN Lesson l ON d.prevType = 'LESSON' AND d.prevId = l.id
+            LEFT JOIN Test t ON d.prevType = 'TEST' AND d.prevId = t.id
+            WHERE d.nextId = :nextId AND d.nextType = :nextType
+               
+            """)
+    List<Drip> findUnfinishedPrevDripByNextId(Long nextId, Drip.ESourceType nextType);
 }

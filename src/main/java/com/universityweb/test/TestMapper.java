@@ -23,10 +23,8 @@ public interface TestMapper extends BaseMapper<Test, TestDTO> {
     @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "test.id", target = "id")
     @Mapping(source = "test.title", target = "title")
-    @Mapping(source = "test.status", target = "status")
     @Mapping(source = "test.type", target = "type")
     @Mapping(source = "test.section.id", target = "sectionId")
-    @Mapping(target = "locked", constant = "true")
     TestDTO toLockedDTO(Test test);
 
     default TestDTO toDTOBasedOnIsLocked(boolean isLocked, Test test) {

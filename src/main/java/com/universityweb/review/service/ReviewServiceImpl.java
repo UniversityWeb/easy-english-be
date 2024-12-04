@@ -1,68 +1,85 @@
 package com.universityweb.review.service;
 
+import com.universityweb.FrontendRoutes;
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.common.auth.repos.UserRepos;
+import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.mapper.CourseMapper;
-import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.course.service.CourseService;
+import com.universityweb.notification.request.AddNotificationRequest;
+import com.universityweb.notification.service.NotificationService;
+import com.universityweb.notification.util.CourseContentNotification;
 import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
+import com.universityweb.review.mapper.ReviewMapper;
 import com.universityweb.review.request.ReviewRequest;
 import com.universityweb.review.response.ReviewResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
-public class ReviewServiceImpl implements ReviewService {
+public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, Long, ReviewRepository, ReviewMapper> implements ReviewService {
     private final CourseMapper courseMapper;
-    private final ReviewRepository reviewRepository;
-    private final CourseRepository courseRepository;
-    private final UserRepos userRepos;
+    private final CourseService courseService;
+    private final UserService userService;
+    private final NotificationService notificationService;
+
+    @Autowired
+    public ReviewServiceImpl(
+            ReviewRepository repository,
+            ReviewMapper mapper,
+            CourseMapper courseMapper,
+            CourseService courseService,
+            UserService userService,
+            NotificationService notificationService
+    ) {
+        super(repository, mapper);
+        this.courseMapper = courseMapper;
+        this.courseService = courseService;
+        this.userService = userService;
+        this.notificationService = notificationService;
+    }
 
     @Override
     public ReviewResponse createReview(ReviewRequest reviewRequest) {
-        Review review = new Review();
-        Optional<Course> courseOptional = courseRepository.findById(reviewRequest.getCourseId());
-        Optional<User> userOptional = userRepos.findById(reviewRequest.getUser());
-        if (courseOptional.isPresent()) {
-            Course course = courseOptional.get();
-            review.setCourse(course);
-            review.setRating(reviewRequest.getRating());
-            review.setComment(reviewRequest.getComment());
-            review.setUser(userOptional.get());
-            Review reviewSave = reviewRepository.save(review);
-            courseRepository.save(course);
-            ReviewResponse reviewResponse = new ReviewResponse();
-            BeanUtils.copyProperties(reviewSave, reviewResponse);
-            return reviewResponse;
-        } else {
-            throw new CustomException("Course not found");
-        }
+        Course course = courseService.getEntityById(reviewRequest.getCourseId());
+        User user = userService.loadUserByUsername(reviewRequest.getUser());
+        int rating = reviewRequest.getRating();
+        Review review = Review.builder()
+                .course(course)
+                .rating(rating)
+                .comment(reviewRequest.getComment())
+                .user(user)
+                .build();
+
+        ReviewResponse savedReview = savedAndConvertToDTO(review);
+        notifyCourseRated(course, rating);
+        return savedReview;
     }
 
     @Override
     public ReviewResponse createResponse(ReviewRequest reviewRequest) {
-        Review review = reviewRepository.findById(reviewRequest.getId()).orElseThrow(() -> new CustomException("Review not found"));
+        Review review = getEntityById(reviewRequest.getId());
         review.setResponse(reviewRequest.getResponse());
-        Review reviewSave = reviewRepository.save(review);
-        ReviewResponse reviewResponse = new ReviewResponse();
-        BeanUtils.copyProperties(reviewSave, reviewResponse);
+        ReviewResponse reviewResponse = savedAndConvertToDTO(review);
+        notifyReviewResponded(review);
         return reviewResponse;
     }
 
     @Override
     public List<ReviewResponse> getReviewStarByCourse(ReviewRequest reviewRequest, int star) {
         Long courseId = reviewRequest.getCourseId();
-        List<Review> reviews = reviewRepository.findByCourseIdAndRating(courseId, star);
+        List<Review> reviews = repository.findByCourseIdAndRating(courseId, star);
         List<ReviewResponse> reviewResponses = new ArrayList<>();
         reviews.forEach(review -> {
             ReviewResponse reviewResponse = new ReviewResponse();
@@ -75,7 +92,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewResponse> getReviewByCourse(ReviewRequest reviewRequest) {
         Long courseId = reviewRequest.getCourseId();
-        List<Review> reviews = reviewRepository.findByCourseId(courseId);
+        List<Review> reviews = repository.findByCourseId(courseId);
         List<ReviewResponse> reviewResponses = new ArrayList<>();
         reviews.forEach(review -> {
             ReviewResponse reviewResponse = new ReviewResponse();
@@ -88,7 +105,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<CourseResponse> getTop10CoursesByRating() {
-        List<Object[]> results = reviewRepository.getTop10CoursesByRating();
+        List<Object[]> results = repository.getTop10CoursesByRating();
         return results.stream()
                 .map(result -> {
                     Course course = (Course) result[0];
@@ -102,5 +119,55 @@ public class ReviewServiceImpl implements ReviewService {
                     return courseResponse;
                 })
                 .toList();
+    }
+
+    @Override
+    protected void throwNotFoundException(Long id) {
+        throw new CustomException("Could not find review with id=" + id);
+    }
+
+    private void notifyCourseRated(Course course, int rating) {
+        try {
+            String teacherName = course.getOwner().getFullName();
+            String courseTitle = course.getTitle();
+
+            String msg = CourseContentNotification.courseRated(teacherName, courseTitle, rating);
+            String url = FrontendRoutes.getCourseDetailRoute(course.getId().toString());
+            AddNotificationRequest addNotiReq = AddNotificationRequest.builder()
+                    .previewImage(course.getImagePreview())
+                    .message(msg)
+                    .url(url)
+                    .username(teacherName)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+
+            notificationService.sendRealtimeNotification(addNotiReq);
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
+
+    private void notifyReviewResponded(Review review) {
+        try {
+            Course course = review.getCourse();
+            String studentName = review.getUser().getFullName();
+            String teacherName = course.getOwner().getFullName();
+            String courseTitle = course.getTitle();
+            String response = review.getResponse();
+
+            String msg = CourseContentNotification.reviewResponded(studentName, teacherName, courseTitle, response);
+            String url = FrontendRoutes.getCourseDetailRoute(course.getId().toString());
+            AddNotificationRequest addNotiReq = AddNotificationRequest.builder()
+                    .previewImage(course.getImagePreview())
+                    .message(msg)
+                    .url(url)
+                    .username(teacherName)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+
+            notificationService.sendRealtimeNotification(addNotiReq);
+        } catch (Exception e) {
+            log.error(e);
+        }
     }
 }

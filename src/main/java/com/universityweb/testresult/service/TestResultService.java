@@ -12,8 +12,8 @@ import java.util.List;
 
 public interface TestResultService extends BaseService<TestResult, TestResultDTO, Long> {
     Page<TestResultWithoutListDTO> getTestHistoryByTestId(GetTestResultReq getTestResultReq);
-    Page<TestResultDTO> getAll(int page, int size);
     List<TestResult> getByUsernameAndTestId(String username, Long targetId);
     Boolean isDone(String username, Long targetId);
     TestResultDTO submit(String username, SubmitTestRequest submitTestRequest);
+    Page<TestResultWithoutListDTO> getByCurUser(String username, int page, int size);
 }

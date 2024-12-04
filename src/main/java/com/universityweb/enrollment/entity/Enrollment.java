@@ -5,6 +5,7 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,34 +17,35 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Enrollment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    Long id;
 
-    private int progress;
-
-    @Enumerated(EnumType.STRING)
-    private EStatus status;
+    int progress;
 
     @Enumerated(EnumType.STRING)
-    private EType type;
+    EStatus status;
+
+    @Enumerated(EnumType.STRING)
+    EType type;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @Column(name = "last_accessed")
-    private LocalDateTime lastAccessed;
+    LocalDateTime lastAccessed;
 
     @ManyToOne
     @JoinColumn(name = "username")
     @JsonBackReference
-    private User user;
+    User user;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
     @JsonBackReference
-    private Course course;
+    Course course;
 
     public enum EStatus {
         ACTIVE,
