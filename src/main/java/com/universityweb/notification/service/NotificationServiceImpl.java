@@ -48,7 +48,7 @@ public class NotificationServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
 
         Page<Notification> notificationsPage = repository.findByUserUsername(username, pageable);
-        return notificationsPage.map(mapper::toDTO);
+        return mapper.mapPageToPageDTO(notificationsPage);
     }
 
     @Override
@@ -91,11 +91,11 @@ public class NotificationServiceImpl
 
         try {
             String sendNotificationDestination = WebSocketConstants.getNotificationTopic(username);
-            simpMessagingTemplate.convertAndSend(sendNotificationDestination, notificationResponse);
+            sendRealtimeNotification(sendNotificationDestination, notificationResponse);
 
             int numberOfUnreadNotifications = countUnreadNotifications(username);
             String refreshUnreadNotiDestination = WebSocketConstants.getNotificationsCountTopic(username);
-            simpMessagingTemplate.convertAndSend(refreshUnreadNotiDestination, numberOfUnreadNotifications);
+            sendRealtimeNotification(refreshUnreadNotiDestination, numberOfUnreadNotifications);
         } catch (Exception e) {
             log.error(e);
         }
@@ -106,6 +106,11 @@ public class NotificationServiceImpl
     @Override
     public int countUnreadNotifications(String username) {
         return repository.countUnreadNotificationsByUser(username);
+    }
+
+    @Override
+    public void sendRealtimeNotification(String destination, Object payload) {
+        simpMessagingTemplate.convertAndSend(destination, payload);
     }
 
     @Override
