@@ -205,9 +205,8 @@ public class EnrollmentServiceImpl
 
         List<LessonTracker> completedLessons = lessonTrackerRepository
                 .findByUserUsernameAndLessonSectionCourseIdAndIsCompletedTrue(username, courseId);
-        List<TestResult> completedTests = testResultRepository
-                .findByUserUsernameAndTestSectionCourseIdAndStatus(username, courseId, TestResult.EStatus.DONE);
-        int completedItems = completedLessons.size() + completedTests.size();
+        int completedTests = testResultRepository.countDistinctTestsByUsernameAndCourseId(username, courseId, TestResult.EStatus.DONE);
+        int completedItems = completedLessons.size() + completedTests;
         double progress = ((double) completedItems / totalItems) * 100;
         return (int) Math.round(progress);
     }
