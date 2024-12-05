@@ -1,4 +1,4 @@
-package com.universityweb.common;
+package com.universityweb.common.util;
 
 import com.universityweb.common.auth.request.UpdatePasswordRequest;
 import org.springframework.security.authentication.BadCredentialsException;

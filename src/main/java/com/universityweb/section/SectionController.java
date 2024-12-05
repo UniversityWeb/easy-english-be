@@ -1,11 +1,10 @@
 package com.universityweb.section;
 
-import com.universityweb.common.Utils;
+import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.service.EnrollmentService;
-import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.lesson.service.LessonService;
 import com.universityweb.lessontracker.service.LessonTrackerService;
@@ -21,7 +20,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,7 +1,7 @@
 package com.universityweb.payment.service;
 
-import com.universityweb.FrontendRoutes;
-import com.universityweb.common.Utils;
+import com.universityweb.common.util.FrontendRoutes;
+import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.common.request.GetByUsernameRequest;
@@ -14,7 +14,6 @@ import com.universityweb.notification.service.NotificationService;
 import com.universityweb.notification.util.PaymentContentNotification;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
-import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
@@ -30,7 +29,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,6 +61,36 @@ public class PaymentServiceImpl implements PaymentService {
         Payment.EMethod method = paymentRequest.method();
 
         Order savedOrder = orderService.createOrderFromUserCart(username);
+        BigDecimal totalAmount = savedOrder.getTotalAmount();
+        LocalDateTime paymentTime = LocalDateTime.now();
+        if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            Payment payment = Payment.builder()
+                    .status(Payment.EStatus.SUCCESS)
+                    .method(Payment.EMethod.NONE)
+                    .paymentTime(paymentTime)
+                    .amountPaid(BigDecimal.ZERO)
+                    .currency(savedOrder.getCurrency())
+                    .order(savedOrder)
+                    .build();
+            paymentRepos.save(payment);
+
+            savedOrder.setStatus(Order.EStatus.PAID);
+            savedOrder.setUpdatedAt(paymentTime);
+            orderService.save(savedOrder);
+
+            PaymentResponse paymentResponse = paymentMapper.toDTO(payment);
+            addEnrollmentsByOrderId(savedOrder.getId());
+
+            String imagePreview = "";
+            try {
+                imagePreview = savedOrder.getItems().get(0).getCourse().getImagePreview();
+            } catch (Exception e) {
+                log.error(e.toString());
+            }
+            sendNotification(true, imagePreview, username,
+                    savedOrder.getId().toString(), "", totalAmount, paymentTime);
+            return paymentResponse;
+        }
 
         Payment payment = Payment.builder()
                 .status(Payment.EStatus.PENDING)
@@ -75,7 +103,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         switch (method) {
             case VN_PAY -> {
-                int amount = savedOrder.getTotalAmount().intValue();
+                int amount = totalAmount.intValue();
                 paymentUrl = vnPayService.createOrder(
                         amount,
                         String.valueOf(savedOrder.getId()),
@@ -158,7 +186,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public PaymentResponse simulateSuccess(Long orderId) {
+    public PaymentResponse makeOrderPaid(Long orderId) {
         LocalDateTime paymentTime = LocalDateTime.now();
         Long transactionNo = PaymentUtils.generateTransactionNo();
 
@@ -166,6 +194,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = order.getPayment();
 
         payment.setStatus(Payment.EStatus.SUCCESS);
+        payment.setMethod(Payment.EMethod.NONE);
         payment.setPaymentTime(paymentTime);
         payment.setTransactionNo(transactionNo);
         payment.setAmountPaid(order.getTotalAmount());

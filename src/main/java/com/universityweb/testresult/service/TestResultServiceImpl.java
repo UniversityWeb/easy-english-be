@@ -1,6 +1,6 @@
 package com.universityweb.testresult.service;
 
-import com.universityweb.common.Utils;
+import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;

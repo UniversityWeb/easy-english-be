@@ -1,4 +1,4 @@
-package com.universityweb.common;
+package com.universityweb.common.config;
 
 import com.universityweb.cart.mapper.CartItemMapper;
 import com.universityweb.cart.mapper.CartMapper;
@@ -6,7 +6,6 @@ import com.universityweb.category.mapper.CategoryMapper;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.drip.DripMapper;
-import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
@@ -22,7 +21,6 @@ import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
 import com.universityweb.topic.mapper.TopicMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
-import org.aspectj.weaver.patterns.TypePatternQuestions;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

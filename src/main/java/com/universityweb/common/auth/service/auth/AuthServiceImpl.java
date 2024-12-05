@@ -1,7 +1,7 @@
 package com.universityweb.common.auth.service.auth;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.universityweb.common.AuthUtils;
+import com.universityweb.common.util.AuthUtils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;

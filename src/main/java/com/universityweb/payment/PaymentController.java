@@ -85,7 +85,7 @@ public class PaymentController {
             Long orderId
     ) {
         log.info("Simulating a fake successful payment for orderId: {}", orderId);
-        PaymentResponse paymentResponse = paymentService.simulateSuccess(orderId);
+        PaymentResponse paymentResponse = paymentService.makeOrderPaid(orderId);
         log.info("Simulate payment success: {}", paymentResponse);
         return ResponseEntity.ok(paymentResponse);
     }

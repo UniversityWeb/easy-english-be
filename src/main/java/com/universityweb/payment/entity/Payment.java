@@ -51,6 +51,6 @@ public class Payment implements Serializable {
     }
 
     public enum EMethod {
-        VN_PAY
+        VN_PAY, NONE
     }
 }

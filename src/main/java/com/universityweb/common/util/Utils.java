@@ -1,4 +1,4 @@
-package com.universityweb.common;
+package com.universityweb.common.util;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -103,6 +103,6 @@ public class Utils {
         }
         Locale vietnam = new Locale("vi", "VN");
         NumberFormat formatter = NumberFormat.getCurrencyInstance(vietnam);
-        return formatter.format(amount).replace("₫", "").trim() + " ₫";
+        return formatter.format(amount).replace("₫", "").trim() + "₫";
     }
 }

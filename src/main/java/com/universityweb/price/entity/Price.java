@@ -1,6 +1,6 @@
 package com.universityweb.price.entity;
 
-import com.universityweb.common.Utils;
+import com.universityweb.common.util.Utils;
 import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
