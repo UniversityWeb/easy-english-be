@@ -170,6 +170,11 @@ public class UserServiceImpl
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    @Override
     public void softDelete(String username) {
         User user = loadUserByUsername(username);
         user.setStatus(User.EStatus.DELETED);

@@ -1,6 +1,7 @@
 package com.universityweb.common.util;
 
 import com.universityweb.common.auth.request.UpdatePasswordRequest;
+import com.universityweb.common.exception.CustomException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.StringUtils;
 
@@ -86,5 +87,11 @@ public class AuthUtils {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(emailRegex);
         return pattern.matcher(email).matches();
+    }
+
+    public static void validateEmail(String email) {
+        if (!isValidEmail(email)) {
+            throw new CustomException("The email is not valid");
+        }
     }
 }

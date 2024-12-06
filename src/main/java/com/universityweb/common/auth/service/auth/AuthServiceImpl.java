@@ -47,17 +47,23 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public UserDTO registerStudentAccount(RegisterRequest registerRequest) {
         String username = registerRequest.username();
-        boolean isExists = userService.existsByUsername(username);
-        if (isExists) {
+        boolean isExistsByUsername = userService.existsByUsername(username);
+        if (isExistsByUsername) {
             String msg = "Username already exists";
             throw new UserAlreadyExistsException(msg);
         }
 
         String email = registerRequest.email();
-        String plainPassword = registerRequest.password();
+        AuthUtils.validateEmail(email);
 
-        AuthUtils.isValidEmail(email);
-        AuthUtils.isValidEmail(plainPassword);
+        boolean isExistsEmail = userService.existsByEmail(email);
+        if (isExistsEmail) {
+            String msg = "Email already exists";
+            throw new CustomException(msg);
+        }
+
+        String plainPassword = registerRequest.password();
+        AuthUtils.validatePass(plainPassword);
 
         String encodedPassword = passwordEncoder.encode(plainPassword);
         User user = User.builder()
