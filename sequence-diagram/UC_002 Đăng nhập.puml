@@ -1,0 +1,23 @@
+@startuml
+
+title Xem thông báo
+
+actor Student
+entity View
+entity Controller
+entity Service
+entity Model
+database Database
+
+Student -> View : displayNotificationsPage()
+View -> Controller : requestNotifications()
+Controller -> Service : getNotifications(userId)
+Service -> Model : fetchNotifications(userId)
+Model -> Database : queryNotifications(userId)
+Database --> Model : returnNotifications(notificationList)
+Model --> Service : returnNotifications(notificationList)
+Service --> Controller : returnNotifications(notificationList)
+Controller --> View : showNotifications(notificationList)
+View --> Student : displayNotifications(notificationList)
+
+@enduml

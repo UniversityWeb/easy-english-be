@@ -1,0 +1,49 @@
+@startuml
+title Mua khóa học (UC_008)
+
+actor Student
+entity View
+entity Controller
+entity Service
+entity Model
+database Database
+entity PaymentGateway
+
+Student -> View : displayCartPage()
+View -> Controller : requestCartItems(studentId)
+Controller -> Service : getCartItems(studentId)
+Service -> Model : fetchCartItems(studentId)
+Model -> Database : queryCartItems(studentId)
+Database --> Model : returnCartItems(cartItems)
+Model --> Service : returnCartItems(cartItems)
+Service --> Controller : returnCartItems(cartItems)
+Controller --> View : showCartItems(cartItems)
+View --> Student : displayCartItems(cartItems)
+
+Student -> View : initiateCheckout()
+View -> Controller : requestCheckout(studentId)
+Controller -> Service : processCheckout(studentId)
+Service -> Model : validateCart(studentId)
+Model -> Database : checkCartValidity(studentId)
+Database --> Model : returnCartValidity(status)
+Model --> Service : returnCartValidity(status)
+Service --> Controller : returnCartValidity(status)
+
+alt Cart is valid
+    Controller -> PaymentGateway : initiatePayment(cartAmount)
+    PaymentGateway --> Controller : paymentStatus(success/failure)
+    Controller -> Service : finalizePurchase(cartItems)
+    Service -> Model : processPurchase(studentId, cartItems)
+    Model -> Database : insertPurchaseHistory(studentId, cartItems)
+    Database --> Model : returnPurchaseStatus(success/failure)
+    Model --> Service : returnPurchaseStatus(success/failure)
+    Service --> Controller : returnPurchaseStatus(success/failure)
+    Controller --> View : showPurchaseConfirmation(success)
+    View --> Student : displayPurchaseConfirmation(success)
+
+else Cart is invalid
+    Controller --> View : showCartErrorMessage()
+    View --> Student : displayCartErrorMessage()
+end
+
+@enduml
