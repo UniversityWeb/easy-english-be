@@ -30,7 +30,7 @@ public class CourseResponse {
     int countView;
     Long countSection;
     LocalDateTime createdAt;
-    LocalDateTime updateAt;
+    LocalDateTime updatedAt;
     String notice;
     Course.EStatus status;
     UserDTO owner;
@@ -46,4 +46,7 @@ public class CourseResponse {
     LevelResponse level;
 
     List<CategoryResponse> categories;
+
+    // init - don't delete
+    LocalDateTime updateAt;
 }
