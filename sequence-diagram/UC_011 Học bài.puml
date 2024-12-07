@@ -1,59 +1,120 @@
 @startuml
 title Học bài
 
+autonumber
+
 actor Student
-entity View
-entity Controller
-entity Service
-entity Model
+boundary NavigationBar
+boundary CourseView
+boundary LessonView
+control CourseController
+control LessonController
+control CourseService
+control LessonService
+entity CourseModel
+entity LessonModel
 database Database
 
-Student -> View : displayCoursesPage()
-View -> Controller : requestPurchasedCourses(studentId)
-Controller -> Service : getPurchasedCourses(studentId)
-Service -> Model : fetchPurchasedCourses(studentId)
-Model -> Database : queryPurchasedCourses(studentId)
-Database --> Model : returnPurchasedCourses(purchasedCourses)
-Model --> Service : returnPurchasedCourses(purchasedCourses)
-Service --> Controller : returnPurchasedCourses(purchasedCourses)
-Controller --> View : showPurchasedCourses(purchasedCourses)
-View --> Student : displayPurchasedCourses(purchasedCourses)
+Student -> NavigationBar : Nhấn vào avatar
+activate NavigationBar
+NavigationBar -> CourseView : Hiển thị danh sách "Enrolled Courses"
+activate CourseView
 
-alt Select a Course to Learn
-    Student -> View : selectCourseToLearn(courseId)
-    View -> Controller : requestCourseDetails(courseId)
-    Controller -> Service : getCourseDetails(courseId)
-    Service -> Model : fetchCourseDetails(courseId)
-    Model -> Database : queryCourseDetails(courseId)
-    Database --> Model : returnCourseDetails(courseDetails)
-    Model --> Service : returnCourseDetails(courseDetails)
-    Service --> Controller : returnCourseDetails(courseDetails)
-    Controller --> View : showCourseContent(courseDetails)
-    View --> Student : displayCourseContent(courseDetails)
-end
+Student -> CourseView : Nhấn vào "Enrolled Courses"
+CourseView -> CourseController : fetchEnrolledCourses(studentId)
+activate CourseController
 
-alt Start Learning
-    Student -> View : startLearning()
-    View -> Controller : requestLearningProgress(courseId, studentId)
-    Controller -> Service : getLearningProgress(courseId, studentId)
-    Service -> Model : fetchLearningProgress(courseId, studentId)
-    Model -> Database : queryLearningProgress(courseId, studentId)
-    Database --> Model : returnLearningProgress(progressStatus)
-    Model --> Service : returnLearningProgress(progressStatus)
-    Service --> Controller : returnLearningProgress(progressStatus)
-    Controller --> View : showLearningProgress(progressStatus)
-    View --> Student : displayLearningProgress(progressStatus)
+CourseController -> CourseService : getEnrolledCourses(studentId)
+activate CourseService
 
-    Student -> View : continueLearning(lessonId)
-    View -> Controller : requestLessonContent(lessonId)
-    Controller -> Service : getLessonContent(lessonId)
-    Service -> Model : fetchLessonContent(lessonId)
-    Model -> Database : queryLessonContent(lessonId)
-    Database --> Model : returnLessonContent(lessonContent)
-    Model --> Service : returnLessonContent(lessonContent)
-    Service --> Controller : returnLessonContent(lessonContent)
-    Controller --> View : showLessonContent(lessonContent)
-    View --> Student : displayLessonContent(lessonContent)
-end
+CourseService -> CourseModel : loadCoursesByStudent(studentId)
+activate CourseModel
+CourseModel -> Database : findCoursesByStudentId(studentId)
+activate Database
+Database --> CourseModel : return courses
+deactivate Database
+CourseModel --> CourseService : return courses
+deactivate CourseModel
+
+CourseService --> CourseController : return courses list
+deactivate CourseService
+
+CourseController --> CourseView : return courses list
+deactivate CourseController
+
+CourseView -> CourseView : Hiển thị danh sách các khóa học đã mua
+deactivate CourseView
+
+Student -> CourseView : Chọn khóa học và nhấn "Start Course"
+CourseView -> CourseController : startCourse(courseId)
+activate CourseController
+
+CourseController -> LessonService : getLessons(courseId)
+activate LessonService
+
+LessonService -> LessonModel : loadLessonsByCourse(courseId)
+activate LessonModel
+LessonModel -> Database : findLessonsByCourseId(courseId)
+activate Database
+Database --> LessonModel : return lessons
+deactivate Database
+LessonModel --> LessonService : return lessons
+deactivate LessonModel
+
+LessonService --> CourseController : return lessons list
+deactivate LessonService
+
+CourseController --> LessonView : Hiển thị danh sách bài học
+activate LessonView
+
+Student -> LessonView : Chọn bài học cần học
+LessonView -> LessonController : startLesson(lessonId)
+activate LessonController
+
+LessonController -> LessonService : getLessonDetails(lessonId)
+activate LessonService
+
+LessonService -> LessonModel : loadLessonById(lessonId)
+activate LessonModel
+LessonModel -> Database : findLessonById(lessonId)
+activate Database
+Database --> LessonModel : return lesson details
+deactivate Database
+LessonModel --> LessonService : return lesson details
+deactivate LessonModel
+
+LessonService --> LessonController : return lesson details
+deactivate LessonService
+
+LessonController --> LessonView : Hiển thị bài học
+deactivate LessonController
+
+LessonView -> LessonView : Hiển thị bài học
+deactivate LessonView
+
+Student -> LessonView : Nhấn "Complete & Next"
+LessonView -> LessonController : completeLesson(lessonId)
+activate LessonController
+
+LessonController -> LessonService : completeLesson(lessonId)
+activate LessonService
+
+LessonService -> LessonModel : markLessonCompleted(lessonId)
+activate LessonModel
+LessonModel -> Database : updateLessonStatus(lessonId, "completed")
+activate Database
+Database --> LessonModel : return success
+deactivate Database
+LessonModel --> LessonService : return success
+deactivate LessonModel
+
+LessonService --> LessonController : return success
+deactivate LessonService
+
+LessonController -> LessonView : showNextLesson(lessonId)
+deactivate LessonController
+
+LessonView -> LessonView : Hiển thị bài học tiếp theo
+deactivate LessonView
 
 @enduml

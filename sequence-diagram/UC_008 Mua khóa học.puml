@@ -1,49 +1,97 @@
 @startuml
-title Mua khóa học (UC_008)
+title Mua khóa học
 
-actor Student
-entity View
-entity Controller
-entity Service
-entity Model
+autonumber
+
+actor User
+boundary CartIcon
+boundary CartView
+boundary PaymentResultView
+
+box External view
+boundary CheckoutView
+end box
+
+control CartController
+control PaymentController
+control CartService
+control PaymentService
+control OrderService
+control VNPayService
+entity CartModel
+entity OrderModel
+entity PaymentModel
 database Database
-entity PaymentGateway
 
-Student -> View : displayCartPage()
-View -> Controller : requestCartItems(studentId)
-Controller -> Service : getCartItems(studentId)
-Service -> Model : fetchCartItems(studentId)
-Model -> Database : queryCartItems(studentId)
-Database --> Model : returnCartItems(cartItems)
-Model --> Service : returnCartItems(cartItems)
-Service --> Controller : returnCartItems(cartItems)
-Controller --> View : showCartItems(cartItems)
-View --> Student : displayCartItems(cartItems)
+ref over User, CartIcon, CartView, CartController, CartService, CartModel, Database
+    Xem giỏ hàng
+end
 
-Student -> View : initiateCheckout()
-View -> Controller : requestCheckout(studentId)
-Controller -> Service : processCheckout(studentId)
-Service -> Model : validateCart(studentId)
-Model -> Database : checkCartValidity(studentId)
-Database --> Model : returnCartValidity(status)
-Model --> Service : returnCartValidity(status)
-Service --> Controller : returnCartValidity(status)
+activate CartView
 
-alt Cart is valid
-    Controller -> PaymentGateway : initiatePayment(cartAmount)
-    PaymentGateway --> Controller : paymentStatus(success/failure)
-    Controller -> Service : finalizePurchase(cartItems)
-    Service -> Model : processPurchase(studentId, cartItems)
-    Model -> Database : insertPurchaseHistory(studentId, cartItems)
-    Database --> Model : returnPurchaseStatus(success/failure)
-    Model --> Service : returnPurchaseStatus(success/failure)
-    Service --> Controller : returnPurchaseStatus(success/failure)
-    Controller --> View : showPurchaseConfirmation(success)
-    View --> Student : displayPurchaseConfirmation(success)
+User -> CartView : Ấn nút “Checkout”
 
-else Cart is invalid
-    Controller --> View : showCartErrorMessage()
-    View --> Student : displayCartErrorMessage()
+CartView -> PaymentController: createPayment(req)
+activate PaymentController
+PaymentController -> PaymentService: createPayment(req)
+activate PaymentService
+PaymentService -> OrderService: createOrderFromUserCart(username)
+activate OrderService
+OrderService -> OrderModel: save()
+deactivate OrderService
+activate OrderModel
+OrderModel -> Database: save()
+deactivate OrderModel
+PaymentService -> PaymentModel: save()
+activate PaymentModel
+PaymentModel -> Database: save()
+deactivate PaymentModel
+
+PaymentService -> VNPayService: createOrder()
+activate VNPayService
+VNPayService --> PaymentService: return paymentUrl
+deactivate VNPayService
+PaymentService --> PaymentController: return paymentResponse
+deactivate PaymentService
+PaymentController --> CartView: return paymentResponse
+deactivate PaymentController
+
+CartView -> CheckoutView : window.location.href\n = paymentUrl
+deactivate CartView
+activate CheckoutView
+
+User -> CheckoutView : Chọn hình thức thanh toán\n và nhập thông tin
+CheckoutView --> PaymentResultView : return result
+deactivate CheckoutView
+activate PaymentResultView
+
+PaymentResultView -> PaymentController : handlePaymentResult(req)
+activate PaymentController
+
+PaymentController -> PaymentService : processPaymentResult(paymentInfo)
+activate PaymentService
+PaymentService -> VNPayService : orderReturn(req)
+activate VNPayService
+VNPayService --> PaymentService : return result
+deactivate VNPayService
+PaymentService -> PaymentModel : save()
+activate PaymentModel
+PaymentModel -> Database : save()
+activate Database
+Database --> PaymentModel : return payment confirmation
+deactivate Database
+PaymentModel --> PaymentService : return payment confirmation
+deactivate PaymentModel
+PaymentService --> PaymentController : return paymentResponse
+deactivate PaymentService
+PaymentController --> PaymentResultView : return paymentResponse
+deactivate PaymentController
+
+alt Thanh toán thành công
+
+    PaymentResultView -> PaymentResultView : Hiển thị trang thanh toán thành công
+else Thanh toán thất bại
+    PaymentResultView -> PaymentResultView : Hiển thị trang thanh toán thất bại
 end
 
 @enduml

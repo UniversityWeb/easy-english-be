@@ -1,8 +1,11 @@
 package com.universityweb.statistics;
 
 import com.universityweb.order.entity.Order;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,4 +27,23 @@ public interface CourseStatisticsRepos extends CrudRepository<Order, Long> {
         ORDER BY MONTH(o.createdAt)
     """)
     List<Map<String, Object>> findRevenueByYear(int year);
+
+    @Query("""
+        SELECT c.id, c.imagePreview, c.title, SUM(p.amountPaid) AS totalRevenue, c.owner.username AS ownerUsername
+        FROM OrderItem oi
+        JOIN oi.course c
+        JOIN oi.order o 
+        JOIN o.payment p
+        WHERE p.status = 'SUCCESS' 
+        AND MONTH(p.paymentTime) = :month 
+        AND YEAR(p.paymentTime) = :year 
+        AND c.owner.username = :ownerUsername
+        GROUP BY c.id, c.title 
+        ORDER BY totalRevenue DESC
+    """)
+    Page<Object[]> findTopCoursesByRevenue(
+            @Param("ownerUsername") String ownerUsername,
+            @Param("month") int month,
+            @Param("year") int year,
+            Pageable pageable);
 }
