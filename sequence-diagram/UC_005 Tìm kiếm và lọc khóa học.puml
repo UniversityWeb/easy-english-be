@@ -1,0 +1,22 @@
+@startuml
+title Tìm kiếm và lọc khóa học
+
+actor Guest
+entity View
+entity Controller
+entity Service
+entity Model
+database Database
+
+Guest -> View : displaySearchAndFilterPage()
+View -> Controller : submitSearchQuery(query, filters)
+Controller -> Service : searchAndFilterCourses(query, filters)
+Service -> Model : fetchCourses(query, filters)
+Model -> Database : queryCourses(query, filters)
+Database --> Model : returnFilteredCourses(courseList)
+Model --> Service : returnFilteredCourses(courseList)
+Service --> Controller : returnFilteredCourses(courseList)
+Controller --> View : displaySearchResults(courseList)
+View --> Guest : displayFilteredCourses(courseList)
+
+@enduml

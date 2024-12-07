@@ -5,12 +5,15 @@ import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.course.customenum.ECourseDetailButtonStatus;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.exception.CourseNotFoundException;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.request.GetRelatedCourseReq;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
@@ -57,7 +60,8 @@ public class CourseServiceImpl
             TopicRepository topicRepository,
             EnrollmentRepos enrollmentRepos,
             ReviewRepository reviewRepository,
-            UserService userService) {
+            UserService userService
+    ) {
 
         super(repository, mapper);
         this.categoryRepository = categoryRepository;
@@ -69,18 +73,24 @@ public class CourseServiceImpl
     }
 
     @Override
-    public Page<CourseResponse> getAllCourseOfTeacher(CourseRequest courseRequest) {
+    public Page<CourseResponse> getAllCourseOfTeacher(String ownerUsername, CourseRequest courseRequest) {
         int pageNumber = courseRequest.getPageNumber();
         int size = courseRequest.getSize();
-        User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
 
-        List<Course.EStatus> excludedStatuses = List.of(Course.EStatus.DELETED);
+        List<Long> categoryIds = courseRequest.getCategoryIds();
+        Long topicId = courseRequest.getTopicId();
+        Long levelId = courseRequest.getLevelId();
+        BigDecimal price = courseRequest.getPrice();
+        Double rating = courseRequest.getRating();
+        String title = courseRequest.getTitle();
+        Course.EStatus status = courseRequest.getStatus();
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByStatusNotInAndOwner(excludedStatuses,user, pageable);
+        Page<Course> coursePage = repository.findCourseForTeacher(ownerUsername, categoryIds,topicId,
+                levelId,price,rating,title,status,pageable);
 
-        return coursePage.map(mapper::toDTO);
+        return coursePage.map(this::mapCourseToResponse);
     }
 
     @Transactional
@@ -90,15 +100,15 @@ public class CourseServiceImpl
         mapper.updateEntityFromDTO(req, currentCourse);
 
         Level level = levelRepository.findById(req.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Level not found"));
+                .orElseThrow(() -> new CustomException("Level not found"));
         currentCourse.setLevel(level);
         Topic topic = topicRepository.findById(req.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         currentCourse.setTopic(topic);
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : req.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new CustomException("Category not found"));
             categories.add(category);
         }
         currentCourse.setCategories(categories);
@@ -118,17 +128,17 @@ public class CourseServiceImpl
         price.setCourse(course);
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Level not found"));
+                .orElseThrow(() -> new CustomException("Level not found"));
         course.setLevel(level);
 
         Topic topic = topicRepository.findById(courseRequest.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new CustomException("Topic not found"));
         course.setTopic(topic);
 
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : courseRequest.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new CustomException("Category not found"));
             categories.add(category);
         }
         course.setCategories(categories);
@@ -138,18 +148,10 @@ public class CourseServiceImpl
         return savedAndConvertToDTO(course);
     }
 
-    @Transactional
-    @Override
-    public void deleteCourse(CourseRequest courseRequest) {
-        Course currentCourse = getEntityById(courseRequest.getId());
-        currentCourse.setStatus(Course.EStatus.DELETED);
-        repository.save(currentCourse);
-    }
-
     @Override
     public CourseResponse getMainCourse(CourseRequest courseRequest) {
         Course course = repository.findById(courseRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new CustomException("Course not found"));
         return mapCourseToResponse(course);
     }
 
@@ -201,28 +203,7 @@ public class CourseServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
         Page<Course> coursePage = repository.findByStatus(Course.EStatus.PUBLISHED,pageable);
 
-        return coursePage.map(course -> {
-            CourseResponse courseResponse = mapper.toDTO(course);
-            List<Review> reviews = reviewRepository.findByCourseId(course.getId());
-            courseResponse.setRating(reviews.stream().mapToDouble(Review::getRating).average().orElse(0));
-            courseResponse.setRatingCount((long) reviews.size());
-            return courseResponse;
-        });
-    }
-
-    @Override
-    public List<Course> getAllCourses() {
-        return repository.findAll();
-    }
-
-    @Override
-    public List<Course> filterCourse(int price, String name) {
-        return repository.findAll();
-    }
-
-    @Override
-    public List<Course> getTop10Courses() {
-        return repository.findAll();
+        return coursePage.map(this::mapCourseToResponse);
     }
 
     @Override
@@ -385,23 +366,65 @@ public class CourseServiceImpl
     @Transactional
     @Override
     public CourseResponse updateCourseAdmin(Long courseId, CourseRequest req) {
-        Course currentCourse = getEntityById(req.getId());
-        mapper.updateEntityFromDTO(req, currentCourse);
+        try {
+            Course currentCourse = getEntityById(req.getId());
+            mapper.updateEntityFromDTO(req, currentCourse);
 
-        levelRepository.findById(req.getLevelId()).ifPresent(currentCourse::setLevel);
-        topicRepository.findById(req.getTopicId()).ifPresent(currentCourse::setTopic);
+            levelRepository.findById(req.getLevelId()).ifPresent(currentCourse::setLevel);
+            topicRepository.findById(req.getTopicId()).ifPresent(currentCourse::setTopic);
 
-        List<Category> categories = new ArrayList<>();
-        if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
-            for (Long categoryId : req.getCategoryIds()) {
-                Category category = categoryRepository.findById(categoryId)
-                        .orElseThrow(() -> new RuntimeException("Category not found"));
-                categories.add(category);
+            List<Category> categories = new ArrayList<>();
+            if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
+                for (Long categoryId : req.getCategoryIds()) {
+                    Category category = categoryRepository.findById(categoryId)
+                            .orElseThrow(() -> new CustomException("Category not found"));
+                    categories.add(category);
+                }
+                currentCourse.setCategories(categories);
             }
-            currentCourse.setCategories(categories);
-        }
 
-        return savedAndConvertToDTO(currentCourse);
+            return savedAndConvertToDTO(currentCourse);
+        } catch (Exception e) {
+            log.error(e);
+            throw new CustomException("Failed to update course" + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req) {
+        Long courseId = req.getCourseId();
+        int numberOfCourses = req.getNumberOfCourses();
+        Pageable pageable = PageRequest.of(0, numberOfCourses);
+
+        List<Course> courses = switch (req.getType()) {
+            case LEVEL -> levelRepository.getRelatedCoursesByLevel(courseId, pageable);
+            case TOPIC -> topicRepository.getRelatedCoursesByTopic(courseId, pageable);
+            default -> new ArrayList<>();
+        };
+
+        return courses.stream()
+                .map(this::mapCourseToResponse)
+                .toList();
+    }
+
+    @Transactional
+    @Override
+    public CourseResponse updateNotice(CourseRequest req) {
+        try {
+            Course currentCourse = getEntityById(req.getId());
+            currentCourse.setNotice(req.getNotice());
+            return savedAndConvertToDTO(currentCourse);
+        } catch (Exception e) {
+            log.error(e);
+            throw new CustomException("Failed to update course notice");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void incrementViewCount(Long courseId) {
+        getEntityById(courseId);
+        repository.incrementViewCount(courseId);
     }
 
     @Override

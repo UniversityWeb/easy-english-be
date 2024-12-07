@@ -11,13 +11,11 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface TopicMapper extends BaseMapper<Topic, TopicResponse> {
-    TopicMapper INSTANCE = Mappers.getMapper(TopicMapper.class);
-
+    @Override
     TopicResponse toDTO(Topic entity);
-    List<TopicResponse> toDTOs(List<Topic> entities);
 
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "levels", ignore = true)
+    @Override
     Topic toEntity(TopicResponse dto);
-    List<Topic> toEntities(List<TopicResponse> dtos);
 }

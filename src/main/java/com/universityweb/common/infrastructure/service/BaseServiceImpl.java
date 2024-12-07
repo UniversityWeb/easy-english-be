@@ -55,9 +55,15 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
         return mapper.toDTO(savedEntity);
     }
 
-    protected D savedAndConvertToDTO(E entity) {
-        E saved = repository.save(entity);
-        return mapper.toDTO(saved);
+    @Override
+    public D savedAndConvertToDTO(E entity) {
+        try {
+            E saved = repository.save(entity);
+            return mapper.toDTO(saved);
+        } catch (Exception e) {
+            log.error(e);
+            return null;
+        }
     }
 
     @Transactional
@@ -68,7 +74,12 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     @Transactional
     @Override
     public E save(E entity) {
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (Exception e) {
+            log.error("Failed to save: {}", e.getMessage());
+            return null;
+        }
     }
 
     @Transactional

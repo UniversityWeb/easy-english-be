@@ -1,7 +1,7 @@
 package com.universityweb.common.auth.service.user;
 
-import com.universityweb.common.AuthUtils;
-import com.universityweb.common.Utils;
+import com.universityweb.common.util.AuthUtils;
+import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
@@ -11,6 +11,7 @@ import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.GetUserFilterReq;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -134,7 +135,8 @@ public class UserServiceImpl
         mapper.updateEntityFromDTO(req, user);
 
         String password = req.getPassword();
-        if (AuthUtils.isValidPassword(password) == AuthUtils.PASSWORD_VALID) {
+        if (password != null && !password.isEmpty()) {
+            AuthUtils.validatePass(password);
             user.setPassword(passwordEncoder.encode(password));
         }
 
@@ -142,6 +144,11 @@ public class UserServiceImpl
         if (!username.equals(req.getUsername())) {
             updateUsername(username, req.getUsername());
         }
+
+        if (!AuthUtils.isValidEmail(user.getEmail())) {
+            throw new BadCredentialsException("Invalid email address");
+        }
+
         return mapper.toUserForAdminDTO(savedUser);
     }
 
@@ -163,6 +170,11 @@ public class UserServiceImpl
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    @Override
     public void softDelete(String username) {
         User user = loadUserByUsername(username);
         user.setStatus(User.EStatus.DELETED);
@@ -171,10 +183,10 @@ public class UserServiceImpl
 
     private User updateUsername(String currentUsername, String newUsername) {
         User user = repository.findById(currentUsername)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new CustomException("User not found"));
 
         if (repository.existsById(newUsername)) {
-            throw new RuntimeException("Username already taken");
+            throw new CustomException("Username already taken");
         }
 
         User newUser = User.builder()

@@ -2,6 +2,7 @@ package com.universityweb.common.auth.request;
 
 import com.universityweb.common.auth.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 
@@ -11,6 +12,7 @@ public record RegisterRequest(
                 example = "john",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
+        @NotBlank(message = "Username is required")
         String username,
 
         @Schema(
@@ -25,6 +27,7 @@ public record RegisterRequest(
                 example = "john",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
+        @NotBlank(message = "Username is required")
         String fullName,
 
         @Schema(
@@ -32,6 +35,7 @@ public record RegisterRequest(
                 example = "john@gmail.com",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
+        @NotBlank(message = "Username is required")
         String email,
 
         @Schema(

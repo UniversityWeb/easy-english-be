@@ -1,6 +1,5 @@
 package com.universityweb.order.repository;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.order.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +17,7 @@ public interface OrderRepos extends JpaRepository<Order, Long> {
     Page<Order> findByUserUsername(String username, Pageable pageable);
 
     Page<Order> findByUserUsernameAndStatus(String username, Order.EStatus status, Pageable pageable);
+    List<Order> findByUserUsernameAndStatus(String username, Order.EStatus status);
 
     @Query("SELECT o FROM Order o WHERE o.createdAt < :fiveMinutesAgo AND o.status <> :status")
     List<Order> findAllByCreatedAtBeforeAndStatusNot(LocalDateTime fiveMinutesAgo, Order.EStatus status);
@@ -34,4 +34,6 @@ public interface OrderRepos extends JpaRepository<Order, Long> {
     );
 
     List<Order> findByUser_Username(String username);
+
+    Page<Order> findByStatus(Order.EStatus status, Pageable pageable);
 }

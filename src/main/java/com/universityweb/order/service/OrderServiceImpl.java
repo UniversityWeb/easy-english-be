@@ -5,6 +5,8 @@ import com.universityweb.cart.entity.CartItem;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
+import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.order.dto.OrderDTO;
 import com.universityweb.order.dto.OrderItemDTO;
@@ -18,9 +20,9 @@ import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.order.response.TotalAmountResponse;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
-import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,21 +30,34 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl
+        extends BaseServiceImpl<Order, OrderDTO, Long, OrderRepos, OrderMapper>
+        implements OrderService {
 
     private static final long EXPIRATION_CHECK_RATE_MS = 3_600_000; // 1 hour
-    private static final OrderMapper orderMapper = OrderMapper.INSTANCE;
-
     private Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
-    private final OrderRepos orderRepos;
     private final OrderItemRepos orderItemRepos;
     private final PaymentRepos paymentRepos;
     private final CartService cartService;
+
+    @Autowired
+    public OrderServiceImpl(
+            OrderRepos repository,
+            OrderMapper mapper,
+            OrderItemRepos orderItemRepos,
+            PaymentRepos paymentRepos,
+            CartService cartService
+    ) {
+        super(repository, mapper);
+        this.orderItemRepos = orderItemRepos;
+        this.paymentRepos = paymentRepos;
+        this.cartService = cartService;
+    }
 
     @Override
     public Order createOrderFromUserCart(String username) {
@@ -55,12 +70,12 @@ public class OrderServiceImpl implements OrderService {
                 .totalAmount(totalAmount)
                 .currency(ECurrency.VND)
                 .createdAt(LocalDateTime.now())
-                .updatedAt(null)
+                .updatedAt(LocalDateTime.now())
                 .status(Order.EStatus.PENDING_PAYMENT)
                 .user(user)
                 .build();
 
-        Order savedOrder = orderRepos.save(order);
+        Order savedOrder = repository.save(order);
 
         List<Long> cartItemIdsToRemove = cart.getItems().stream()
                 .map(CartItem::getId)
@@ -92,44 +107,53 @@ public class OrderServiceImpl implements OrderService {
         existingOrder.setUpdatedAt(LocalDateTime.now());
         existingOrder.setStatus(orderDTO.getStatus());
 
-        Order updatedOrder = orderRepos.save(existingOrder);
-        return orderMapper.toOrderDTO(updatedOrder);
+        return savedAndConvertToDTO(existingOrder);
     }
 
     @Override
     public Page<OrderDTO> getOrders(String username, Order.EStatus status, Pageable pageable) {
         Page<Order> orders;
         if (status == null) {
-            orders = orderRepos.findByUserUsername(username, pageable);
+            orders = repository.findByUserUsername(username, pageable);
         } else {
-            orders = orderRepos.findByUserUsernameAndStatus(username, status, pageable);
+            orders = repository.findByUserUsernameAndStatus(username, status, pageable);
         }
-        return orders.map(orderMapper::toOrderDTO);
+        return mapper.mapPageToPageDTO(orders);
+    }
+
+    @Override
+    public Page<OrderDTO> getOrders(Order.EStatus status, Pageable pageable) {
+        Page<Order> orders;
+        if (status == null) {
+            orders = repository.findAll(pageable);
+        } else {
+            orders = repository.findByStatus(status, pageable);
+        }
+        return mapper.mapPageToPageDTO(orders);
     }
 
     @Override
     public Order getOrderEntityById(Long orderId) {
-        return orderRepos.findById(orderId)
+        return repository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
     }
 
     @Override
     public OrderDTO getOrderById(Long orderId) {
         Order order = getOrderEntityById(orderId);
-        return orderMapper.toOrderDTO(order);
+        return mapper.toDTO(order);
     }
 
     @Override
     public OrderItemDTO getOrderItem(Long orderItemId) {
         OrderItem orderItem = getOrderItemEntityById(orderItemId);
-
-        return orderMapper.toOrderItemDTO(orderItem);
+        return mapper.toOrderItemDTO(orderItem);
     }
 
     @Override
     public Page<OrderItemDTO> getOrderItems(Long orderId, Pageable pageable) {
         Page<OrderItem> orderItems = orderItemRepos.findByOrderId(orderId, pageable);
-        return orderItems.map(orderMapper::toOrderItemDTO);
+        return orderItems.map(mapper::toOrderItemDTO);
     }
 
     @Override
@@ -155,37 +179,42 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Pass enumStatus (can be null) to the repository method
-        BigDecimal totalAmount = orderRepos.getTotalAmountByUsernameAndStatus(username, enumStatus);
+        BigDecimal totalAmount = repository.getTotalAmountByUsernameAndStatus(username, enumStatus);
         return new TotalAmountResponse(totalAmount, ECurrency.VND);
     }
 
     @Override
-    public List<OrderItem> getOrderItemsByCourseId(String username, Long courseId) {
-        List<Order> orders = orderRepos.findByUser_Username(username);
-        return orderItemRepos.findByCourseIdAndOrderIn(courseId, orders);
+    public boolean isPurchasedCourse(String username, Long courseId) {
+        return repository.findByUserUsernameAndStatus(username, Order.EStatus.PAID).stream()
+                .flatMap(order -> order.getItems().stream())
+                .anyMatch(item -> item.getCourse().getId().equals(courseId));
     }
 
     @Override
-    public boolean isPurchasedCourse(String username, Long courseId) {
-        List<OrderItem> orderItems = getOrderItemsByCourseId(username, courseId);
-        return orderItems.stream()
-                .anyMatch(orderItem -> {
-                    Order order = orderItem.getOrder();
-                    Payment payment = order != null ? order.getPayment() : null;
-
-                    boolean isPaidOrder = order != null && order.getStatus() == Order.EStatus.PAID;
-                    boolean isSuccessPayment = payment != null && payment.getStatus() == Payment.EStatus.SUCCESS;
-
-                    return isPaidOrder && isSuccessPayment;
-                });
+    public boolean hasPurchasedItems(String username, Long orderId) {
+        List<Order> paidOrders = repository.findByUserUsernameAndStatus(username, Order.EStatus.PAID);
+        List<Long> paidCourseIds = new ArrayList<>();
+        for (Order order : paidOrders) {
+            for (OrderItem orderItem : order.getItems()) {
+                paidCourseIds.add(orderItem.getCourse().getId());
+            }
+        }
+        Order order = getOrderEntityById(orderId);
+        for (OrderItem orderItem : order.getItems()) {
+            Long courseId = orderItem.getCourse().getId();
+            if (paidCourseIds.contains(courseId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Scheduled(fixedRate = EXPIRATION_CHECK_RATE_MS)
-    private void updateExpiredOrders() {
+    public void updateExpiredOrders() {
         LocalDateTime currentTime = LocalDateTime.now();
         LocalDateTime fiveMinutesAgo = currentTime.minusMinutes(5);
 
-        List<Order> expiredOrders = orderRepos
+        List<Order> expiredOrders = repository
                 .findAllByCreatedAtBeforeAndStatusNot(fiveMinutesAgo, Order.EStatus.EXPIRED);
 
         for (Order order : expiredOrders) {
@@ -194,9 +223,14 @@ public class OrderServiceImpl implements OrderService {
                 Payment payment = order.getPayment();
                 payment.setStatus(Payment.EStatus.FAILED);
 
-                orderRepos.save(order);
+                repository.save(order);
                 paymentRepos.save(payment);
             }
         }
+    }
+
+    @Override
+    protected void throwNotFoundException(Long id) {
+        throw new CustomException("Could not find order with ID: " + id);
     }
 }

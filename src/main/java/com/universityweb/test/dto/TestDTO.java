@@ -1,5 +1,7 @@
 package com.universityweb.test.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.universityweb.drip.dto.PrevDripDTO;
 import com.universityweb.test.entity.Test;
 import com.universityweb.testpart.dto.TestPartDTO;
 import lombok.*;
@@ -7,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +22,6 @@ public class TestDTO {
     Test.EStatus status;
     String title;
     String description;
-    Integer ordinalNumber;
     Integer durationInMilis;
     Double passingGrade;
     LocalDateTime createdAt;
@@ -30,5 +32,8 @@ public class TestDTO {
 
     Boolean isDone;
 
+    @JsonProperty("isLocked")
     boolean isLocked;
+
+    Set<PrevDripDTO> prevDrips;
 }

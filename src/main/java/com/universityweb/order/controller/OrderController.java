@@ -1,6 +1,7 @@
 package com.universityweb.order.controller;
 
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.order.dto.OrderDTO;
@@ -8,6 +9,7 @@ import com.universityweb.order.dto.OrderItemDTO;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.response.TotalAmountResponse;
 import com.universityweb.order.service.OrderService;
+import com.universityweb.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,9 +32,10 @@ public class OrderController {
     private final OrderService orderService;
     private final MediaService mediaService;
     private final AuthService authService;
+    private final PaymentService paymentService;
 
     @GetMapping("/{username}")
-    public ResponseEntity<Page<OrderDTO>> getOrders(
+    public ResponseEntity<Page<OrderDTO>> getOrdersForAdmin(
             @PathVariable String username,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -95,5 +99,43 @@ public class OrderController {
         String username = authService.getCurrentUsername();
         boolean isPurchased = orderService.isPurchasedCourse(username, courseId);
         return ResponseEntity.ok(isPurchased);
+    }
+
+    @PutMapping("/admin/update-status/{orderId}/{status}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderDTO> updateOrderStatus(
+            @PathVariable Long orderId,
+            @PathVariable Order.EStatus status
+    ) {
+        Order order = orderService.getOrderEntityById(orderId);
+        if (order.getStatus().equals(Order.EStatus.PAID)) {
+            throw new CustomException("The status of the order cannot be changed because it has already been marked as PAID");
+        }
+
+        if (!status.equals(Order.EStatus.PAID)) {
+            throw new CustomException("The status can only be updated to PAID");
+        }
+
+        String username = authService.getCurrentUsername();
+        if (orderService.hasPurchasedItems(username, orderId)) {
+            throw new CustomException("The order already has purchased");
+        }
+
+        order.setStatus(Order.EStatus.PAID);
+        OrderDTO orderDTO = orderService.savedAndConvertToDTO(order);
+        paymentService.makeOrderPaid(orderId);
+        return ResponseEntity.ok(orderDTO);
+    }
+
+    @GetMapping("/admin/get")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<OrderDTO>> getOrdersForAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        log.info("Fetching orders page: {}, size: {}", page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderDTO> orders = orderService.getOrders(null, pageable);
+        return ResponseEntity.ok(MediaUtils.addMediaUrlsToOrders(mediaService, orders));
     }
 }

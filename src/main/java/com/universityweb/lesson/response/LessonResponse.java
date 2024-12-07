@@ -1,5 +1,7 @@
 package com.universityweb.lesson.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.universityweb.drip.dto.PrevDripDTO;
 import com.universityweb.lesson.customenum.LessonType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -7,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,5 +33,8 @@ public class LessonResponse {
 
     boolean isCompleted;
 
+    @JsonProperty("isLocked")
     boolean isLocked;
+
+    Set<PrevDripDTO> prevDrips;
 }

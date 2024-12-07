@@ -1,6 +1,7 @@
 package com.universityweb.payment.service;
 
-import com.universityweb.common.Utils;
+import com.universityweb.common.util.FrontendRoutes;
+import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.common.request.GetByUsernameRequest;
@@ -13,7 +14,6 @@ import com.universityweb.notification.service.NotificationService;
 import com.universityweb.notification.util.PaymentContentNotification;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
-import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.order.service.OrderService;
 import com.universityweb.payment.PaymentRepos;
 import com.universityweb.payment.entity.Payment;
@@ -26,7 +26,9 @@ import com.universityweb.payment.util.PaymentUtils;
 import com.universityweb.payment.vnpay.VNPayConfig;
 import com.universityweb.payment.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,26 +42,16 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
-    private final PaymentMapper paymentMapper = PaymentMapper.INSTANCE;
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
-    @Autowired
-    private PaymentRepos paymentRepos;
-
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private VNPayService vnPayService;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
-
-    @Autowired
-    private OrderRepos orderRepos;
-
-    @Autowired
-    private NotificationService notificationService;
+    private final PaymentMapper paymentMapper;
+    private final PaymentRepos paymentRepos;
+    private final OrderService orderService;
+    private final VNPayService vnPayService;
+    private final EnrollmentService enrollmentService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -69,6 +61,36 @@ public class PaymentServiceImpl implements PaymentService {
         Payment.EMethod method = paymentRequest.method();
 
         Order savedOrder = orderService.createOrderFromUserCart(username);
+        BigDecimal totalAmount = savedOrder.getTotalAmount();
+        LocalDateTime paymentTime = LocalDateTime.now();
+        if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            Payment payment = Payment.builder()
+                    .status(Payment.EStatus.SUCCESS)
+                    .method(Payment.EMethod.NONE)
+                    .paymentTime(paymentTime)
+                    .amountPaid(BigDecimal.ZERO)
+                    .currency(savedOrder.getCurrency())
+                    .order(savedOrder)
+                    .build();
+            paymentRepos.save(payment);
+
+            savedOrder.setStatus(Order.EStatus.PAID);
+            savedOrder.setUpdatedAt(paymentTime);
+            orderService.save(savedOrder);
+
+            PaymentResponse paymentResponse = paymentMapper.toDTO(payment);
+            addEnrollmentsByOrderId(savedOrder.getId());
+
+            String imagePreview = "";
+            try {
+                imagePreview = savedOrder.getItems().get(0).getCourse().getImagePreview();
+            } catch (Exception e) {
+                log.error(e.toString());
+            }
+            sendNotification(true, imagePreview, username,
+                    savedOrder.getId().toString(), "", totalAmount, paymentTime);
+            return paymentResponse;
+        }
 
         Payment payment = Payment.builder()
                 .status(Payment.EStatus.PENDING)
@@ -81,7 +103,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         switch (method) {
             case VN_PAY -> {
-                int amount = savedOrder.getTotalAmount().intValue();
+                int amount = totalAmount.intValue();
                 paymentUrl = vnPayService.createOrder(
                         amount,
                         String.valueOf(savedOrder.getId()),
@@ -130,9 +152,14 @@ public class PaymentServiceImpl implements PaymentService {
                 Payment savedPayment = paymentRepos.save(payment);
                 orderService.updateOrder(order);
                 addEnrollmentsByOrderId(orderId);
-
+                String imagePreview = "";
+                try {
+                    imagePreview = order.getItems().get(0).getCourse().getImagePreview();
+                } catch (Exception e) {
+                    log.error(e.toString());
+                }
                 String username = order.getUser().getUsername();
-                sendNotification(isPaymentSuccess, username, orderIdStr, transactionNoStr, totalAmountStr, paymentTime);
+                sendNotification(isPaymentSuccess, imagePreview, username, orderIdStr, transactionNoStr, totalAmount, paymentTime);
 
                 return paymentMapper.toDTO(savedPayment);
             }
@@ -159,7 +186,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public PaymentResponse simulateSuccess(Long orderId) {
+    public PaymentResponse makeOrderPaid(Long orderId) {
         LocalDateTime paymentTime = LocalDateTime.now();
         Long transactionNo = PaymentUtils.generateTransactionNo();
 
@@ -167,6 +194,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = order.getPayment();
 
         payment.setStatus(Payment.EStatus.SUCCESS);
+        payment.setMethod(Payment.EMethod.NONE);
         payment.setPaymentTime(paymentTime);
         payment.setTransactionNo(transactionNo);
         payment.setAmountPaid(order.getTotalAmount());
@@ -180,21 +208,26 @@ public class PaymentServiceImpl implements PaymentService {
 
         addEnrollmentsByOrderId(orderId);
 
+        String imagePreview = "";
         String username = order.getUser().getUsername();
-        sendNotification(true, username, String.valueOf(orderId),
-                String.valueOf(transactionNo), order.getTotalAmount().toString(), paymentTime);
+        sendNotification(true, imagePreview, username, String.valueOf(orderId),
+                String.valueOf(transactionNo), order.getTotalAmount(), paymentTime);
         return paymentMapper.toDTO(savedPayment);
     }
 
-    private void sendNotification(boolean isPaymentSuccess, String username,
-                                  String orderIdStr, String transactionNoStr, String totalAmountStr, LocalDateTime paymentTime) {
+    private void sendNotification(boolean isPaymentSuccess, String imagePreview, String username,
+                                  String orderIdStr, String transactionNoStr, BigDecimal totalAmount, LocalDateTime paymentTime) {
         String msg = isPaymentSuccess
-                ? PaymentContentNotification.paymentSuccess(username, orderIdStr, transactionNoStr, totalAmountStr)
-                : PaymentContentNotification.paymentFailed(username, orderIdStr, totalAmountStr);
-        AddNotificationRequest notificationRequest = new AddNotificationRequest(
-                msg,
-                username,
-                paymentTime);
+                ? PaymentContentNotification.paymentSuccess(username, orderIdStr, transactionNoStr, Utils.formatVND(totalAmount))
+                : PaymentContentNotification.paymentFailed(username, orderIdStr, transactionNoStr);
+        AddNotificationRequest notificationRequest = AddNotificationRequest.builder()
+                .previewImage(imagePreview)
+                .message(msg)
+                .url(FrontendRoutes.getOrderDetailRoute(orderIdStr))
+                .username(username)
+                .createdDate(paymentTime)
+                .build();
+
         notificationService.sendRealtimeNotification(notificationRequest);
     }
 

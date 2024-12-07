@@ -13,7 +13,7 @@ public interface SectionRepository extends JpaRepository<Section, Long> {
     @Query("""
         SELECT s FROM Section s WHERE s.course.id = :courseId 
         AND s.status <> 'DELETED'
-        ORDER BY s.ordinalNumber ASC
+        ORDER BY s.createdAt ASC
     """)
     List<Section> findByCourseId(Long courseId);
 }

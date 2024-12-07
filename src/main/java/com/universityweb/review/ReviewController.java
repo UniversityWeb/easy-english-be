@@ -1,10 +1,12 @@
 package com.universityweb.review;
 
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.notification.service.NotificationService;
 import com.universityweb.review.request.ReviewRequest;
 import com.universityweb.review.response.ReviewResponse;
 import com.universityweb.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +19,18 @@ import java.util.List;
 @RequestMapping("/api/v1/review")
 @RestController
 @Tag(name = "Reviews")
+@RequiredArgsConstructor
 public class ReviewController {
 
     private static final Logger log = LogManager.getLogger(ReviewController.class);
 
-    @Autowired
-    private ReviewService reviewService;
+    private final ReviewService reviewService;
+    private final NotificationService notificationService;
 
     @PostMapping("/create-review")
     public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest reviewRequest) {
-        return ResponseEntity.ok().body(reviewService.createReview(reviewRequest));
+        ReviewResponse reviewResponse = reviewService.createReview(reviewRequest);
+        return ResponseEntity.ok().body(reviewResponse);
     }
 
     @PostMapping("/create-response")

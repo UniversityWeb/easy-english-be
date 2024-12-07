@@ -1,9 +1,7 @@
 package com.universityweb.notification.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
@@ -11,14 +9,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationResponse {
-    private Long id;
-
-    private String message;
-
-    private LocalDateTime createdDate;
-
-    private boolean read;
-
-    private String username;
+    Long id;
+    String previewImage;
+    String message;
+    String url;
+    LocalDateTime createdDate;
+    boolean read;
+    String username;
 }

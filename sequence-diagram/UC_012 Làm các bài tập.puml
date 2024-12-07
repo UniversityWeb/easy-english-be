@@ -1,0 +1,48 @@
+@startuml
+title Làm các bài tập
+
+actor Student
+entity View
+entity Controller
+entity Service
+entity Model
+Database Database
+
+Student -> View : displayAssignmentsPage()
+View -> Controller : requestAssignments(courseId, studentId)
+Controller -> Service : getAssignments(courseId, studentId)
+Service -> Model : fetchAssignments(courseId, studentId)
+Model -> Database : queryAssignments(courseId, studentId)
+Database --> Model : returnAssignments(assignments)
+Model --> Service : returnAssignments(assignments)
+Service --> Controller : returnAssignments(assignments)
+Controller --> View : showAssignments(assignments)
+View --> Student : displayAssignments(assignments)
+
+alt Start Assignment
+    Student -> View : selectAssignment(assignmentId)
+    View -> Controller : requestAssignmentDetails(assignmentId)
+    Controller -> Service : getAssignmentDetails(assignmentId)
+    Service -> Model : fetchAssignmentDetails(assignmentId)
+    Model -> Database : queryAssignmentDetails(assignmentId)
+    Database --> Model : returnAssignmentDetails(assignmentDetails)
+    Model --> Service : returnAssignmentDetails(assignmentDetails)
+    Service --> Controller : returnAssignmentDetails(assignmentDetails)
+    Controller --> View : showAssignmentContent(assignmentDetails)
+    View --> Student : displayAssignmentContent(assignmentDetails)
+end
+
+alt Submit Assignment
+    Student -> View : submitAssignment(assignmentId, studentAnswers)
+    View -> Controller : submitAssignment(assignmentId, studentAnswers)
+    Controller -> Service : submitAssignment(assignmentId, studentAnswers)
+    Service -> Model : saveAssignmentResults(assignmentId, studentAnswers)
+    Model -> Database : insertAssignmentResults(assignmentId, studentId, studentAnswers)
+    Database --> Model : returnSaveStatus(success/failure)
+    Model --> Service : returnSaveStatus(success/failure)
+    Service --> Controller : returnSaveStatus(success/failure)
+    Controller --> View : showSubmissionStatus(status)
+    View --> Student : displaySubmissionStatus(status)
+end
+
+@enduml

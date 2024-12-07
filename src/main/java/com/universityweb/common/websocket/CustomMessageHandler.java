@@ -12,12 +12,11 @@ import java.util.List;
 public class CustomMessageHandler {
 
     private static final Logger log = LogManager.getLogger(CustomMessageHandler.class);
-    private static final String ONLINE_USERS_DEST = "/topic/online-users";
 
     @Autowired private SimpMessagingTemplate messagingTemplate;
 
     public void sendOnlineUsers(List<String> onlineUsers) {
         log.info("Sending online users to {}", onlineUsers);
-        messagingTemplate.convertAndSend(ONLINE_USERS_DEST, onlineUsers);
+        messagingTemplate.convertAndSend(WebSocketConstants.ONLINE_USERS_TOPIC, onlineUsers);
     }
 }

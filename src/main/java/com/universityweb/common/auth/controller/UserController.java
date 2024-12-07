@@ -9,6 +9,7 @@ import com.universityweb.common.auth.request.UpdateProfileRequest;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.BaseController;
+import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,6 +84,7 @@ public class UserController
         return super.delete(username);
     }
 
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
     @PutMapping("/upload-avatar")
     public ResponseEntity<String> updateAudioFile(
             @RequestParam("avatar") MultipartFile avatar
@@ -107,7 +109,7 @@ public class UserController
             @RequestBody GetUserFilterReq filterReq
     ) {
         Page<UserForAdminDTO> userDTOs = service.getUsersWithoutAdmin(filterReq);
-        return ResponseEntity.ok(userDTOs);
+        return ResponseEntity.ok(MediaUtils.addUserAdminMediaUrlsForPage(mediaService, userDTOs));
     }
 
     @PutMapping("/admin/update/{username}")
@@ -136,5 +138,25 @@ public class UserController
     ) {
         UserForAdminDTO userDTO = service.addUserForAdmin(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/upload-avatar/{username}")
+    public ResponseEntity<String> updateAudioFileForAdmin(
+            @PathVariable String username,
+            @RequestParam("avatar") MultipartFile avatar
+    ) {
+        if (avatar == null || avatar.isEmpty()) {
+            return ResponseEntity.badRequest().body("File cannot be null or empty");
+        }
+
+        User user = service.loadUserByUsername(username);
+        mediaService.deleteFile(user.getAvatarPath());
+
+        String suffixPath = mediaService.uploadFile(avatar);
+
+        user.setAvatarPath(suffixPath);
+        User saved = service.save(user);
+        return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAvatarPath()));
     }
 }

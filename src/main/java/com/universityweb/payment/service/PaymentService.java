@@ -15,5 +15,5 @@ public interface PaymentService {
     PaymentResponse processPaymentResult(Payment.EMethod method, HttpServletRequest req, Map<String, String> params);
     Page<PaymentResponse> getPaymentsByUsername(GetByUsernameRequest request);
     Page<PaymentResponse> getPaymentsByUsernameAndStatus(GetPaymentsByUsernameAndStatusRequest request);
-    PaymentResponse simulateSuccess(Long orderId);
+    PaymentResponse makeOrderPaid(Long orderId);
 }

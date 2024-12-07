@@ -43,12 +43,13 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
         AND (:categoryIds IS NULL OR cat.id IN :categoryIds) 
         AND (:levelId IS NULL OR l.id = :levelId) 
         AND (:topicId IS NULL OR t.id = :topicId) 
-        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))) 
+        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
         AND (:progress IS NULL OR :progress = 0 OR e.progress >= :progress) 
         AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) 
         AND (:enrollmentType IS NULL OR e.type = :enrollmentType) 
         GROUP BY e.id, e.createdAt 
         HAVING (:rating IS NULL OR COALESCE(AVG(r.rating), 0) >= :rating)
+        ORDER BY e.createdAt DESC
     """)
     Page<Enrollment> findByUser_UsernameAndFilter(
             @Param("username") String username,
@@ -63,6 +64,7 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             Pageable pageable);
 
     Optional<Enrollment> findByUser_UsernameAndCourse_Id(String username, Long courseId);
+    Optional<Enrollment> findByUserAndCourse(User user, Course course);
 
     boolean existsByCourseId(Long courseId);
 }

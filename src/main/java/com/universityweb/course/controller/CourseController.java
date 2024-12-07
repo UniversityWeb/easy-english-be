@@ -1,18 +1,23 @@
 package com.universityweb.course.controller;
 
+import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
+import com.universityweb.course.customenum.ECourseDetailButtonStatus;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
+import com.universityweb.course.request.GetRelatedCourseReq;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.enrollment.dto.EnrollmentDTO;
+import com.universityweb.enrollment.service.EnrollmentService;
+import com.universityweb.order.service.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +38,19 @@ public class CourseController {
     private final CourseService courseService;
     private final MediaService mediaService;
     private final AuthService authService;
+    private final CartService cartService;
+    private final OrderService orderService;
+    private final EnrollmentService enrollmentService;
 
+    @PreAuthorize("hasRole('TEACHER')")
     @PostMapping("/get-all-course-of-teacher")
     public ResponseEntity<Page<CourseResponse>> getAllCourseOfTeacher(@RequestBody CourseRequest courseRequest) {
-        Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(courseRequest);
+        String username = authService.getCurrentUsername();
+        Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(username, courseRequest);
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/get-all-course-of-student")
     public ResponseEntity<List<CourseResponse>> getAllCourseOfStudent(@RequestBody CourseRequest courseRequest) {
         List<CourseResponse> courseResponses = courseService.getAllCourseOfStudent(courseRequest);
@@ -108,11 +119,13 @@ public class CourseController {
         courseService.softDelete(courseRequest.getId());
         return ResponseEntity.status(HttpStatus.OK).body("Course deleted successfully");
     }
+
     @PostMapping("/get-main-course")
     public ResponseEntity<CourseResponse> getMainCourse(@RequestBody CourseRequest courseRequest) {
         CourseResponse courseResponse = courseService.getMainCourse(courseRequest);
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponse));
     }
+
     @PostMapping("/get-all-course-by-list-category")
     public ResponseEntity<Page<CourseResponse>> getAllCourseByListCategory(@RequestBody CourseRequest courseRequest) {
         Page<CourseResponse> courseResponses = courseService.getAllCourseByListCategory(courseRequest);
@@ -148,6 +161,14 @@ public class CourseController {
         return ResponseEntity.ok(courseResponse);
     }
 
+    @PostMapping("/get-related-courses")
+    public ResponseEntity<List<CourseResponse>> getRelatedCourses(
+            @RequestBody GetRelatedCourseReq req
+    ){
+        List<CourseResponse> courses = courseService.getRelatedCourses(req);
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courses));
+    }
+
     @PostMapping("/admin/get")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<CourseResponse>> getAllCourseForAdmin(
@@ -165,6 +186,47 @@ public class CourseController {
     ) {
         CourseResponse courseResponse = courseService.updateCourseAdmin(courseId, req);
         return ResponseEntity.ok(courseResponse);
+    }
+
+    @PutMapping("/update-notice")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<CourseResponse> updateNotice(
+            @RequestBody CourseRequest req
+    ) {
+        CourseResponse courseResponse = courseService.updateNotice(req);
+        return ResponseEntity.ok(courseResponse);
+    }
+
+    @PutMapping("/count-view/{courseId}")
+    public ResponseEntity<Void> countView(
+            @PathVariable Long courseId
+    ) {
+        courseService.incrementViewCount(courseId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/get-button-status/{courseId}")
+    public ResponseEntity<ECourseDetailButtonStatus> getCourseDetailButtonStatus(
+            @PathVariable
+            Long courseId
+    ) {
+        String username = authService.getCurrentUsername();
+
+        boolean isPurchasedCourse = orderService.isPurchasedCourse(username, courseId);
+        EnrollmentDTO enrollmentDTO = enrollmentService.isEnrolled(username, courseId);
+        if (isPurchasedCourse && enrollmentDTO != null) {
+            if (enrollmentDTO.progress() == 0) {
+                return ResponseEntity.ok(ECourseDetailButtonStatus.START_COURSE);
+            }
+            return ResponseEntity.ok(ECourseDetailButtonStatus.CONTINUE_COURSE);
+        }
+
+        boolean existNotInCart = cartService.existNotInCart(username, courseId);
+        if (!existNotInCart) {
+            return ResponseEntity.ok(ECourseDetailButtonStatus.IN_CART);
+        }
+
+        return ResponseEntity.ok(ECourseDetailButtonStatus.ADD_TO_CART);
     }
 
     private void processCourseMedia(CourseRequest courseRequest, MultipartFile video, MultipartFile image) {
@@ -186,26 +248,4 @@ public class CourseController {
             }
         }
     }
-
-//    @GetMapping("")
-//    public ResponseEntity<List<Course>> getAllCourse() {
-//        return ResponseEntity.ok(courseService.getAllCourses());
-//    }
-//
-//    @GetMapping("/filter")
-//    public ResponseEntity<List<Course>> filterCourse(@RequestParam int price, @RequestParam String name) {
-//        return ResponseEntity.ok(courseService.filterCourse(price, name));
-//    }
-//
-//    @GetMapping("/{courseId}/sales-count")
-//    public ResponseEntity<Long> getSalesCountForCourse(@PathVariable Long courseId) {
-//        Long sales = enrollmentService.countSalesByCourseId(courseId);
-//        return ResponseEntity.ok(sales);
-//    }
-//
-//    @GetMapping("/top-10-sales")
-//    public ResponseEntity<List<Course>> getTop10CoursesBySales() {
-//        List<Course> courses = courseService.getTop10Courses();
-//        return ResponseEntity.ok(courses);
-//    }
 }

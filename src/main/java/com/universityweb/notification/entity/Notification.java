@@ -20,8 +20,14 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "TEXT")
+    private String previewImage;
+
+    @Column(columnDefinition = "TEXT")
     private String message;
+
+    @Column(columnDefinition = "TEXT")
+    private String url;
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;

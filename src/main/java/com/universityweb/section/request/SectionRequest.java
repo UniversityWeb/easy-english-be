@@ -16,7 +16,6 @@ public class SectionRequest {
     private String title;
     private String createdAt;
     private String updatedAt;
-    private int ordinalNumber;
     private Long courseId;
 
     private int pageNumber = 0;

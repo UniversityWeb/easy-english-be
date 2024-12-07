@@ -1,7 +1,7 @@
 package com.universityweb.common.auth.service.auth;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.universityweb.common.AuthUtils;
+import com.universityweb.common.util.AuthUtils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
@@ -15,6 +15,7 @@ import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.service.GoogleAuthService;
 import com.universityweb.common.auth.service.otp.OtpService;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.security.JwtGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,17 +47,23 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public UserDTO registerStudentAccount(RegisterRequest registerRequest) {
         String username = registerRequest.username();
-        boolean isExists = userService.existsByUsername(username);
-        if (isExists) {
+        boolean isExistsByUsername = userService.existsByUsername(username);
+        if (isExistsByUsername) {
             String msg = "Username already exists";
             throw new UserAlreadyExistsException(msg);
         }
 
         String email = registerRequest.email();
-        String plainPassword = registerRequest.password();
+        AuthUtils.validateEmail(email);
 
-        AuthUtils.isValidEmail(email);
-        AuthUtils.isValidEmail(plainPassword);
+        boolean isExistsEmail = userService.existsByEmail(email);
+        if (isExistsEmail) {
+            String msg = "Email already exists";
+            throw new CustomException(msg);
+        }
+
+        String plainPassword = registerRequest.password();
+        AuthUtils.validatePass(plainPassword);
 
         String encodedPassword = passwordEncoder.encode(plainPassword);
         User user = User.builder()
@@ -245,12 +252,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserDTO resendOTPToActiveAccount(String username) {
+    public UserDTO resendOTPToActiveAccount(String usernameOrEmail) {
+        String username = AuthUtils.isValidEmail(usernameOrEmail)
+                ? userRepos.getUsernameByEmail(usernameOrEmail)
+                : usernameOrEmail;
+
         User user = userService.loadUserByUsername(username);
         String email = user.getEmail();
 
         if (user.getStatus() == User.EStatus.ACTIVE) {
             String msg = "User account is already active. No OTP can be resent.";
+            throw new UserAlreadyActiveException(msg);
+        }
+
+        if (user.getStatus() == User.EStatus.DELETED) {
+            String msg = "User account is deleted. No OTP can be resent.";
             throw new UserAlreadyActiveException(msg);
         }
 
@@ -269,7 +285,7 @@ public class AuthServiceImpl implements AuthService {
     public void generateOtpToUpdatePassword(UpdatePasswordRequest request) {
         User user = getCurUser();
         String email = user.getEmail();
-        if (AuthUtils.isValidEmail(email)) {
+        if (!AuthUtils.isValidEmail(email)) {
             throw new EmailNotFoundException("Email is not valid");
         }
 
@@ -294,7 +310,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void generateOtpToResetPassword(String email) {
         if (email == null || email.isEmpty() || !AuthUtils.isValidEmail(email)) {
-            throw new RuntimeException("Email is not valid");
+            throw new CustomException("Email is not valid");
         }
         userService.getUserByEmail(email);
         otpService.generateAndSendOtp(email, OtpService.EPurpose.RESET_PASS);
@@ -348,7 +364,7 @@ public class AuthServiceImpl implements AuthService {
                     .accountStatus(User.EStatus.ACTIVE)
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Error during verify Google Account: ", e);
+            throw new CustomException("Error during verify Google Account: " + e.getMessage());
         }
     }
 

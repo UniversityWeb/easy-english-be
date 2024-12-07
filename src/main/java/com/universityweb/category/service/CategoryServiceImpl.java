@@ -5,6 +5,7 @@ import com.universityweb.category.entity.Category;
 import com.universityweb.category.mapper.CategoryMapper;
 import com.universityweb.category.request.CategoryRequest;
 import com.universityweb.category.response.CategoryResponse;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,11 @@ public class CategoryServiceImpl
         implements CategoryService {
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository repository) {
-        super(repository, CategoryMapper.INSTANCE);
+    public CategoryServiceImpl(
+            CategoryRepository repository,
+            CategoryMapper categoryMapper
+    ) {
+        super(repository, categoryMapper);
     }
 
     public void createCategory(CategoryRequest categoryRequest) {
@@ -47,7 +51,7 @@ public class CategoryServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Category not found");
+        throw new CustomException("Category not found");
     }
 
     @Override

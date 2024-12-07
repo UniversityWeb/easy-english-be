@@ -1,22 +1,26 @@
-package com.universityweb.common;
+package com.universityweb.common.config;
 
 import com.universityweb.cart.mapper.CartItemMapper;
 import com.universityweb.cart.mapper.CartMapper;
+import com.universityweb.category.mapper.CategoryMapper;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.drip.DripMapper;
-import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.lesson.mapper.LessonMapper;
 import com.universityweb.lessontracker.LessonTrackerMapper;
+import com.universityweb.level.mapper.LevelMapper;
 import com.universityweb.message.MessageMapper;
 import com.universityweb.notification.NotificationMapper;
+import com.universityweb.order.mapper.OrderMapper;
+import com.universityweb.payment.mapper.PaymentMapper;
 import com.universityweb.questiongroup.QuestionGroupMapper;
+import com.universityweb.review.mapper.ReviewMapper;
 import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
+import com.universityweb.topic.mapper.TopicMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
-import org.aspectj.weaver.patterns.TypePatternQuestions;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -112,5 +116,41 @@ public class MapperProvider {
     @Primary
     public CartItemMapper cartItemMapper() {
         return Mappers.getMapper(CartItemMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public TopicMapper topicMapper() {
+        return Mappers.getMapper(TopicMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public LevelMapper levelMapper() {
+        return Mappers.getMapper(LevelMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public CategoryMapper categoryMapper() {
+        return Mappers.getMapper(CategoryMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public OrderMapper orderMapper() {
+        return Mappers.getMapper(OrderMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public PaymentMapper paymentMapper() {
+        return Mappers.getMapper(PaymentMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public ReviewMapper reviewMapper() {
+        return Mappers.getMapper(ReviewMapper.class);
     }
 }

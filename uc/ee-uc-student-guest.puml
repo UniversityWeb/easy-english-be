@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+
+' Define Actors
+actor Guest as G
+actor Student as S
+
+rectangle "Easy English System" {
+
+  ' Use cases for Guest
+  G --> (UC_001. Đăng ký)
+
+  ' Common functionalities
+  S --> (UC_002. Đăng nhập)
+  S --> (UC_003. Quên mật khẩu)
+  S --> (UC_004. Xem thông báo)
+
+
+  ' Use cases for Student
+  S --> (UC_005. Tìm kiếm và lọc khóa học)
+  S --> (UC_006. Xem chi tiết khóa học)
+  S --> (UC_007. Quản lý giỏ hàng)
+  S --> (UC_008. Mua khóa học)
+  S --> (UC_009. Quản lý yêu thích)
+  S --> (UC_010. Xem khóa học đã mua)
+  S --> (UC_011. Học bài)
+  S --> (UC_012. Làm các bài tập)
+  S --> (UC_013. Đánh giá khóa học)
+  S --> (UC_014. Nhắn tin)
+}
+@enduml

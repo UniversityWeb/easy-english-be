@@ -2,6 +2,7 @@ package com.universityweb.lessontracker.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.service.EnrollmentService;
@@ -55,7 +56,7 @@ public class LessonTrackerServiceImpl
         Long lessonId = dto.getLessonId();
         Optional<LessonTracker> optionalLessonTracker = repository.findByUser_UsernameAndLesson_Id(username, lessonId);
         if (optionalLessonTracker.isPresent()) {
-            throw new RuntimeException("LessonTracker already exists");
+            throw new CustomException("LessonTracker already exists");
         }
     }
 
@@ -71,7 +72,7 @@ public class LessonTrackerServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find LessonTracker with id " + id);
+        throw new CustomException("Could not find LessonTracker with id " + id);
     }
 
     @Override
@@ -94,12 +95,7 @@ public class LessonTrackerServiceImpl
 
     @Override
     public Boolean isLearned(String username, Long lessonId) {
-        Optional<LessonTracker> optional = repository.findByUser_UsernameAndLesson_Id(username, lessonId);
-        if (optional.isEmpty()) {
-            return false;
-        }
-        LessonTracker lessonTracker = optional.get();
-        return lessonTracker.getIsCompleted() && !lessonTracker.getIsDeleted();
+        return repository.isLessonCompleted(username, lessonId);
     }
 
     @Override

@@ -4,18 +4,18 @@ import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.service.user.UserService;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
 import com.universityweb.message.MessageMapper;
 import com.universityweb.message.MessageRepos;
+import com.universityweb.notification.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,7 +28,7 @@ public class MessageServiceImpl
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final NotificationService notificationService;
 
     @Autowired
     public MessageServiceImpl(
@@ -36,17 +36,17 @@ public class MessageServiceImpl
             MessageMapper mapper,
             UserService userService,
             UserMapper userMapper,
-            SimpMessagingTemplate simpMessagingTemplate
+            NotificationService notificationService
     ) {
         super(repository, mapper);
         this.userService = userService;
         this.userMapper = userMapper;
-        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.notificationService = notificationService;
     }
 
     @Override
     protected void throwNotFoundException(UUID id) {
-        throw new RuntimeException("Couldn't find message with id: " + id);
+        throw new CustomException("Couldn't find message with id: " + id);
     }
 
     @Override
@@ -96,8 +96,11 @@ public class MessageServiceImpl
     @Override
     public MessageDTO sendRealtimeMessage(MessageDTO dto) {
         MessageDTO messageDTO = super.create(dto);
-        String destination = WebSocketConstants.getMessageTopic(dto.getRecipientUsername());
-        simpMessagingTemplate.convertAndSend(destination, messageDTO);
+        String chatBoxOfRecipientTopic = WebSocketConstants.getMessageTopic(dto.getRecipientUsername());
+        notificationService.sendRealtimeNotification(chatBoxOfRecipientTopic, messageDTO);
+
+        String recentChatsOfRecipientTopic = WebSocketConstants.getRecentChatsTopic(dto.getRecipientUsername());
+        notificationService.sendRealtimeNotification(recentChatsOfRecipientTopic, messageDTO);
         return messageDTO;
     }
 }

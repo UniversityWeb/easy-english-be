@@ -3,6 +3,9 @@ package com.universityweb.test.service;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.drip.Drip;
 import com.universityweb.drip.DripRepos;
+import com.universityweb.drip.dto.PrevDripDTO;
+import com.universityweb.lesson.LessonRepository;
+import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lessontracker.LessonTrackerRepository;
 import com.universityweb.questiongroup.QuestionGroupRepos;
 import com.universityweb.questiongroup.entity.QuestionGroup;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TestServiceImpl
@@ -38,6 +42,8 @@ public class TestServiceImpl
     private final DripRepos dripRepos;
     private final TestResultRepos testResultRepos;
     private final LessonTrackerRepository lessonTrackerRepository;
+    private final LessonRepository lessonRepository;
+    private final TestRepos testRepos;
 
     @Autowired
     public TestServiceImpl(
@@ -49,7 +55,10 @@ public class TestServiceImpl
             TestQuestionRepos testQuestionRepos,
             DripRepos dripRepos,
             TestResultRepos testResultRepos,
-            LessonTrackerRepository lessonTrackerRepository) {
+            LessonTrackerRepository lessonTrackerRepository,
+            LessonRepository lessonRepository,
+            TestRepos testRepos
+    ) {
         super(repository, testMapper);
         this.sectionService = sectionService;
         this.testPartRepos = testPartRepos;
@@ -58,6 +67,8 @@ public class TestServiceImpl
         this.dripRepos = dripRepos;
         this.testResultRepos = testResultRepos;
         this.lessonTrackerRepository = lessonTrackerRepository;
+        this.lessonRepository = lessonRepository;
+        this.testRepos = testRepos;
     }
 
     @Override
@@ -83,9 +94,38 @@ public class TestServiceImpl
         List<TestDTO> testDTOs = new ArrayList<>();
         for (Test test : tests) {
             Long testId = test.getId();
+            List<Drip> drips = dripRepos.findDripByNextId(testId, Drip.ESourceType.TEST);
+
             boolean isLocked = this.isLocked(username, testId);
             TestDTO testDTO = mapper.toDTOBasedOnIsLocked(isLocked, test);
             refactorOrdinalNumbers(testId);
+
+            testDTO.setPrevDrips(drips.stream()
+                    .map(drip -> {
+                        Long prevId = drip.getPrevId();
+                        String title = "";
+                        String type = "";
+                        switch (drip.getPrevType()) {
+                            case LESSON:
+                                Lesson tempLesson = lessonRepository.findById(prevId).orElse(null);
+                                if (tempLesson != null) {
+                                    title = tempLesson.getTitle() != null ? tempLesson.getTitle() : "Unnamed Lesson";
+                                    type = tempLesson.getType() != null ? tempLesson.getType().toString() : "Unknown Lesson Type";
+                                }
+                                break;
+
+                            case TEST:
+                                Test tempTest = testRepos.findById(prevId).orElse(null);
+                                if (tempTest != null) {
+                                    title = tempTest.getTitle() != null ? tempTest.getTitle() : "Unnamed Test";
+                                    type = Drip.ESourceType.TEST.toString();
+                                }
+                                break;
+                        }
+                        return new PrevDripDTO(drip.getPrevId(), title, type);
+                    })
+                    .collect(Collectors.toSet()));
+
             testDTOs.add(testDTO);
         }
 
@@ -156,7 +196,6 @@ public class TestServiceImpl
         existingTest.setStatus(dto.getStatus());
         existingTest.setTitle(dto.getTitle());
         existingTest.setDescription(dto.getDescription());
-        existingTest.setOrdinalNumber(dto.getOrdinalNumber());
         existingTest.setDurationInMilis(dto.getDurationInMilis());
         existingTest.setPassingGrade(dto.getPassingGrade());
 

@@ -1,5 +1,6 @@
 package com.universityweb.section.service;
 
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
@@ -41,7 +42,6 @@ public class SectionServiceImpl
         section.setTitle(sectionRequest.getTitle());
         section.setCreatedAt(sectionRequest.getCreatedAt());
         section.setUpdatedAt(sectionRequest.getUpdatedAt());
-        section.setOrdinalNumber(sectionRequest.getOrdinalNumber());
         return savedAndConvertToDTO(section);
     }
 
@@ -65,7 +65,7 @@ public class SectionServiceImpl
     @Override
     protected void throwNotFoundException(Long id) {
         String msg = "Could not find any sections with id=" + id;
-        throw new RuntimeException(msg);
+        throw new CustomException(msg);
     }
 
     @Override
@@ -81,7 +81,6 @@ public class SectionServiceImpl
         section.setTitle(dto.getTitle());
         section.setCreatedAt(dto.getCreatedAt());
         section.setUpdatedAt(dto.getUpdatedAt());
-        section.setOrdinalNumber(dto.getOrdinalNumber());
         return savedAndConvertToDTO(section);
     }
 

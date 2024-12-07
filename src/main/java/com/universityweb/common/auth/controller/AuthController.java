@@ -1,6 +1,5 @@
 package com.universityweb.common.auth.controller;
 
-import com.universityweb.common.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.ActiveAccountResponse;
@@ -15,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +48,7 @@ public class AuthController {
             })
     @PostMapping("/register")
     public ResponseEntity<String> register(
-            @RequestBody RegisterRequest registerRequest
+            @Valid @RequestBody RegisterRequest registerRequest
     ) {
         log.info("Register method called with request: {}", registerRequest);
         authService.registerStudentAccount(registerRequest);
@@ -290,11 +290,11 @@ public class AuthController {
     )
     @PostMapping("/resend-otp-to-active-account/{username}")
     public ResponseEntity<UserDTO> resendOTPToActiveAccount(
-            @PathVariable String username
+            @PathVariable("username") String usernameOrEmail
     ) {
-        log.info("Received request to resend OTP for user: {}", username);
-        UserDTO userDTO = authService.resendOTPToActiveAccount(username);
-        log.info("OTP resent successfully for user: {}", username);
+        log.info("Received request to resend OTP for user: {}", usernameOrEmail);
+        UserDTO userDTO = authService.resendOTPToActiveAccount(usernameOrEmail);
+        log.info("OTP resent successfully for user: {}", usernameOrEmail);
         userDTO = MediaUtils.attachUserMediaUrls(mediaService, userDTO);
         return ResponseEntity.ok(userDTO);
     }

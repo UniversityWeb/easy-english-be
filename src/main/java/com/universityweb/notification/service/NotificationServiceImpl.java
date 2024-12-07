@@ -48,16 +48,19 @@ public class NotificationServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
 
         Page<Notification> notificationsPage = repository.findByUserUsername(username, pageable);
-        return notificationsPage.map(mapper::toDTO);
+        return mapper.mapPageToPageDTO(notificationsPage);
     }
 
     @Override
     public NotificationResponse addNewNotification(AddNotificationRequest request) {
-        User user = userService.loadUserByUsername(request.username());
+        String username = request.getUsername();
+        User user = userService.loadUserByUsername(username);
 
         Notification notification = Notification.builder()
-                .message(request.message())
-                .createdDate(request.createdDate())
+                .previewImage(request.getPreviewImage())
+                .message(request.getMessage())
+                .url(request.getUrl())
+                .createdDate(request.getCreatedDate())
                 .read(false)
                 .user(user)
                 .build();
@@ -85,10 +88,31 @@ public class NotificationServiceImpl
 
     @Override
     public NotificationResponse sendRealtimeNotification(AddNotificationRequest request) {
+        String username = request.getUsername();
         NotificationResponse notificationResponse = addNewNotification(request);
-        String destination = WebSocketConstants.getNotificationTopic(request.username());
-        simpMessagingTemplate.convertAndSend(destination, notificationResponse);
+
+        try {
+            String sendNotificationDestination = WebSocketConstants.getNotificationTopic(username);
+            sendRealtimeNotification(sendNotificationDestination, notificationResponse);
+
+            int numberOfUnreadNotifications = countUnreadNotifications(username);
+            String refreshUnreadNotiDestination = WebSocketConstants.getNotificationsCountTopic(username);
+            sendRealtimeNotification(refreshUnreadNotiDestination, numberOfUnreadNotifications);
+        } catch (Exception e) {
+            log.error(e);
+        }
+
         return notificationResponse;
+    }
+
+    @Override
+    public int countUnreadNotifications(String username) {
+        return repository.countUnreadNotificationsByUser(username);
+    }
+
+    @Override
+    public void sendRealtimeNotification(String topic, Object payload) {
+        simpMessagingTemplate.convertAndSend(topic, payload);
     }
 
     @Override

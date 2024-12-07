@@ -42,6 +42,9 @@ public class LessonTracker implements Serializable {
     @PrePersist
     @PreUpdate
     private void setDefaults() {
+        if (isCompleted == null) {
+            isCompleted = false;
+        }
         if (isDeleted == null) {
             isDeleted = false;
         }
