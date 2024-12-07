@@ -2,6 +2,8 @@ package com.universityweb.notification.controller;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaUtils;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.request.GetByUsernameRequest;
 import com.universityweb.common.response.ErrorResponse;
 import com.universityweb.notification.request.AddNotificationRequest;
@@ -29,6 +31,7 @@ public class NotificationController {
     private static final Logger log = LogManager.getLogger(NotificationController.class);
     private final NotificationService notificationService;
     private final AuthService authService;
+    private final MediaService mediaService;
 
     @Operation(
             summary = "Get Notifications by Username",
@@ -61,7 +64,7 @@ public class NotificationController {
         Page<NotificationResponse> notificationsPage =
                 notificationService.getNotificationsByUsername(request);
         log.info("Retrieved {} notifications for user: {}", notificationsPage.getSize(), username);
-        return ResponseEntity.ok(notificationsPage);
+        return ResponseEntity.ok(MediaUtils.attachNotificationMediaUrls(mediaService, notificationsPage));
     }
 
     @Operation(

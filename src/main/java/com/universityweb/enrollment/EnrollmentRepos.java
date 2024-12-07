@@ -49,6 +49,7 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
         AND (:enrollmentType IS NULL OR e.type = :enrollmentType) 
         GROUP BY e.id, e.createdAt 
         HAVING (:rating IS NULL OR COALESCE(AVG(r.rating), 0) >= :rating)
+        ORDER BY e.createdAt DESC
     """)
     Page<Enrollment> findByUser_UsernameAndFilter(
             @Param("username") String username,

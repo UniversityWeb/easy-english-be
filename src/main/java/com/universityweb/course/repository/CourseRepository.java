@@ -1,6 +1,5 @@
 package com.universityweb.course.repository;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +14,6 @@ import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
-    Page<Course> findByPriceGreaterThanAndTitleContaining(int price, String title, Pageable pageable);
-
-    Page<Course> findByOwner(User user, Pageable pageable);
-
-    Page<Course> findByStatusInAndOwner(List<Course.EStatus> statuses, User owner, Pageable pageable);
-
-    Page<Course> findByStatusNotInAndOwner(List<Course.EStatus> excludedStatuses, User owner, Pageable pageable);
-
     Page<Course> findByStatusAndCategoriesId(Course.EStatus status, Long categoryId, Pageable pageable);
 
     Page<Course> findByStatusAndTopicId(Course.EStatus status, Long topicId, Pageable pageable);
@@ -52,6 +43,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
         AND c.status <> 'DELETED'
         GROUP BY c.id 
         HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
+        ORDER BY c.createdAt DESC
     """)
     Page<Course> findCourseForTeacher(
             @Param("ownerUsername") String ownerUsername,
@@ -83,6 +75,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
         AND (:statuses IS NULL OR c.status IN :statuses)
         GROUP BY c.id 
         HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
+        ORDER BY c.createdAt DESC
     """)
     Page<Course> findCourseByFilter(
             @Param("categoryId") List<Long> categoryId,
@@ -114,6 +107,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
         AND (:status IS NULL OR c.status = :status) 
         GROUP BY c.id 
         HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
+        ORDER BY c.createdAt DESC
     """)
     Page<Course> findCourseForAdmin(
             @Param("categoryId") List<Long> categoryId,
