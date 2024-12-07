@@ -36,7 +36,8 @@ public interface FavouriteRepository extends JpaRepository<Favourite, Long>{
             "  OR (c.price.price <= :price))" +
             ") " +
             "GROUP BY f.id " +
-            "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)")
+            "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating) " +
+            "ORDER BY f.createdAt DESC")
     Page<Favourite> findByUserAndFilter(
             @Param("username") String username,
             @Param("categoryId") List<Long> categoryId,
