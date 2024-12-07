@@ -35,8 +35,8 @@ public interface CourseStatisticsRepos extends CrudRepository<Order, Long> {
         JOIN oi.order o 
         JOIN o.payment p
         WHERE p.status = 'SUCCESS' 
-        AND MONTH(p.paymentTime) = :month 
-        AND YEAR(p.paymentTime) = :year 
+        AND MONTH(o.createdAt) = :month 
+        AND YEAR(o.createdAt) = :year 
         AND c.owner.username = :ownerUsername
         GROUP BY c.id, c.title 
         ORDER BY totalRevenue DESC
