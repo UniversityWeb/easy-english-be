@@ -1,0 +1,25 @@
+@startuml
+title Xem chi tiết khóa học
+
+actor Student
+entity View
+entity Controller
+entity Service
+entity Model
+database Database
+
+Student -> View : clickOnCourse(courseId)
+
+View -> Controller : requestCourseDetails(courseId)
+Controller -> Service : getCourseDetails(courseId)
+Service -> Model : fetchCourseDetails(courseId)
+Model -> Database : queryCourseDetails(courseId)
+Database --> Model : returnCourseDetails(courseDetails)
+Model --> Service : returnCourseDetails(courseDetails)
+Service --> Controller : returnCourseDetails(courseDetails)
+Controller --> View : showCourseDetails(courseDetails)
+View --> Student : displayCourseDetails(courseDetails)
+View --> Teacher : displayCourseDetails(courseDetails)
+View --> Admin : displayCourseDetails(courseDetails)
+
+@enduml

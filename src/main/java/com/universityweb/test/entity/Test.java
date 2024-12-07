@@ -36,9 +36,6 @@ public class Test implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "ordinal_number", columnDefinition = "integer default 1")
-    private Integer ordinalNumber;
-
     @Column(name = "duration_in_milis")
     private Integer durationInMilis;
 
@@ -70,9 +67,6 @@ public class Test implements Serializable {
         }
         if (status == null) {
             status = EStatus.DRAFT; // Ensures default status is set
-        }
-        if (ordinalNumber == null) {
-            ordinalNumber = 1; // Ensures default ordinalNumber is set
         }
         if (durationInMilis == null) {
             durationInMilis = 3600000; // Ensures default duration is set

@@ -1,6 +1,5 @@
 package com.universityweb.common.auth.controller;
 
-import com.universityweb.common.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.ActiveAccountResponse;

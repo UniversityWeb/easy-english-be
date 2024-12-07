@@ -22,7 +22,6 @@ public class TestDTO {
     Test.EStatus status;
     String title;
     String description;
-    Integer ordinalNumber;
     Integer durationInMilis;
     Double passingGrade;
     LocalDateTime createdAt;

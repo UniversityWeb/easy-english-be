@@ -15,6 +15,5 @@ public class SectionDTO {
     String title;
     String createdAt;
     String updatedAt;
-    int ordinalNumber;
     Long courseId;
 }

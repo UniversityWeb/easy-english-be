@@ -1,4 +1,4 @@
-package com.universityweb;
+package com.universityweb.common.util;
 
 public class FrontendRoutes {
     public static String getOrderDetailRoute(String orderIdStr) {

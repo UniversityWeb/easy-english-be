@@ -1,0 +1,35 @@
+@startuml
+title Đánh giá khóa học
+
+actor Student
+entity View
+entity Controller
+entity Service
+entity Model
+Database Database
+
+Student -> View : displayCourseReviewPage(courseId)
+View -> Controller : requestCourseDetails(courseId)
+Controller -> Service : getCourseDetails(courseId)
+Service -> Model : fetchCourseDetails(courseId)
+Model -> Database : queryCourseDetails(courseId)
+Database --> Model : returnCourseDetails(courseDetails)
+Model --> Service : returnCourseDetails(courseDetails)
+Service --> Controller : returnCourseDetails(courseDetails)
+Controller --> View : showCourseDetails(courseDetails)
+View --> Student : displayCourseDetails(courseDetails)
+
+alt Submit Review
+    Student -> View : submitCourseReview(courseId, rating, reviewText)
+    View -> Controller : submitCourseReview(courseId, studentId, rating, reviewText)
+    Controller -> Service : submitCourseReview(courseId, studentId, rating, reviewText)
+    Service -> Model : saveCourseReview(courseId, studentId, rating, reviewText)
+    Model -> Database : insertCourseReview(courseId, studentId, rating, reviewText)
+    Database --> Model : returnInsertStatus(success/failure)
+    Model --> Service : returnInsertStatus(success/failure)
+    Service --> Controller : returnInsertStatus(success/failure)
+    Controller --> View : showReviewSubmissionStatus(status)
+    View --> Student : displayReviewSubmissionStatus(status)
+end
+
+@enduml

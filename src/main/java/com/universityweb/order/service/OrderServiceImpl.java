@@ -70,7 +70,7 @@ public class OrderServiceImpl
                 .totalAmount(totalAmount)
                 .currency(ECurrency.VND)
                 .createdAt(LocalDateTime.now())
-                .updatedAt(null)
+                .updatedAt(LocalDateTime.now())
                 .status(Order.EStatus.PENDING_PAYMENT)
                 .user(user)
                 .build();

@@ -1,0 +1,67 @@
+@startuml
+left to right direction
+
+' Define Actors
+actor Guest as G
+actor Student as S
+actor Teacher as T
+actor Admin as A
+
+S -[hidden]-> A
+
+T -[hidden]-> A
+
+rectangle "Easy English System" {
+
+  ' Use cases for Guest
+  G --> (UC_001. Đăng ký)
+
+
+  ' Common functionalities
+  S --> (UC_002. Đăng nhập)
+  T --> (UC_002. Đăng nhập)
+  A --> (UC_002. Đăng nhập)
+
+  S --> (UC_003. Quên mật khẩu)
+  T --> (UC_003. Quên mật khẩu)
+  A --> (UC_003. Quên mật khẩu)
+
+  S --> (UC_004. Xem thông báo)
+  T --> (UC_004. Xem thông báo)
+  A --> (UC_004. Xem thông báo)
+
+
+  ' Use cases for Student
+  S --> (UC_005. Tìm kiếm và lọc khóa học)
+  S --> (UC_006. Xem chi tiết khóa học)
+  S --> (UC_007. Quản lý giỏ hàng)
+  S --> (UC_008. Mua khóa học)
+  S --> (UC_009. Quản lý yêu thích)
+  S --> (UC_010. Xem khóa học đã mua)
+  S --> (UC_011. Học bài)
+  S --> (UC_012. Làm các bài tập)
+  S --> (UC_013. Đánh giá khóa học)
+  S --> (UC_014. Nhắn tin)
+
+  ' Use cases for Teacher
+  T --> (UC_015. Quản lý khóa học)
+  (UC_015. Quản lý khóa học) <|-- (UC_016. Quản lý phần của khóa học) : <<extend>>
+
+  (UC_016. Quản lý phần của khóa học) <|-- (UC_017. Quản lý bài học) : <<extend>>
+  
+  (UC_016. Quản lý phần của khóa học) <|-- (UC_018. Quản lý bài kiểm tra) : <<extend>>
+  (UC_018. Quản lý bài kiểm tra) <|-- (UC_019. Quản lý các phần của bài kiểm tra) : <<extend>>
+  (UC_019. Quản lý các phần của bài kiểm tra) <|-- (UC_020. Quản lý nhóm câu hỏi) : <<extend>>
+  (UC_020. Quản lý nhóm câu hỏi) <|-- (UC_021. Quản lý câu hỏi) : <<extend>>
+
+  (UC_018. Quản lý bài kiểm tra) <|-- (UC_022. Xem lịch sử bài kiểm tra) : <<extend>>
+
+  T --> (UC_023. Tương tác với học viên)
+  T --> (UC_024. Xem thống kê)
+
+  ' Use cases for Admin
+  A --> (UC_025. Duyệt khóa học)
+  A --> (UC_026. Quản lý người dùng)
+
+}
+@enduml

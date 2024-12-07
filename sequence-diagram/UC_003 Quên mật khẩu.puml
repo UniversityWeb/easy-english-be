@@ -1,0 +1,49 @@
+@startuml
+actor Guest
+entity View
+entity Controller
+entity Service
+entity OTPService
+entity EmailService
+database Database
+
+Guest -> View : displayForgotPasswordForm()
+View -> Controller : submitEmail(email)
+Controller -> Service : validateEmail(email)
+Service -> Model : findUserByEmail(email)
+Model -> Database : checkEmailExists(email)
+Database --> Model : returnUserExistence(result)
+Model --> Service : returnUserExistence(result)
+Service --> Controller : returnUserExistence(result)
+
+alt User exists
+    Controller -> OTPService : generateOTP()
+    OTPService -> EmailService : sendOTPToEmail(email, OTP)
+    EmailService --> OTPService : returnEmailStatus(success/failure)
+    OTPService --> Controller : returnOTPStatus(success/failure)
+    Controller --> View : showOTPSentMessage()
+    View --> Guest : displayOTPConfirmationForm()
+    Guest -> View : enterOTP(otp)
+    View -> Controller : submitOTP(otp)
+    Controller -> OTPService : validateOTP(email, otp)
+    OTPService --> Controller : returnOTPValidationResult(success/failure)
+
+    alt OTP valid
+        Controller -> Service : promptPasswordReset()
+        Service -> Model : updateUserPassword(email, newPassword)
+        Model -> Database : updatePasswordInDB(email, newPassword)
+        Database --> Model : returnPasswordUpdateStatus(success/failure)
+        Model --> Service : returnPasswordUpdateStatus(success/failure)
+        Service --> Controller : returnPasswordUpdateStatus(success/failure)
+        Controller --> View : showPasswordResetSuccess()
+        View --> Guest : displayPasswordResetSuccessMessage()
+    else OTP invalid
+        Controller --> View : showInvalidOTPMessage()
+        View --> Guest : displayInvalidOTPMessage()
+    end
+else User does not exist
+    Controller --> View : showEmailNotFoundMessage()
+    View --> Guest : displayEmailNotFoundMessage()
+end
+
+@enduml

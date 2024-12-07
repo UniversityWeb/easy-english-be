@@ -44,3 +44,5 @@ mylog.log.*.gz
 **/.env
 
 .DS_Store
+
+sequence-diagram/**.png

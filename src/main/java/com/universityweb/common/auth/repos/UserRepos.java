@@ -64,4 +64,6 @@ public interface UserRepos extends JpaRepository<User, String> {
             @Param("role") User.ERole role,
             Pageable pageable
     );
+
+    boolean existsByEmail(String email);
 }

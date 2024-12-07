@@ -1,4 +1,4 @@
-package com.universityweb.common;
+package com.universityweb.common.config;
 
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.response.ErrorResponse;

@@ -1,0 +1,61 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+title Xác thực thông tin đăng ký
+
+boundary RegisterView
+control AuthController
+control AuthService
+
+activate RegisterView
+activate AuthController
+activate AuthService
+
+alt Invalid Email
+    AuthService --> AuthController : throw new Exception("Invalid email address")
+end
+
+alt Email Already Exists
+    AuthService --> AuthController : throw new Exception("Email already exists")
+end
+
+alt Username Already Exists
+    AuthService --> AuthController : throw new Exception("Username already exists")
+end
+
+alt Dob in the Future
+    AuthService --> AuthController : throw new Exception("Date of birth\n cannot be in the future")
+end
+
+alt No Lowercase Letter
+    AuthService --> AuthController : throw new Exception("Password must contain\n at least one lowercase letter")
+end
+
+alt No Uppercase Letter
+    AuthService --> AuthController : throw new Exception("Password must contain\n at least one uppercase letter")
+end
+
+alt No Special Character
+    AuthService --> AuthController : throw new Exception("Password must contain\n at least one special character")
+end
+
+alt No Digit
+    AuthService --> AuthController : throw new Exception("Password must contain\n at least one digit")
+end
+
+alt Password Too Short
+    AuthService --> AuthController : throw new Exception("Password must\n be at least 8 characters long")
+end
+
+alt any condition
+    AuthController --> RegisterView : return error
+    RegisterView -> RegisterView : Hiện lỗi tương ứng
+end
+
+deactivate AuthService
+deactivate AuthController
+deactivate RegisterView
+
+@enduml

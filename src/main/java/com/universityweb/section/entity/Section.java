@@ -41,9 +41,6 @@ public class Section {
     @Column(name = "updated_at")
     private String updatedAt;
 
-    @Column(name = "ordinal_number")
-    private int ordinalNumber;
-
     @ManyToOne
     @JoinColumn(name = "course_id")
     @JsonBackReference

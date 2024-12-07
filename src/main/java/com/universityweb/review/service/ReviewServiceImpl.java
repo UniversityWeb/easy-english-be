@@ -1,11 +1,10 @@
 package com.universityweb.review.service;
 
-import com.universityweb.FrontendRoutes;
+import com.universityweb.common.util.FrontendRoutes;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
-import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.response.CourseResponse;
@@ -20,7 +19,6 @@ import com.universityweb.review.request.ReviewRequest;
 import com.universityweb.review.response.ReviewResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

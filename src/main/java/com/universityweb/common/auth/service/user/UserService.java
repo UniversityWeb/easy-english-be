@@ -28,4 +28,6 @@ public interface UserService extends UserDetailsService, BaseService<User, UserD
     UserForAdminDTO updateUserForAdmin(String username, UserForAdminDTO req);
 
     UserForAdminDTO addUserForAdmin(UserForAdminDTO req);
+
+    boolean existsByEmail(String email);
 }

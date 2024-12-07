@@ -1,0 +1,22 @@
+@startuml
+title Xem khóa học đã mua
+
+actor Student
+entity View
+entity Controller
+entity Service
+entity Model
+Database Database
+
+Student -> View : displayPurchasedCoursesPage()
+View -> Controller : requestPurchasedCourses(studentId)
+Controller -> Service : getPurchasedCourses(studentId)
+Service -> Model : fetchPurchasedCourses(studentId)
+Model -> Database : queryPurchasedCourses(studentId)
+Database --> Model : returnPurchasedCourses(purchasedCourses)
+Model --> Service : returnPurchasedCourses(purchasedCourses)
+Service --> Controller : returnPurchasedCourses(purchasedCourses)
+Controller --> View : showPurchasedCourses(purchasedCourses)
+View --> Student : displayPurchasedCourses(purchasedCourses)
+
+@enduml
