@@ -1,9 +1,11 @@
 package com.universityweb.statistics;
 
 
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.statistics.service.CourseStatisticsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StatisticsController {
     private final CourseStatisticsService courseStatisticsService;
+    private final AuthService authService;
 
     @GetMapping("/top3/by-year/{year}")
     public ResponseEntity<Map<String, Object>> getRevenueByYear(
@@ -51,5 +54,17 @@ public class StatisticsController {
         response.put("courses", courses);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/top-revenue/{month}/{year}")
+    public ResponseEntity<Page<Map<String, Object>>> getRevenueByMonthAndYear(
+            @PathVariable int month,
+            @PathVariable int year,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        String username = authService.getCurrentUsername();
+        Page<Map<String, Object>> topCourses = courseStatisticsService.getTopCoursesByRevenue(username, month, year, page, size);
+        return ResponseEntity.ok(topCourses);
     }
 }

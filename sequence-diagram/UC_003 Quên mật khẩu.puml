@@ -1,49 +1,89 @@
 @startuml
-actor Guest
-entity View
-entity Controller
-entity Service
-entity OTPService
-entity EmailService
+title Quên mật khẩu
+
+autonumber
+
+actor User
+boundary LoginView
+boundary ForgotPasswordView
+boundary ResetPasswordView
+control AuthController
+control AuthService
+control OTPService
+control EmailService
+entity UserModel
 database Database
 
-Guest -> View : displayForgotPasswordForm()
-View -> Controller : submitEmail(email)
-Controller -> Service : validateEmail(email)
-Service -> Model : findUserByEmail(email)
-Model -> Database : checkEmailExists(email)
-Database --> Model : returnUserExistence(result)
-Model --> Service : returnUserExistence(result)
-Service --> Controller : returnUserExistence(result)
+User -> LoginView : Ấn nút "Forgot password"
+activate LoginView
+LoginView -> ForgotPasswordView : navigate()
+deactivate LoginView
+activate ForgotPasswordView
 
-alt User exists
-    Controller -> OTPService : generateOTP()
-    OTPService -> EmailService : sendOTPToEmail(email, OTP)
-    EmailService --> OTPService : returnEmailStatus(success/failure)
-    OTPService --> Controller : returnOTPStatus(success/failure)
-    Controller --> View : showOTPSentMessage()
-    View --> Guest : displayOTPConfirmationForm()
-    Guest -> View : enterOTP(otp)
-    View -> Controller : submitOTP(otp)
-    Controller -> OTPService : validateOTP(email, otp)
-    OTPService --> Controller : returnOTPValidationResult(success/failure)
+User -> ForgotPasswordView : Nhập email
+ForgotPasswordView -> AuthController : resetPasswordRequest(email)
+activate AuthController
 
-    alt OTP valid
-        Controller -> Service : promptPasswordReset()
-        Service -> Model : updateUserPassword(email, newPassword)
-        Model -> Database : updatePasswordInDB(email, newPassword)
-        Database --> Model : returnPasswordUpdateStatus(success/failure)
-        Model --> Service : returnPasswordUpdateStatus(success/failure)
-        Service --> Controller : returnPasswordUpdateStatus(success/failure)
-        Controller --> View : showPasswordResetSuccess()
-        View --> Guest : displayPasswordResetSuccessMessage()
-    else OTP invalid
-        Controller --> View : showInvalidOTPMessage()
-        View --> Guest : displayInvalidOTPMessage()
-    end
-else User does not exist
-    Controller --> View : showEmailNotFoundMessage()
-    View --> Guest : displayEmailNotFoundMessage()
+alt Email hợp lệ
+    AuthController -> AuthService : verifyEmail(email)
+    activate AuthService
+    AuthService -> UserModel : findUserByEmail(email)
+    activate UserModel
+    UserModel -> Database : findByEmail(email)
+    activate Database
+    Database --> UserModel : return user
+    deactivate Database
+    UserModel --> AuthService : return user
+    deactivate UserModel
+
+    AuthService -> OTPService : generateAndSendOtp(email)
+    activate OTPService
+    OTPService -> EmailService : sendOtpToEmail(email, otp)
+    activate EmailService
+    EmailService -> User : sendEmail(otp)
+    deactivate EmailService
+    deactivate OTPService
+
+    AuthService --> AuthController : return otpSent
+    deactivate AuthService
+    AuthController --> ForgotPasswordView : return otpSent
+    deactivate AuthController
+    ForgotPasswordView -> ResetPasswordView : navigate()
+    deactivate ForgotPasswordView
+    activate ResetPasswordView
+    ResetPasswordView -> ResetPasswordView : msg "Otp sent to email successfully"
+
+else Email không hợp lệ
+    AuthController --> ForgotPasswordView : return error
+    deactivate AuthController
+    ForgotPasswordView -> ForgotPasswordView : msg "Could not find your email: <email lỗi>"
 end
+
+User -> ResetPasswordView : Nhập mật khẩu mới, xác nhận mật khẩu và OTP
+ResetPasswordView -> AuthController : resetPassword(email, newPassword, otp)
+activate AuthController
+
+AuthController -> AuthService : resetPassword(email, newPassword, otp)
+activate AuthService
+AuthService -> OTPService : validateOtp(email, otp)
+activate OTPService
+OTPService -> AuthService : return validOtp
+deactivate OTPService
+
+AuthService -> UserModel : updatePassword(email, newPassword)
+activate UserModel
+UserModel -> Database : updatePassword(email, newPassword)
+activate Database
+Database --> UserModel : return success
+deactivate Database
+UserModel --> AuthService : return success
+deactivate UserModel
+
+AuthService --> AuthController : return success
+deactivate AuthService
+AuthController --> ResetPasswordView : return success
+deactivate AuthController
+ResetPasswordView -> ResetPasswordView : msg "Password reset successfully"
+deactivate ResetPasswordView
 
 @enduml

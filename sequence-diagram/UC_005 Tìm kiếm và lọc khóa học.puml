@@ -1,22 +1,65 @@
 @startuml
 title Tìm kiếm và lọc khóa học
 
-actor Guest
-entity View
-entity Controller
-entity Service
-entity Model
+autonumber
+
+actor User
+boundary NavigationBar
+boundary CourseSearchView
+control CourseController
+control CourseService
+entity CourseModel
 database Database
 
-Guest -> View : displaySearchAndFilterPage()
-View -> Controller : submitSearchQuery(query, filters)
-Controller -> Service : searchAndFilterCourses(query, filters)
-Service -> Model : fetchCourses(query, filters)
-Model -> Database : queryCourses(query, filters)
-Database --> Model : returnFilteredCourses(courseList)
-Model --> Service : returnFilteredCourses(courseList)
-Service --> Controller : returnFilteredCourses(courseList)
-Controller --> View : displaySearchResults(courseList)
-View --> Guest : displayFilteredCourses(courseList)
+User -> NavigationBar : Ấn nút “Courses”
+activate NavigationBar
+NavigationBar -> CourseSearchView : navigate()
+deactivate NavigationBar
+activate CourseSearchView
+
+CourseSearchView -> CourseController : loadSearchPage()
+activate CourseController
+CourseController --> CourseSearchView : return searchPage
+deactivate CourseController
+CourseSearchView -> CourseSearchView : Hiển thị ô tìm kiếm và các bộ lọc
+deactivate CourseSearchView
+
+User -> CourseSearchView : Nhập từ khóa vào ô tìm kiếm
+CourseSearchView -> CourseController : searchCourses(keyword)
+activate CourseController
+
+alt Người dùng chọn bộ lọc
+    User -> CourseSearchView : Chọn bộ lọc (chủ đề, thể loại, cấp độ, số sao)
+    CourseSearchView -> CourseController : applyFilters(filters)
+    activate CourseController
+    CourseController -> CourseService : filterCourses(filters)
+    activate CourseService
+    CourseService -> CourseModel : filterCourses(filters)
+    activate CourseModel
+    CourseModel -> Database : getCoursesByFilters(filters)
+    activate Database
+    Database --> CourseModel : return filtered courses
+    deactivate Database
+    CourseModel --> CourseService : return filtered courses
+    deactivate CourseModel
+    CourseService --> CourseController : return filtered courses
+    deactivate CourseService
+    CourseController --> CourseSearchView : return filtered courses
+    deactivate CourseController
+else Không chọn bộ lọc
+    CourseController -> CourseModel : searchCourses(keyword)
+    activate CourseModel
+    CourseModel -> Database : getCoursesByKeyword(keyword)
+    activate Database
+    Database --> CourseModel : return courses
+    deactivate Database
+    CourseModel --> CourseController : return courses
+    deactivate CourseModel
+    CourseController --> CourseSearchView : return courses
+    deactivate CourseController
+end
+
+CourseSearchView -> CourseSearchView : display
+deactivate CourseSearchView
 
 @enduml

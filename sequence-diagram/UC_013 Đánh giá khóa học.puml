@@ -1,35 +1,89 @@
 @startuml
 title Đánh giá khóa học
 
+autonumber
+
 actor Student
-entity View
-entity Controller
-entity Service
-entity Model
-Database Database
+boundary CourseView
+boundary ReviewView
+control CourseController
+control ReviewController
+control ReviewService
+entity CourseModel
+entity ReviewModel
+database Database
 
-Student -> View : displayCourseReviewPage(courseId)
-View -> Controller : requestCourseDetails(courseId)
-Controller -> Service : getCourseDetails(courseId)
-Service -> Model : fetchCourseDetails(courseId)
-Model -> Database : queryCourseDetails(courseId)
-Database --> Model : returnCourseDetails(courseDetails)
-Model --> Service : returnCourseDetails(courseDetails)
-Service --> Controller : returnCourseDetails(courseDetails)
-Controller --> View : showCourseDetails(courseDetails)
-View --> Student : displayCourseDetails(courseDetails)
+Student -> CourseView : Vào trang chi tiết khóa học
+activate CourseView
+CourseView -> CourseController : viewCourseDetails(courseId)
+activate CourseController
 
-alt Submit Review
-    Student -> View : submitCourseReview(courseId, rating, reviewText)
-    View -> Controller : submitCourseReview(courseId, studentId, rating, reviewText)
-    Controller -> Service : submitCourseReview(courseId, studentId, rating, reviewText)
-    Service -> Model : saveCourseReview(courseId, studentId, rating, reviewText)
-    Model -> Database : insertCourseReview(courseId, studentId, rating, reviewText)
-    Database --> Model : returnInsertStatus(success/failure)
-    Model --> Service : returnInsertStatus(success/failure)
-    Service --> Controller : returnInsertStatus(success/failure)
-    Controller --> View : showReviewSubmissionStatus(status)
-    View --> Student : displayReviewSubmissionStatus(status)
+CourseController -> CourseModel : loadCourseDetails(courseId)
+activate CourseModel
+CourseModel -> Database : findCourseById(courseId)
+activate Database
+Database --> CourseModel : return course details
+deactivate Database
+CourseModel --> CourseController : return course details
+deactivate CourseModel
+
+CourseController --> CourseView : showCourseDetails(courseDetails)
+deactivate CourseController
+
+CourseView -> CourseView : Hiển thị giao diện trang chi tiết khóa học
+deactivate CourseView
+
+Student -> CourseView : Nhấn tab "Reviews"
+CourseView -> ReviewView : displayReviewsTab()
+activate ReviewView
+
+ReviewView -> ReviewView : Hiển thị giao diện tab "Reviews"
+deactivate ReviewView
+
+Student -> ReviewView : Nhấn nút "Write review"
+ReviewView -> ReviewController : openReviewForm(courseId)
+activate ReviewController
+
+ReviewController -> ReviewView : showReviewForm()
+deactivate ReviewController
+
+Student -> ReviewView : Chọn sao và viết đánh giá
+ReviewView -> ReviewController : submitReview(courseId, rating, reviewText)
+activate ReviewController
+
+ReviewController -> ReviewService : submitReview(courseId, rating, reviewText)
+activate ReviewService
+
+ReviewService -> ReviewModel : saveReview(courseId, rating, reviewText)
+activate ReviewModel
+ReviewModel -> Database : saveReview(courseId, rating, reviewText)
+activate Database
+Database --> ReviewModel : return success
+deactivate Database
+ReviewModel --> ReviewService : return success
+deactivate ReviewModel
+
+ReviewService --> ReviewController : return success
+deactivate ReviewService
+
+ReviewController --> ReviewView : showSuccessMessage("Review submitted successfully")
+deactivate ReviewController
+
+ReviewView -> ReviewView : Hiển thị thông báo thành công
+deactivate ReviewView
+
+ReviewView -> CourseView : cập nhật lại danh sách đánh giá
+CourseView -> CourseView : Hiển thị danh sách đánh giá mới
+deactivate CourseView
+
+alt Người dùng không chọn điểm đánh giá
+    ReviewController -> ReviewView : showError("You must select a rating")
+    ReviewView -> ReviewView : Hiển thị lỗi "You must select a rating"
+end
+
+alt Người dùng không viết đánh giá
+    ReviewController -> ReviewView : showError("You must write a review")
+    ReviewView -> ReviewView : Hiển thị lỗi "You must write a review"
 end
 
 @enduml
