@@ -29,7 +29,7 @@ public interface CourseStatisticsRepos extends CrudRepository<Order, Long> {
     List<Map<String, Object>> findRevenueByYear(int year);
 
     @Query("""
-        SELECT c.id, c.imagePreview, c.title, SUM(p.amountPaid) AS totalRevenue, c.owner.username AS ownerUsername
+        SELECT c.id, c.imagePreview, c.title, SUM(oi.price) AS totalRevenue, c.owner.username AS ownerUsername
         FROM OrderItem oi
         JOIN oi.course c
         JOIN oi.order o 
