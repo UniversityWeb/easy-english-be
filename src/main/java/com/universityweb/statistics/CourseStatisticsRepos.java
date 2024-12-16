@@ -35,15 +35,15 @@ public interface CourseStatisticsRepos extends CrudRepository<Order, Long> {
         JOIN oi.order o 
         JOIN o.payment p
         WHERE p.status = 'SUCCESS' 
-        AND MONTH(o.createdAt) = :month 
-        AND YEAR(o.createdAt) = :year 
-        AND c.owner.username = :ownerUsername
+        AND (:month IS NULL OR MONTH(o.createdAt) = :month)
+        AND (:year IS NULL OR YEAR(o.createdAt) = :year)
+        AND (:ownerUsername IS NULL OR c.owner.username = :ownerUsername)
         GROUP BY c.id, c.title 
         ORDER BY totalRevenue DESC
     """)
     Page<Object[]> findTopCoursesByRevenue(
             @Param("ownerUsername") String ownerUsername,
-            @Param("month") int month,
-            @Param("year") int year,
+            @Param("month") Integer month,
+            @Param("year") Integer year,
             Pageable pageable);
 }

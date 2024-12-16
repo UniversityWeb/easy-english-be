@@ -17,10 +17,15 @@ import com.universityweb.review.entity.Review;
 import com.universityweb.review.mapper.ReviewMapper;
 import com.universityweb.review.request.ReviewRequest;
 import com.universityweb.review.response.ReviewResponse;
+import com.universityweb.statistics.request.CourseFilterReq;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +122,32 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
                     return courseResponse;
                 })
                 .toList();
+    }
+
+    @Override
+    public Page<CourseResponse> getTopCoursesByRating(CourseFilterReq req) {
+        String ownerUsername = req.getOwnerUsername();
+        Integer month = req.getMonth();
+        Integer year = req.getYear();
+        Integer page = req.getPage();
+        Integer size = req.getSize();
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<Object[]> results = repository.getTopCoursesByRating(ownerUsername, month, year, pageRequest);
+
+        List<CourseResponse> courseResponses = new ArrayList<>();
+        for (Object[] result : results) {
+            Course course = (Course) result[0];
+            Double avgRating = (Double) result[1];
+            Long ratingCount = (Long) result[2];
+
+            CourseResponse courseResponse = courseService.mapCourseToResponse(course);
+            courseResponse.setRating(avgRating);
+            courseResponse.setRatingCount(ratingCount);
+            courseResponses.add(courseResponse);
+        }
+
+        return new PageImpl<>(courseResponses, PageRequest.of(page, size), results.getTotalElements());
     }
 
     @Override
