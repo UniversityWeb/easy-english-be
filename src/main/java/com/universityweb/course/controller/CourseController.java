@@ -215,6 +215,9 @@ public class CourseController {
         boolean isPurchasedCourse = orderService.isPurchasedCourse(username, courseId);
         EnrollmentDTO enrollmentDTO = enrollmentService.isEnrolled(username, courseId);
         if (isPurchasedCourse && enrollmentDTO != null) {
+            if (enrollmentDTO.progress() == 100) {
+                return ResponseEntity.ok(ECourseDetailButtonStatus.COMPLETED);
+            }
             if (enrollmentDTO.progress() == 0) {
                 return ResponseEntity.ok(ECourseDetailButtonStatus.START_COURSE);
             }

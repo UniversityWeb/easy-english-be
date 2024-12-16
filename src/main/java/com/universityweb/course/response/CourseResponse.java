@@ -10,6 +10,7 @@ import com.universityweb.topic.response.TopicResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class CourseResponse {
     int progress;
     double rating;
     Long ratingCount;
+    BigDecimal totalRevenue;
 
     String ownerUsername;
     PriceResponse price;
