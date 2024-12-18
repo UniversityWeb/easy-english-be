@@ -2,6 +2,8 @@ package com.universityweb.statistics;
 
 
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaUtils;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import com.universityweb.review.service.ReviewService;
@@ -27,7 +29,7 @@ public class StatisticsController {
     private final CourseStatisticsService courseStatisticsService;
     private final AuthService authService;
     private final ReviewService reviewService;
-    private final CourseService courseService;
+    private final MediaService mediaService;
 
     @GetMapping("/top3/by-year/{year}")
     public ResponseEntity<Map<String, Object>> getRevenueByYear(
@@ -94,6 +96,6 @@ public class StatisticsController {
             case REVENUE -> courseStatisticsService.getTopCoursesByRevenue(req);
             default -> Page.empty();
         };
-        return ResponseEntity.ok(courseResponses);
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 }
