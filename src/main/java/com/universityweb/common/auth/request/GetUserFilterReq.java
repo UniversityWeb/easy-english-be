@@ -1,6 +1,5 @@
 package com.universityweb.common.auth.request;
 
-import com.universityweb.common.auth.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

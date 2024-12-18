@@ -1,8 +1,8 @@
 package com.universityweb.section;
 
-import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.util.Utils;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.service.EnrollmentService;
 import com.universityweb.lesson.response.LessonResponse;

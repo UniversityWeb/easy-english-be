@@ -7,7 +7,6 @@ import lombok.*;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.List;
 
 @Entity

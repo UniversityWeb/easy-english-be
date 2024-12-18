@@ -6,9 +6,6 @@ import com.universityweb.level.request.LevelRequest;
 import com.universityweb.level.response.LevelResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface LevelMapper extends BaseMapper<Level, LevelResponse> {

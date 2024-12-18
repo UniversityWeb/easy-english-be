@@ -1,7 +1,6 @@
 package com.universityweb.level;
 
 import com.universityweb.course.entity.Course;
-import com.universityweb.course.response.CourseResponse;
 import com.universityweb.level.entity.Level;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

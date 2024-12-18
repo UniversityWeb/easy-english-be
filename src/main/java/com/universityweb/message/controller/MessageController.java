@@ -3,7 +3,6 @@ package com.universityweb.message.controller;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.auth.AuthService;
-import com.universityweb.common.media.MediaController;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.message.MessageDTO;
