@@ -5,7 +5,6 @@ import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
-import com.universityweb.course.service.CourseService;
 import com.universityweb.review.service.ReviewService;
 import com.universityweb.statistics.customenum.ETopByCriteria;
 import com.universityweb.statistics.request.CourseFilterReq;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

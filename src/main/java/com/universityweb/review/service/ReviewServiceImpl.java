@@ -1,10 +1,10 @@
 package com.universityweb.review.service;
 
-import com.universityweb.common.util.FrontendRoutes;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.util.FrontendRoutes;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.mapper.CourseMapper;
 import com.universityweb.course.response.CourseResponse;
@@ -25,7 +25,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

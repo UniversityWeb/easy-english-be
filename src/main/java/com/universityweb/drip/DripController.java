@@ -5,7 +5,6 @@ import com.universityweb.drip.dto.DripDTO;
 import com.universityweb.drip.dto.DripsOfPrevDTO;
 import com.universityweb.drip.service.DripService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

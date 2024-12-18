@@ -4,7 +4,6 @@ import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
-import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lesson.response.LessonResponse;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;

@@ -7,7 +7,6 @@ import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 

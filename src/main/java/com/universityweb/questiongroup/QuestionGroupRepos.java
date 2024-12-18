@@ -2,7 +2,6 @@ package com.universityweb.questiongroup;
 
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.testpart.entity.TestPart;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

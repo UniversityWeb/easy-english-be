@@ -2,7 +2,6 @@ package com.universityweb.course.response;
 
 import com.universityweb.category.response.CategoryResponse;
 import com.universityweb.common.auth.dto.UserDTO;
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
 import com.universityweb.level.response.LevelResponse;
 import com.universityweb.price.response.PriceResponse;
