@@ -1,23 +1,52 @@
 @startuml
-
 title Xem thông báo
 
-actor Guest
-entity View
-entity Controller
-entity Service
-entity Model
+autonumber
+
+actor User
+boundary Navbar
+boundary NotificationsView
+boundary TargetPageView
+control NotificationController
+entity NotificationModel
 database Database
 
-Guest -> View : displayNotificationsPage()
-View -> Controller : requestNotifications()
-Controller -> Service : getNotifications(userId)
-Service -> Model : fetchNotifications(userId)
-Model -> Database : queryNotifications(userId)
-Database --> Model : returnNotifications(notificationList)
-Model --> Service : returnNotifications(notificationList)
-Service --> Controller : returnNotifications(notificationList)
-Controller --> View : showNotifications(notificationList)
-View --> Guest : displayNotifications(notificationList)
+User -> Navbar : Ấn vào biểu tượng thông báo
+activate Navbar
+Navbar -> NotificationsView : navigate()
+deactivate Navbar
+activate NotificationsView
+
+NotificationsView -> NotificationController : loadNotifications()
+activate NotificationController
+NotificationController -> NotificationModel : getNotifications()
+activate NotificationModel
+NotificationModel -> Database : getAllNotifications()
+activate Database
+Database --> NotificationModel : return notifications
+deactivate Database
+NotificationModel --> NotificationController : return notifications
+deactivate NotificationModel
+
+NotificationController --> NotificationsView : return notifications
+deactivate NotificationController
+NotificationsView -> NotificationsView : Hiển thị danh sách thông báo
+deactivate NotificationsView
+
+User -> NotificationsView : Chọn thông báo
+activate NotificationsView
+NotificationsView -> NotificationController : openNotification(notificationId)
+activate NotificationController
+
+alt Thông báo có trang liên quan
+    NotificationController -> TargetPageView : navigateToTargetPage(page)
+    activate TargetPageView
+    TargetPageView -> TargetPageView : Hiển thị trang thông báo
+    deactivate TargetPageView
+else Trang không tồn tại
+    NotificationController --> NotificationsView : return error
+    deactivate NotificationController
+    NotificationsView -> NotificationsView : msg "Cannot find target page"
+end
 
 @enduml

@@ -1,6 +1,5 @@
 package com.universityweb.test.service;
 
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;

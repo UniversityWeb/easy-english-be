@@ -4,7 +4,6 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
-import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.service.EnrollmentService;
 import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lesson.mapper.LessonMapper;

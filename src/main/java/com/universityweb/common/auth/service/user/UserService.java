@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.List;
-
 public interface UserService extends UserDetailsService, BaseService<User, UserDTO, String> {
     User loadUserByUsername(String username) throws UsernameNotFoundException;
 

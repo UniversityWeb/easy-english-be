@@ -1,10 +1,10 @@
 package com.universityweb.common.security;
 
-import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.JwtTokenCreationException;
 import com.universityweb.common.auth.repos.TokenRepos;
+import com.universityweb.common.util.Utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;

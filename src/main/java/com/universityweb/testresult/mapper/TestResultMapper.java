@@ -6,10 +6,6 @@ import com.universityweb.testresult.dto.TestResultWithoutListDTO;
 import com.universityweb.testresult.entity.TestResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface TestResultMapper extends BaseMapper<TestResult, TestResultDTO> {

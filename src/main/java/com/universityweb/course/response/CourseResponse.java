@@ -2,7 +2,6 @@ package com.universityweb.course.response;
 
 import com.universityweb.category.response.CategoryResponse;
 import com.universityweb.common.auth.dto.UserDTO;
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
 import com.universityweb.level.response.LevelResponse;
 import com.universityweb.price.response.PriceResponse;
@@ -10,6 +9,7 @@ import com.universityweb.topic.response.TopicResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class CourseResponse {
     int countView;
     Long countSection;
     LocalDateTime createdAt;
-    LocalDateTime updateAt;
+    LocalDateTime updatedAt;
     String notice;
     Course.EStatus status;
     UserDTO owner;
@@ -39,6 +39,7 @@ public class CourseResponse {
     int progress;
     double rating;
     Long ratingCount;
+    BigDecimal totalRevenue;
 
     String ownerUsername;
     PriceResponse price;
@@ -46,4 +47,7 @@ public class CourseResponse {
     LevelResponse level;
 
     List<CategoryResponse> categories;
+
+    // init - don't delete
+    LocalDateTime updateAt;
 }

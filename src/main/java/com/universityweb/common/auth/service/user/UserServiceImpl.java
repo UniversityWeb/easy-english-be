@@ -1,7 +1,5 @@
 package com.universityweb.common.auth.service.user;
 
-import com.universityweb.common.util.AuthUtils;
-import com.universityweb.common.util.Utils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
@@ -13,6 +11,8 @@ import com.universityweb.common.auth.request.GetUserFilterReq;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.util.AuthUtils;
+import com.universityweb.common.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;

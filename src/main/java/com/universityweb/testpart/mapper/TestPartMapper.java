@@ -5,9 +5,6 @@ import com.universityweb.testpart.dto.TestPartDTO;
 import com.universityweb.testpart.entity.TestPart;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface TestPartMapper extends BaseMapper<TestPart, TestPartDTO> {

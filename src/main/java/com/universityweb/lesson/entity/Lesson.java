@@ -3,9 +3,10 @@ package com.universityweb.lesson.entity;
 import com.universityweb.lesson.customenum.LessonType;
 import com.universityweb.section.entity.Section;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

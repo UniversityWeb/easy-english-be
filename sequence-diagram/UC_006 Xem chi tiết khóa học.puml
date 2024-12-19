@@ -1,25 +1,52 @@
 @startuml
 title Xem chi tiết khóa học
 
-actor Student
-entity View
-entity Controller
-entity Service
-entity Model
+autonumber
+
+actor User
+boundary CourseSearchView
+boundary CourseDetailView
+control CourseController
+entity CourseModel
 database Database
 
-Student -> View : clickOnCourse(courseId)
+User -> CourseSearchView : Ấn vào khóa học cần xem
+activate CourseSearchView
+CourseSearchView -> CourseController : loadCoursePreview(courseId)
+activate CourseController
 
-View -> Controller : requestCourseDetails(courseId)
-Controller -> Service : getCourseDetails(courseId)
-Service -> Model : fetchCourseDetails(courseId)
-Model -> Database : queryCourseDetails(courseId)
-Database --> Model : returnCourseDetails(courseDetails)
-Model --> Service : returnCourseDetails(courseDetails)
-Service --> Controller : returnCourseDetails(courseDetails)
-Controller --> View : showCourseDetails(courseDetails)
-View --> Student : displayCourseDetails(courseDetails)
-View --> Teacher : displayCourseDetails(courseDetails)
-View --> Admin : displayCourseDetails(courseDetails)
+CourseController -> CourseModel : getCourseDetails(courseId)
+activate CourseModel
+CourseModel -> Database : getCourseById(courseId)
+activate Database
+Database --> CourseModel : return course details
+deactivate Database
+CourseModel --> CourseController : return course details
+deactivate CourseModel
+
+CourseController --> CourseSearchView : return course details
+deactivate CourseController
+CourseSearchView -> CourseDetailView : navigateToCourseDetail(courseId)
+deactivate CourseSearchView
+activate CourseDetailView
+CourseDetailView -> CourseDetailView : Hiển thị thông tin chi tiết khóa học
+deactivate CourseDetailView
+
+alt Người dùng chọn Wishlist
+    User -> CourseSearchView : Ấn vào avatar khóa học
+    CourseSearchView -> CourseController : openWishlist()
+    activate CourseController
+    CourseController -> CourseModel : getWishlist()
+    activate CourseModel
+    CourseModel -> Database : getUserWishlist(userId)
+    activate Database
+    Database --> CourseModel : return wishlist
+    deactivate Database
+    CourseModel --> CourseController : return wishlist
+    deactivate CourseModel
+    CourseController --> CourseSearchView : return wishlist
+    deactivate CourseController
+    CourseSearchView -> CourseSearchView : Hiển thị danh sách khóa học đã yêu thích
+end
 
 @enduml

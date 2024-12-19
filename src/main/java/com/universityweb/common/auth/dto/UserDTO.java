@@ -3,6 +3,7 @@ package com.universityweb.common.auth.dto;
 import com.universityweb.common.auth.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,69 +13,70 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDTO {
     @Schema(
             description = "Username of the user",
             example = "john",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String username;
+    String username;
 
     @Schema(
             description = "Fullname of the user",
             example = "john",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String fullName;
+    String fullName;
 
     @Schema(
             description = "Email of the user",
             example = "john@gmail.com",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String email;
+    String email;
 
     @Schema(
             description = "Phone number of the user",
             example = "+84972640891",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String phoneNumber;
+    String phoneNumber;
 
     @Schema(
             description = "Bio of the user",
             example = "A student.",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String bio;
+    String bio;
 
     @Schema(
             description = "Gender of the user",
             example = "MALE",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private User.EGender gender;
+    User.EGender gender;
 
     @Schema(
             description = "Day of birth",
             example = "2024-08-05",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private LocalDate dob;
+    LocalDate dob;
 
     @Schema(
             description = "Role of the user",
             example = "",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private User.ERole role;
+    User.ERole role;
 
     @Schema(
             description = "Created date",
             example = "2024-08-05T13:47:06.794Z",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
-    private String avatarPath;
+    String avatarPath;
 }

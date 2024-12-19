@@ -1,7 +1,6 @@
 package com.universityweb.common.auth.service.auth;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.universityweb.common.util.AuthUtils;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.Token;
 import com.universityweb.common.auth.entity.User;
@@ -17,6 +16,7 @@ import com.universityweb.common.auth.service.otp.OtpService;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.security.JwtGenerator;
+import com.universityweb.common.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;

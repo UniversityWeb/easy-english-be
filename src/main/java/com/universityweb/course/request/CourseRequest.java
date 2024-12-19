@@ -1,7 +1,6 @@
 package com.universityweb.course.request;
 
 import com.universityweb.course.entity.Course;
-import com.universityweb.price.response.PriceResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

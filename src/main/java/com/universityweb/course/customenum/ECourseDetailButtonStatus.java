@@ -5,4 +5,5 @@ public enum ECourseDetailButtonStatus {
     CONTINUE_COURSE,
     IN_CART,
     ADD_TO_CART,
+    COMPLETED,
 }

@@ -1,23 +1,55 @@
-úastartuml
+@startuml
+title Đăng nhập
 
-title Xem thông báo
+autonumber
 
-actor Student
-entity View
-entity Controller
-entity Service
-entity Model
+actor User
+boundary LoginView
+boundary HomeView
+control AuthController
+control AuthService
+control GoogleAuthService
+entity UserModel
 database Database
 
-Student -> View : displayNotificationsPage()
-View -> Controller : requestNotifications()
-Controller -> Service : getNotifications(userId)
-Service -> Model : fetchNotifications(userId)
-Model -> Database : queryNotifications(userId)
-Database --> Model : returnNotifications(notificationList)
-Model --> Service : returnNotifications(notificationList)
-Service --> Controller : returnNotifications(notificationList)
-Controller --> View : showNotifications(notificationList)
-View --> Student : displayNotifications(notificationList)
+alt Đăng nhập với (username hoặc email) và password
+    User -> LoginView : Nhập (username \nhoặc email) và mật khẩu
+    activate LoginView
+    LoginView -> AuthController : login(req)
+    activate AuthController
+
+    AuthController -> AuthService : login(req)
+    activate AuthService
+    AuthService -> UserModel : loadUserByUsername(username)
+    activate UserModel
+    UserModel -> Database : findByUsername(username)
+    activate Database
+    Database --> UserModel : return user
+    deactivate Database
+    UserModel --> AuthService : return user
+    deactivate UserModel
+
+else Đăng nhập với Google
+    ref over User, LoginView, AuthController, AuthService, GoogleAuthService, UserModel, Database
+        Đăng nhập với Google
+    end
+end
+
+alt Thông tin hợp lệ
+    AuthService --> AuthController : return loginResponse
+    deactivate AuthService
+    AuthController --> LoginView : return loginResponse
+    LoginView -> LoginView : msg "Login successfully"
+else Mật khẩu sai hoặc thông tin không hợp lệ
+    AuthService --> AuthController : return error
+    deactivate AuthService
+    AuthController --> LoginView : return error
+    deactivate AuthController
+    LoginView -> LoginView : msg "Bad credentials"
+end
+
+LoginView -> HomeView: navigate()
+deactivate LoginView
+activate HomeView
 
 @enduml

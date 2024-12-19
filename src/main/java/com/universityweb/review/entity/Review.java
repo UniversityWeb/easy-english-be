@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,7 +36,18 @@ public class Review implements Serializable {
     @Column(name = "response")
     String response;
 
+    @Column(name = "created_at")
+    LocalDateTime createdAt;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }

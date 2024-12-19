@@ -1,9 +1,17 @@
 package com.universityweb.statistics;
 
 
+import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.media.MediaUtils;
+import com.universityweb.common.media.service.MediaService;
+import com.universityweb.course.response.CourseResponse;
+import com.universityweb.review.service.ReviewService;
+import com.universityweb.statistics.customenum.ETopByCriteria;
+import com.universityweb.statistics.request.CourseFilterReq;
 import com.universityweb.statistics.service.CourseStatisticsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +25,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StatisticsController {
     private final CourseStatisticsService courseStatisticsService;
+    private final AuthService authService;
+    private final ReviewService reviewService;
+    private final MediaService mediaService;
 
     @GetMapping("/top3/by-year/{year}")
     public ResponseEntity<Map<String, Object>> getRevenueByYear(
@@ -51,5 +62,38 @@ public class StatisticsController {
         response.put("courses", courses);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/top-revenue/{month}/{year}")
+    public ResponseEntity<Page<Map<String, Object>>> getRevenueByMonthAndYear(
+            @PathVariable int month,
+            @PathVariable int year,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        String username = authService.getCurrentUsername();
+        Page<Map<String, Object>> topCourses = courseStatisticsService.getTopCoursesByRevenue(username, month, year, page, size);
+        return ResponseEntity.ok(topCourses);
+    }
+
+    @PostMapping("/top-rating/{month}/{year}")
+    public ResponseEntity<Page<CourseResponse>> getRatingByMonthAndYear(
+            @RequestBody CourseFilterReq req
+    ) {
+        Page<CourseResponse> topCourses = reviewService.getTopCoursesByRating(req);
+        return ResponseEntity.ok(topCourses);
+    }
+
+    @PostMapping("/get-top")
+    public ResponseEntity<Page<CourseResponse>> getTopCourses(
+            @RequestParam ETopByCriteria criteria,
+            @RequestBody CourseFilterReq req
+    ) {
+        Page<CourseResponse> courseResponses = switch (criteria) {
+            case RATING -> reviewService.getTopCoursesByRating(req);
+            case REVENUE -> courseStatisticsService.getTopCoursesByRevenue(req);
+            default -> Page.empty();
+        };
+        return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
 }

@@ -5,9 +5,6 @@ import com.universityweb.cart.response.CartResponse;
 import com.universityweb.common.infrastructure.BaseMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CartMapper extends BaseMapper<Cart, CartResponse> {

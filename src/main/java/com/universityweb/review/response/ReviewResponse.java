@@ -1,18 +1,20 @@
 package com.universityweb.review.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewResponse {
-    private Long id;
-    private double rating;
-    private String comment;
-    private String owner;
-    private String response;
+    Long id;
+    double rating;
+    String comment;
+    String owner;
+    String response;
+    LocalDateTime createdAt;
 }

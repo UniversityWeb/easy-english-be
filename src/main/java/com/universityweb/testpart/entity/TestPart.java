@@ -1,13 +1,11 @@
 package com.universityweb.testpart.entity;
 
-import com.universityweb.questiongroup.dto.QuestionGroupDTO;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.test.entity.Test;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Entity
