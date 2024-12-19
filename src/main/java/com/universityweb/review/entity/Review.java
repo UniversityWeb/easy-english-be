@@ -36,7 +36,7 @@ public class Review implements Serializable {
     @Column(name = "response")
     String response;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at")
     LocalDateTime createdAt;
 
     @ManyToOne

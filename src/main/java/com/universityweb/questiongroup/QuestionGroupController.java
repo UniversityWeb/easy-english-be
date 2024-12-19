@@ -38,8 +38,8 @@ public class QuestionGroupController
 
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     @Override
-    public ResponseEntity<QuestionGroupDTO> update(Long aLong, QuestionGroupDTO dto) {
-        return super.update(aLong, dto);
+    public ResponseEntity<QuestionGroupDTO> update(Long id, QuestionGroupDTO dto) {
+        return super.update(id, dto);
     }
 
     @GetMapping("/get-by-test-part/{testPartId}")
