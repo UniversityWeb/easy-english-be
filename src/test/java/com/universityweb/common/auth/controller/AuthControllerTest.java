@@ -1,11 +1,13 @@
 package com.universityweb.common.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.UserAlreadyExistsException;
 import com.universityweb.common.auth.request.RegisterRequest;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.service.MediaService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,6 +42,11 @@ class AuthControllerTest {
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setup() {
+        objectMapper.registerModule(new JavaTimeModule());
+    }
 
     @Test
     public void testRegister_Success() throws Exception {

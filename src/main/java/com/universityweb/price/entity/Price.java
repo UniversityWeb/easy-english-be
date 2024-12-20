@@ -51,7 +51,8 @@ public class Price {
      */
     public BigDecimal getApplicablePrice() {
         // Check if sale price exists and is within the valid date range
-        if (salePrice != null &&
+        if (isActive &&
+                salePrice != null &&
                 startDate != null && endDate != null &&
                 LocalDate.now().isAfter(startDate) &&
                 LocalDate.now().isBefore(endDate)) {
