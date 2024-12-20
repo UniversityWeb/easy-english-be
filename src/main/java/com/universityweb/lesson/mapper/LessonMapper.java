@@ -21,7 +21,7 @@ public interface LessonMapper extends BaseMapper<Lesson, LessonResponse> {
     @Mapping(source = "lesson.id", target = "id")
     @Mapping(source = "lesson.title", target = "title")
     @Mapping(source = "lesson.section.id", target = "sectionId")
-    @Mapping(target = "locked", constant = "true")
+    @Mapping(target = "isLocked", constant = "true")
     LessonResponse toLockedDTO(Lesson lesson);
 
     // Conditional mapping method

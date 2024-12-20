@@ -1,8 +1,11 @@
 package com.universityweb.common.uc;
 
+import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
 import com.universityweb.message.MessageMapper;
+import com.universityweb.message.MessageRepos;
 import com.universityweb.message.service.MessageServiceImpl;
 import com.universityweb.notification.request.AddNotificationRequest;
 import com.universityweb.notification.response.NotificationResponse;
@@ -30,6 +33,12 @@ public class UC_014_Chat_Tests {
     @Mock
     private MessageMapper mapper;
 
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private MessageRepos messageRepos;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -52,6 +61,18 @@ public class UC_014_Chat_Tests {
                 .recipientUsername(recipientUsername)
                 .build();
 
+        User sender = User.builder().username(senderUsername).build();
+        User recipient = User.builder().username(recipientUsername).build();
+
+        Message message = Message.builder()
+                .id(messageId)
+                .type(Message.EType.TEXT)
+                .content(content)
+                .sendingTime(LocalDateTime.now())
+                .sender(sender)
+                .recipient(recipient)
+                .build();
+
         AddNotificationRequest notificationRequest = AddNotificationRequest.builder()
                 .username(recipientUsername)
                 .message("New message from " + senderUsername)
@@ -69,6 +90,11 @@ public class UC_014_Chat_Tests {
 
         when(notificationService.sendRealtimeNotification(any(AddNotificationRequest.class)))
                 .thenReturn(notificationResponse);
+        when(mapper.toEntity(any(MessageDTO.class))).thenReturn(message);
+        when(mapper.toDTO(any(Message.class))).thenReturn(messageDTO);
+        when(messageRepos.save(message)).thenReturn(message);
+        when(userService.loadUserByUsername(senderUsername)).thenReturn(sender);
+        when(userService.loadUserByUsername(recipientUsername)).thenReturn(recipient);
 
         // Act
         MessageDTO result = messageService.sendRealtimeMessage(messageDTO);

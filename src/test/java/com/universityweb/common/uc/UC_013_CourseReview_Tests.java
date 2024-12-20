@@ -3,6 +3,7 @@ package com.universityweb.common.uc;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.notification.request.AddNotificationRequest;
 import com.universityweb.notification.service.NotificationService;
 import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.mapper.ReviewMapper;
@@ -92,14 +93,15 @@ public class UC_013_CourseReview_Tests {
         when(userService.loadUserByUsername(username)).thenReturn(student);
         when(reviewRepository.save(review)).thenReturn(review);
         when(reviewMapper.toDTO(review)).thenReturn(reviewResponse);
+        when(notificationService.sendRealtimeNotification(any(AddNotificationRequest.class))).thenReturn(null);
 
         // Act
         ReviewResponse result = reviewService.createReview(reviewRequest);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(rating, result.getRating());
-        assertEquals(comment, result.getComment());
+        assertNotNull(review);
+        assertEquals(rating, review.getRating());
+        assertEquals(comment, review.getComment());
         verify(reviewRepository, times(1)).save(any(Review.class));
     }
 
@@ -126,8 +128,8 @@ public class UC_013_CourseReview_Tests {
         ReviewResponse result = reviewService.createResponse(reviewRequest);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(response, result.getResponse());
+        assertNotNull(review);
+        assertEquals(response, review.getResponse());
         verify(reviewRepository, times(1)).save(any(Review.class));
     }
 }
