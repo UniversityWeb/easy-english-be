@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @FieldDefaults(level= AccessLevel.PRIVATE)
 public class SubmitTestRequest {
     Long testId;
