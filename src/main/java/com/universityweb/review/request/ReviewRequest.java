@@ -1,19 +1,19 @@
 package com.universityweb.review.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewRequest {
-    private Long id;
-    private Long courseId;
-    private int rating;
-    private String comment;
-    private String user;
-    private String response;
+    Long id;
+    Long courseId;
+    int rating;
+    String comment;
+    String user;
+    String response;
 }

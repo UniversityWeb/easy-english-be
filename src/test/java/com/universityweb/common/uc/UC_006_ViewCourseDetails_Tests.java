@@ -7,8 +7,10 @@ import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseServiceImpl;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.price.entity.Price;
 import com.universityweb.price.response.PriceResponse;
+import com.universityweb.review.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +35,12 @@ public class UC_006_ViewCourseDetails_Tests {
 
     @Mock
     private CourseMapper courseMapper;
+
+    @Mock
+    private ReviewRepository reviewRepository;
+
+    @Mock
+    private EnrollmentRepos enrollmentRepos;
 
     @BeforeEach
     void setUp() {
@@ -56,6 +65,7 @@ public class UC_006_ViewCourseDetails_Tests {
                 .price(Price.builder()
                         .price(new BigDecimal("199.99"))
                         .build())
+                .sections(new ArrayList<>())
                 .build();
 
         CourseResponse courseResponse = CourseResponse.builder()

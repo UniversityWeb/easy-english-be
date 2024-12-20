@@ -218,7 +218,9 @@ public class TestResultServiceImpl
 
     private void sendRealtimeNewResult(TestResult savedResult) {
         TestResultWithoutListDTO testResultWithoutListDTO = mapper.toTestResultWithoutListDTO(savedResult);
-        String destination = WebSocketConstants.testResultNotificationTopic(testResultWithoutListDTO.getTestId());
-        notificationService.sendRealtimeNotification(destination, testResultWithoutListDTO);
+        if (testResultWithoutListDTO != null) {
+            String destination = WebSocketConstants.testResultNotificationTopic(testResultWithoutListDTO.getTestId());
+            notificationService.sendRealtimeNotification(destination, testResultWithoutListDTO);
+        }
     }
 }

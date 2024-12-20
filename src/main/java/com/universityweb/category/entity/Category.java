@@ -16,6 +16,7 @@ import java.util.List;
 @Table(name = "categories")
 @Where(clause = "is_deleted = false")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
