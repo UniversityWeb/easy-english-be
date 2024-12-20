@@ -3,10 +3,7 @@ package com.universityweb.cart.response;
 import com.universityweb.cart.entity.CartItem;
 import com.universityweb.course.response.CourseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CartItemResponse implements Serializable {
     private Long id;
 

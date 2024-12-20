@@ -46,7 +46,7 @@ public class UC_001_Register_Tests {
     }
 
     @Test
-    void testRegisterStudentAccount_Success() {
+    void testRegisterStudentAccount_Success_AUTH_REGISTER_POS_001() {
         // Arrange
         RegisterRequest request = new RegisterRequest(
                 "john", "Pp@123456", "John Doe", "john@gmail.com",
@@ -99,7 +99,7 @@ public class UC_001_Register_Tests {
     }
 
     @Test
-    void testRegisterStudentAccount_UsernameAlreadyExists() {
+    void testRegisterStudentAccount_UsernameAlreadyExists_AUTH_REGISTER_NEG_002() {
         // Arrange
         RegisterRequest request = new RegisterRequest(
                 "john", "P@123456789", "John Doe", "john@gmail.com",
@@ -120,7 +120,7 @@ public class UC_001_Register_Tests {
     }
 
     @Test
-    void testRegisterStudentAccount_EmailAlreadyExists() {
+    void testRegisterStudentAccount_EmailAlreadyExists_AUTH_REGISTER_ERR_003() {
         // Arrange
         RegisterRequest request = new RegisterRequest(
                 "john", "P@123456789", "John Doe", "john@gmail.com",
