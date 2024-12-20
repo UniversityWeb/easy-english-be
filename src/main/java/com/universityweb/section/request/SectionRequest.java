@@ -1,15 +1,13 @@
 package com.universityweb.section.request;
 
 import com.universityweb.section.entity.Section;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class SectionRequest {
     private Long id;
     private Section.EStatus status;
@@ -20,4 +18,5 @@ public class SectionRequest {
 
     private int pageNumber = 0;
     private int size = 10;
+
 }
