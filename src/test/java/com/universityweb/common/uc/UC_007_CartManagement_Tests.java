@@ -7,7 +7,7 @@ import com.universityweb.cart.mapper.CartMapper;
 import com.universityweb.cart.repository.CartItemRepos;
 import com.universityweb.cart.repository.CartRepos;
 import com.universityweb.cart.response.CartItemResponse;
-import com.universityweb.cart.service.CartService;
+import com.universityweb.cart.service.CartServiceImpl;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
@@ -21,6 +21,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class UC_007_CartManagement_Tests {
 
     @InjectMocks
-    private CartService cartService;
+    private CartServiceImpl cartService;
 
     @Mock
     private CartMapper cartMapper;
@@ -89,7 +90,7 @@ public class UC_007_CartManagement_Tests {
                 .status(CartItem.EStatus.ACTIVE)
                 .build();
 
-        when(cartService.existNotInCart(username, courseId)).thenReturn(true);
+        when(cartItemRepos.findByUsernameAndCourseId(username, courseId)).thenReturn(List.of());
         when(cartRepos.findByUsername(username)).thenReturn(Optional.of(cart));
         when(courseService.getEntityById(courseId)).thenReturn(course);
         when(cartItemRepos.save(any(CartItem.class))).thenReturn(cartItem);
@@ -114,7 +115,12 @@ public class UC_007_CartManagement_Tests {
         String username = "john_doe";
         Long courseId = 1L;
 
-        when(cartService.existNotInCart(username, courseId)).thenReturn(false);
+        CartItem existingCartItem = CartItem.builder()
+                .id(1L)
+                .status(CartItem.EStatus.ACTIVE)
+                .build();
+
+        when(cartItemRepos.findByUsernameAndCourseId(username, courseId)).thenReturn(List.of(existingCartItem));
 
         // Act & Assert
         CartItemAlreadyExistsException exception = assertThrows(
@@ -145,7 +151,10 @@ public class UC_007_CartManagement_Tests {
                 .cart(cart)
                 .build();
 
+        // Mock cartItemRepos to return the CartItem
         when(cartItemRepos.findByCartItemById(cartItemId)).thenReturn(Optional.of(cartItem));
+        when(cartItemRepos.findById(cartItemId)).thenReturn(Optional.of(cartItem));
+        // Mock cartRepos to return the Cart
         when(cartRepos.findById(cart.getId())).thenReturn(Optional.of(cart));
 
         // Act
@@ -156,6 +165,6 @@ public class UC_007_CartManagement_Tests {
         assertEquals(CartItem.EStatus.DELETED, cartItem.getStatus());
         verify(cartItemRepos, times(1)).findByCartItemById(cartItemId);
         verify(cartItemRepos, times(1)).save(cartItem);
-        verify(cartRepos, times(1)).findById(cart.getId());
+        verify(cartRepos, times(1)).save(cart);
     }
 }

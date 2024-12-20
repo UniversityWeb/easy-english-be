@@ -3,7 +3,9 @@ package com.universityweb.common.uc;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.notification.service.NotificationService;
 import com.universityweb.review.ReviewRepository;
+import com.universityweb.review.mapper.ReviewMapper;
 import com.universityweb.review.request.ReviewRequest;
 import com.universityweb.review.response.ReviewResponse;
 import com.universityweb.review.entity.Review;
@@ -11,6 +13,7 @@ import com.universityweb.review.service.ReviewServiceImpl;
 import com.universityweb.course.entity.Course;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.control.MappingControl;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -32,6 +35,12 @@ public class UC_013_CourseReview_Tests {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ReviewMapper reviewMapper;
+
+    @Mock
+    private NotificationService notificationService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -52,22 +61,37 @@ public class UC_013_CourseReview_Tests {
                 .user(username)
                 .build();
 
+        User student = User.builder()
+                .username(username)
+                .fullName("John Doe")
+                .build();
+
+        User teacher = User.builder()
+                .username("teacher")
+                .fullName("Teacher")
+                .build();
+
         Course course = new Course();
         course.setId(courseId);
-
-        User user = new User();
-        user.setUsername(username);
+        course.setOwner(teacher);
 
         Review review = Review.builder()
                 .course(course)
-                .user(user)
+                .user(student)
+                .rating(rating)
+                .comment(comment)
+                .build();
+
+        ReviewResponse reviewResponse = ReviewResponse.builder()
+                .owner(username)
                 .rating(rating)
                 .comment(comment)
                 .build();
 
         when(courseService.getEntityById(courseId)).thenReturn(course);
-        when(userService.loadUserByUsername(username)).thenReturn(user);
-        when(reviewRepository.save(any(Review.class))).thenReturn(review);
+        when(userService.loadUserByUsername(username)).thenReturn(student);
+        when(reviewRepository.save(review)).thenReturn(review);
+        when(reviewMapper.toDTO(review)).thenReturn(reviewResponse);
 
         // Act
         ReviewResponse result = reviewService.createReview(reviewRequest);

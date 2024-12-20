@@ -49,7 +49,11 @@ public class UC_003_ForgotPassword_Tests {
             String email = "newusername@gmail.com";
             mockedAuthUtils.when(() -> AuthUtils.isValidEmail(email)).thenReturn(true);
 
-            doNothing().when(userService).getUserByEmail(email);
+            // Mock getUserByEmail to return a dummy user
+            User user = new User();
+            user.setEmail(email);
+
+            when(userService.getUserByEmail(email)).thenReturn(user);
             doNothing().when(otpService).generateAndSendOtp(email, OtpService.EPurpose.RESET_PASS);
 
             // Act - Generate OTP
@@ -61,12 +65,10 @@ public class UC_003_ForgotPassword_Tests {
 
             // Arrange - Reset Password
             ResetPassWithOtpReq req = new ResetPassWithOtpReq(email, "123456", "newPassword123");
-            User user = new User();
-            user.setEmail(req.getEmail());
             user.setPassword("oldPassword");
 
             when(userService.getUserByEmail(req.getEmail())).thenReturn(user);
-            doNothing().when(otpService).validateOtp(req.getEmail(), req.getOtp(), OtpService.EPurpose.RESET_PASS);
+            when(otpService.validateOtp(req.getEmail(), req.getOtp(), OtpService.EPurpose.RESET_PASS)).thenReturn(true);
             doNothing().when(otpService).invalidateOtp(req.getEmail(), OtpService.EPurpose.RESET_PASS);
             when(passwordEncoder.encode(req.getNewPassword())).thenReturn("encodedNewPassword");
             when(userRepos.save(any(User.class))).thenReturn(user);
@@ -75,7 +77,7 @@ public class UC_003_ForgotPassword_Tests {
             authService.resetPasswordWithOtp(req);
 
             // Assert - Reset Password
-            verify(userService, times(1)).getUserByEmail(req.getEmail());
+            verify(userService, times(2)).getUserByEmail(req.getEmail());
             verify(otpService, times(1)).validateOtp(req.getEmail(), req.getOtp(), OtpService.EPurpose.RESET_PASS);
             verify(otpService, times(1)).invalidateOtp(req.getEmail(), OtpService.EPurpose.RESET_PASS);
             verify(userRepos, times(1)).save(user);

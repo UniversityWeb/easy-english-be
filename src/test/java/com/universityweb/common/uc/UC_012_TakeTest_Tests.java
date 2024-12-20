@@ -5,8 +5,11 @@ import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.test.service.TestService;
 import com.universityweb.testquestion.service.TestQuestionService;
+import com.universityweb.testresult.TestResultRepos;
 import com.universityweb.testresult.dto.TestResultDTO;
+import com.universityweb.testresult.dto.TestResultWithoutListDTO;
 import com.universityweb.testresult.entity.TestResult;
+import com.universityweb.testresult.mapper.TestResultMapper;
 import com.universityweb.testresult.request.SubmitTestRequest;
 import com.universityweb.testresult.service.TestResultServiceImpl;
 import com.universityweb.test.entity.Test;
@@ -41,6 +44,12 @@ public class UC_012_TakeTest_Tests {
     @Mock
     private UserAnswerRepos userAnswerRepos;
 
+    @Mock
+    private TestResultRepos testResultRepos;
+
+    @Mock
+    private TestResultMapper testResultMapper;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -51,6 +60,7 @@ public class UC_012_TakeTest_Tests {
         // Arrange
         String username = "john_doe";
         Long testId = 1L;
+
         SubmitTestRequest.UserAnswerDTO answerDTO1 = new SubmitTestRequest.UserAnswerDTO(List.of("A"), 101L);
         SubmitTestRequest.UserAnswerDTO answerDTO2 = new SubmitTestRequest.UserAnswerDTO(List.of("B"), 102L);
 
@@ -74,6 +84,10 @@ public class UC_012_TakeTest_Tests {
         TestResult testResult = TestResult.builder()
                 .id(1L)
                 .status(TestResult.EStatus.IN_PROGRESS)
+                .build();
+
+        TestResultWithoutListDTO testResultWithoutListDTO = TestResultWithoutListDTO.builder()
+                .testId(testId)
                 .build();
 
         TestQuestion question1 = TestQuestion.builder()
@@ -101,6 +115,8 @@ public class UC_012_TakeTest_Tests {
         when(testQuestionService.findByTestId(testId)).thenReturn(List.of(question1, question2));
         when(testQuestionService.getNumberOfQuestions(testId)).thenReturn(2);
         when(userAnswerRepos.saveAll(anyList())).thenReturn(new ArrayList<>());
+        when(testResultMapper.toTestResultWithoutListDTO(any(TestResult.class))).thenReturn(testResultWithoutListDTO);
+        when(testResultRepos.save(testResult)).thenReturn(testResult);
 
         // Act
         TestResultDTO result = testResultService.submit(username, request);
@@ -110,6 +126,7 @@ public class UC_012_TakeTest_Tests {
         assertEquals(100.0, result.getCorrectPercent());
         assertEquals(TestResult.EStatus.DONE, result.getStatus());
         verify(userAnswerRepos, times(1)).saveAll(anyList());
+        verify(testResultMapper, times(1)).toTestResultWithoutListDTO(any(TestResult.class));
     }
 
     @org.junit.jupiter.api.Test

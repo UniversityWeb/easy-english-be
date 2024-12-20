@@ -1,9 +1,11 @@
 package com.universityweb.common.uc;
 
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.favourite.dto.FavouriteDTO;
 import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.favourite.repository.FavouriteRepository;
+import com.universityweb.favourite.service.FavouriteService;
 import com.universityweb.favourite.service.FavouriteServiceImpl;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
@@ -41,6 +43,9 @@ public class UC_009_ManageFavorites_Tests {
     @Mock
     private CourseService courseService;
 
+    @Mock
+    private FavouriteMapper favouriteMapper;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -52,9 +57,12 @@ public class UC_009_ManageFavorites_Tests {
         String username = "john_doe";
         Long courseId = 1L;
 
+        LocalDateTime now = LocalDateTime.now();
+
         FavouriteDTO favouriteDTO = FavouriteDTO.builder()
                 .username(username)
                 .courseId(courseId)
+                .createdAt(now)
                 .build();
 
         User user = new User();
@@ -64,11 +72,15 @@ public class UC_009_ManageFavorites_Tests {
         course.setId(courseId);
 
         Favourite favourite = Favourite.builder()
-                .user(user)
-                .course(course)
                 .isDeleted(false)
+                .createdAt(now)
                 .build();
 
+        favourite.setUser(user);
+        favourite.setCourse(course);
+
+        when(favouriteMapper.toEntity(favouriteDTO)).thenReturn(favourite);
+        when(favouriteMapper.toDTO(favourite)).thenReturn(favouriteDTO);
         when(userService.loadUserByUsername(username)).thenReturn(user);
         when(courseService.getEntityById(courseId)).thenReturn(course);
         when(favouriteRepository.save(any(Favourite.class))).thenReturn(favourite);

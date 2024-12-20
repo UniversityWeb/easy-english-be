@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,12 +68,14 @@ public class UC_005_SearchAndFilterCourses_Tests {
                 .id(1L)
                 .title("Advanced Java Programming")
                 .status(Course.EStatus.PUBLISHED)
+                .sections(new ArrayList<>())
                 .build();
 
         Course course2 = Course.builder()
                 .id(2L)
                 .title("Basic Java Programming")
                 .status(Course.EStatus.PUBLISHED)
+                .sections(new ArrayList<>())
                 .build();
 
         Page<Course> coursePage = new PageImpl<>(List.of(course1, course2));

@@ -72,13 +72,13 @@ public class PaymentServiceImpl implements PaymentService {
                     .currency(savedOrder.getCurrency())
                     .order(savedOrder)
                     .build();
-            paymentRepos.save(payment);
+            Payment savedPayment = paymentRepos.save(payment);
 
             savedOrder.setStatus(Order.EStatus.PAID);
             savedOrder.setUpdatedAt(paymentTime);
             orderService.save(savedOrder);
 
-            PaymentResponse paymentResponse = paymentMapper.toDTO(payment);
+            PaymentResponse paymentResponse = paymentMapper.toDTO(savedPayment);
             addEnrollmentsByOrderId(savedOrder.getId());
 
             String imagePreview = "";
