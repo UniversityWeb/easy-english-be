@@ -164,7 +164,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
             String courseTitle = course.getTitle();
 
             String msg = CourseContentNotification.courseRated(teacherName, courseTitle, rating);
-            String url = FrontendRoutes.getCourseDetailRoute(course.getId().toString());
+            String url = FrontendRoutes.getCourseViewDetailWithReviewTabRoute(course.getId().toString());
             AddNotificationRequest addNotiReq = AddNotificationRequest.builder()
                     .previewImage(course.getImagePreview())
                     .message(msg)
@@ -189,7 +189,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
             String response = review.getResponse();
 
             String msg = CourseContentNotification.reviewResponded(studentName, teacherName, courseTitle, response);
-            String url = FrontendRoutes.getCourseDetailRoute(course.getId().toString());
+            String url = FrontendRoutes.getCourseViewDetailWithReviewTabRoute(course.getId().toString());
             AddNotificationRequest addNotiReq = AddNotificationRequest.builder()
                     .previewImage(course.getImagePreview())
                     .message(msg)
