@@ -5,7 +5,7 @@ public class FrontendRoutes {
         return "/order-detail/" + orderIdStr;
     }
 
-    public static String getCourseDetailRoute(String courseId) {
-        return "/course-detail/" + courseId;
+    public static String getCourseViewDetailWithReviewTabRoute(String courseId) {
+        return String.format("/course-view-detail/%s?tab=reviews", courseId);
     }
 }
