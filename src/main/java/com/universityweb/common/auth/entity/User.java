@@ -6,6 +6,7 @@ import com.universityweb.message.Message;
 import com.universityweb.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -55,6 +56,7 @@ public class User implements UserDetails, Serializable {
     private ERole role;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
@@ -129,5 +131,19 @@ public class User implements UserDetails, Serializable {
         ACTIVE,
         INACTIVE,
         DELETED
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+        if (gender == null) {
+            gender = EGender.OTHER;
+        }
+        if (status == null) {
+            status = EStatus.INACTIVE;
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }
