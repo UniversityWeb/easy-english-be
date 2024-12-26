@@ -61,7 +61,7 @@ public class Test implements Serializable {
             createdAt = LocalDateTime.now(); // Ensures createdAt is set if not already
         }
         if (type == null) {
-            type = EType.QUIZ; // Ensures default type is set
+            type = EType.CUSTOM; // Ensures default type is set
         }
         if (status == null) {
             status = EStatus.DRAFT; // Ensures default status is set
