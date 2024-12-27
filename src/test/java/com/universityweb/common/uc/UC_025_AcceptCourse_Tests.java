@@ -9,6 +9,8 @@ import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseServiceImpl;
 import com.universityweb.enrollment.EnrollmentRepos;
+import com.universityweb.notification.request.AddNotificationRequest;
+import com.universityweb.notification.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -29,6 +31,9 @@ public class UC_025_AcceptCourse_Tests {
 
     @Mock
     private EnrollmentRepos enrollmentRepos;
+
+    @Mock
+    private NotificationService notificationService;
 
     @Mock
     private CourseMapper mapper;
@@ -59,9 +64,10 @@ public class UC_025_AcceptCourse_Tests {
         when(courseRepository.findById(1L)).thenReturn(java.util.Optional.of(course));
         when(courseRepository.save(any(Course.class))).thenReturn(course);
         when(mapper.toDTO(any(Course.class))).thenReturn(courseResponse);
+        when(notificationService.sendRealtimeNotification(any(AddNotificationRequest.class))).thenReturn(null);
 
         // Act
-        CourseResponse updatedCourse = courseService.updateStatus(adminUser, 1L, Course.EStatus.PUBLISHED);
+        CourseResponse updatedCourse = courseService.updateStatus(adminUser, 1L, Course.EStatus.PUBLISHED, "");
 
         // Assert
         assertNotNull(updatedCourse); // Kiểm tra không null
@@ -88,7 +94,7 @@ public class UC_025_AcceptCourse_Tests {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
-                courseService.updateStatus(adminUser, 1L, Course.EStatus.DELETED)
+                courseService.updateStatus(adminUser, 1L, Course.EStatus.DELETED, "")
         );
 
         assertEquals("Cannot update the course status because it has enrolled students", exception.getMessage());

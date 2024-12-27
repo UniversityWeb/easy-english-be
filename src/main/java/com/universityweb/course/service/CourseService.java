@@ -23,7 +23,7 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     List<CourseResponse> getAllCourseNotOfStudent(CourseRequest courseRequest);
     Page<CourseResponse> getCourseByFilter(CourseRequest courseRequest);
     CourseResponse mapCourseToResponse(Course course);
-    CourseResponse updateStatus(User curUser, Long courseId, Course.EStatus status);
+    CourseResponse updateStatus(User curUser, Long courseId, Course.EStatus status, String reason);
     Page<CourseResponse> getCourseForAdmin(CourseRequest req);
     CourseResponse updateCourseAdmin(Long courseId, CourseRequest req);
     List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req);

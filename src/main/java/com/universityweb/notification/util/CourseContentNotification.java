@@ -22,7 +22,7 @@ public class CourseContentNotification {
     }
 
     public static String courseRejected(String teacherName, String courseTitle, String reason) {
-        return String.format("Dear %s, your course '%s' has been rejected. Reason: %s. Please review and resubmit if necessary.",
+        return  String.format("Dear %s, your course '%s' has been rejected. Reason: %s. Please review and resubmit if necessary.",
                 teacherName, courseTitle, reason);
     }
 
