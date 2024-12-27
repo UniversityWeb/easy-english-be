@@ -11,6 +11,7 @@ import com.universityweb.enrollment.request.AddEnrollmentRequest;
 import com.universityweb.enrollment.service.EnrollmentService;
 import com.universityweb.notification.request.AddNotificationRequest;
 import com.universityweb.notification.service.NotificationService;
+import com.universityweb.notification.util.CourseContentNotification;
 import com.universityweb.notification.util.PaymentContentNotification;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.entity.OrderItem;
@@ -35,6 +36,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -160,6 +162,24 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 String username = order.getUser().getUsername();
                 sendNotification(isPaymentSuccess, imagePreview, username, orderIdStr, transactionNoStr, totalAmount, paymentTime);
+
+                List<OrderItem> orderItems = order.getItems();
+                for (OrderItem orderItem : orderItems) {
+                    Course course = orderItem.getCourse();
+                    String courseId = course.getId().toString();
+                    String courseTitle = course.getTitle();
+                    String teacherUsername = course.getOwner().getUsername();
+                    String teacherName = course.getOwner().getFullName();
+                    String notiMsg = CourseContentNotification.coursePurchased(teacherName, courseTitle);
+                    AddNotificationRequest notiReq = AddNotificationRequest.builder()
+                            .previewImage(course.getImagePreview())
+                            .message(notiMsg)
+                            .url(FrontendRoutes.getCourseDetailRoute(courseId))
+                            .username(teacherUsername)
+                            .createdDate(LocalDateTime.now())
+                            .build();
+                    notificationService.sendRealtimeNotification(notiReq);
+                }
 
                 return paymentMapper.toDTO(savedPayment);
             }

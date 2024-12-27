@@ -154,10 +154,11 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<CourseResponse> updateStatus(
             @PathVariable Long courseId,
-            @PathVariable Course.EStatus status
+            @PathVariable Course.EStatus status,
+            @RequestParam String reason
     ) {
         User curUser = authService.getCurUser();
-        CourseResponse courseResponse = courseService.updateStatus(curUser, courseId, status);
+        CourseResponse courseResponse = courseService.updateStatus(curUser, courseId, status, reason);
         return ResponseEntity.ok(courseResponse);
     }
 

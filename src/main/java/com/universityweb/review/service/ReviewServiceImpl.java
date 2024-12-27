@@ -183,8 +183,8 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
         try {
             Course course = review.getCourse();
             String studentName = review.getUser().getFullName();
+            String studentUsername = review.getUser().getUsername();
             String teacherName = course.getOwner().getFullName();
-            String teacherUsername = course.getOwner().getUsername();
             String courseTitle = course.getTitle();
             String response = review.getResponse();
 
@@ -194,7 +194,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
                     .previewImage(course.getImagePreview())
                     .message(msg)
                     .url(url)
-                    .username(teacherUsername)
+                    .username(studentUsername)
                     .createdDate(LocalDateTime.now())
                     .build();
 

@@ -7,6 +7,7 @@ import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.util.FrontendRoutes;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.exception.CourseNotFoundException;
 import com.universityweb.course.mapper.CourseMapper;
@@ -18,12 +19,17 @@ import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.level.LevelRepository;
 import com.universityweb.level.entity.Level;
+import com.universityweb.notification.entity.Notification;
+import com.universityweb.notification.request.AddNotificationRequest;
+import com.universityweb.notification.service.NotificationService;
+import com.universityweb.notification.util.CourseContentNotification;
 import com.universityweb.price.entity.Price;
 import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
 import com.universityweb.topic.TopicRepository;
 import com.universityweb.topic.entity.Topic;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +56,7 @@ public class CourseServiceImpl
     private final EnrollmentRepos enrollmentRepos;
     private final ReviewRepository reviewRepository;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     @Autowired
     public CourseServiceImpl(
@@ -59,7 +67,8 @@ public class CourseServiceImpl
             TopicRepository topicRepository,
             EnrollmentRepos enrollmentRepos,
             ReviewRepository reviewRepository,
-            UserService userService
+            UserService userService,
+            NotificationService notificationService
     ) {
 
         super(repository, mapper);
@@ -69,6 +78,7 @@ public class CourseServiceImpl
         this.enrollmentRepos = enrollmentRepos;
         this.reviewRepository = reviewRepository;
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -316,7 +326,8 @@ public class CourseServiceImpl
     public CourseResponse updateStatus(
             User curUser,
             Long courseId,
-            Course.EStatus status
+            Course.EStatus status,
+            String reason
     ) {
         Course course = getEntityById(courseId);
         boolean hasEnrolledStudents = enrollmentRepos.existsByCourseId(courseId);
@@ -330,6 +341,35 @@ public class CourseServiceImpl
         boolean isOwner = courseOwnerUsername != null && courseOwnerUsername.equals(currentUsername);
         if (!isOwner && !isAdmin) {
             throw new PermissionDenyException("User is not authorized to update the course status");
+        }
+
+        boolean isPublished = Course.EStatus.PUBLISHED.equals(status);
+        boolean isRejected = Course.EStatus.REJECTED.equals(status);
+        String courseTitle = course.getTitle();
+        if (isAdmin && (isPublished || isRejected)) {
+            String notiMsg = isPublished
+                    ? CourseContentNotification.courseApproved(courseOwnerUsername, courseTitle)
+                    : CourseContentNotification.courseRejected(courseOwnerUsername, courseTitle, reason);
+            AddNotificationRequest req = AddNotificationRequest.builder()
+                    .previewImage(course.getImagePreview())
+                    .message(notiMsg)
+                    .url(FrontendRoutes.getCourseDetailRoute(courseId.toString()))
+                    .username(courseOwnerUsername)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+            notificationService.sendRealtimeNotification(req);
+        }
+
+        if (isOwner && Course.EStatus.PENDING_APPROVAL.equals(status)) {
+            String notiMsg = CourseContentNotification.newCoursePendingApproval(courseTitle, courseOwnerUsername);
+            AddNotificationRequest req = AddNotificationRequest.builder()
+                    .previewImage(course.getImagePreview())
+                    .message(notiMsg)
+                    .url(FrontendRoutes.getCourseDetailRoute(courseId.toString()))
+                    .username(courseOwnerUsername)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+            notificationService.sendRealtimeNotification(req);
         }
 
         course.setStatus(status);
