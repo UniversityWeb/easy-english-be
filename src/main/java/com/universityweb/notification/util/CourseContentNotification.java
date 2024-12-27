@@ -26,8 +26,8 @@ public class CourseContentNotification {
                 teacherName, courseTitle, reason);
     }
 
-    public static String newCoursePendingApproval(String adminName, String courseTitle, String submittedBy) {
-        return String.format("Hello %s! A new course '%s' submitted by '%s' is waiting for your approval.",
-                adminName, courseTitle, submittedBy);
+    public static String newCoursePendingApproval(String courseTitle, String submittedBy) {
+        return String.format("Hello Admin! A new course '%s' submitted by '%s' is waiting for your approval.",
+                courseTitle, submittedBy);
     }
 }

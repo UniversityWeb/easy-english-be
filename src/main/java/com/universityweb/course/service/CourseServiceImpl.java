@@ -345,11 +345,23 @@ public class CourseServiceImpl
 
         boolean isPublished = Course.EStatus.PUBLISHED.equals(status);
         boolean isRejected = Course.EStatus.REJECTED.equals(status);
+        String courseTitle = course.getTitle();
         if (isAdmin && (isPublished || isRejected)) {
-            String courseTitle = course.getTitle();
             String notiMsg = isPublished
                     ? CourseContentNotification.courseApproved(courseOwnerUsername, courseTitle)
                     : CourseContentNotification.courseRejected(courseOwnerUsername, courseTitle, reason);
+            AddNotificationRequest req = AddNotificationRequest.builder()
+                    .previewImage(course.getImagePreview())
+                    .message(notiMsg)
+                    .url(FrontendRoutes.getCourseDetailRoute(courseId.toString()))
+                    .username(courseOwnerUsername)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+            notificationService.sendRealtimeNotification(req);
+        }
+
+        if (isOwner && Course.EStatus.PENDING_APPROVAL.equals(status)) {
+            String notiMsg = CourseContentNotification.newCoursePendingApproval(courseTitle, courseOwnerUsername);
             AddNotificationRequest req = AddNotificationRequest.builder()
                     .previewImage(course.getImagePreview())
                     .message(notiMsg)
