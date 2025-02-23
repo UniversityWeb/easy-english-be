@@ -1,0 +1,97 @@
+@startuml
+title Mua khóa học
+
+autonumber
+
+actor User
+boundary CartIcon
+boundary CartView
+boundary PaymentResultView
+
+box External view
+boundary CheckoutView
+end box
+
+control CartController
+control PaymentController
+control CartService
+control PaymentService
+control OrderService
+control VNPayService
+entity CartModel
+entity OrderModel
+entity PaymentModel
+database Database
+
+ref over User, CartIcon, CartView, CartController, CartService, CartModel, Database
+    Xem giỏ hàng
+end
+
+activate CartView
+
+User -> CartView : Ấn nút “Checkout”
+
+CartView -> PaymentController: createPayment(req)
+activate PaymentController
+PaymentController -> PaymentService: createPayment(req)
+activate PaymentService
+PaymentService -> OrderService: createOrderFromUserCart(username)
+activate OrderService
+OrderService -> OrderModel: save()
+deactivate OrderService
+activate OrderModel
+OrderModel -> Database: save()
+deactivate OrderModel
+PaymentService -> PaymentModel: save()
+activate PaymentModel
+PaymentModel -> Database: save()
+deactivate PaymentModel
+
+PaymentService -> VNPayService: createOrder()
+activate VNPayService
+VNPayService --> PaymentService: return paymentUrl
+deactivate VNPayService
+PaymentService --> PaymentController: return paymentResponse
+deactivate PaymentService
+PaymentController --> CartView: return paymentResponse
+deactivate PaymentController
+
+CartView -> CheckoutView : window.location.href\n = paymentUrl
+deactivate CartView
+activate CheckoutView
+
+User -> CheckoutView : Chọn hình thức thanh toán\n và nhập thông tin
+CheckoutView --> PaymentResultView : return result
+deactivate CheckoutView
+activate PaymentResultView
+
+PaymentResultView -> PaymentController : handlePaymentResult(req)
+activate PaymentController
+
+PaymentController -> PaymentService : processPaymentResult(paymentInfo)
+activate PaymentService
+PaymentService -> VNPayService : orderReturn(req)
+activate VNPayService
+VNPayService --> PaymentService : return result
+deactivate VNPayService
+PaymentService -> PaymentModel : save()
+activate PaymentModel
+PaymentModel -> Database : save()
+activate Database
+Database --> PaymentModel : return payment confirmation
+deactivate Database
+PaymentModel --> PaymentService : return payment confirmation
+deactivate PaymentModel
+PaymentService --> PaymentController : return paymentResponse
+deactivate PaymentService
+PaymentController --> PaymentResultView : return paymentResponse
+deactivate PaymentController
+
+alt Thanh toán thành công
+
+    PaymentResultView -> PaymentResultView : Hiển thị trang thanh toán thành công
+else Thanh toán thất bại
+    PaymentResultView -> PaymentResultView : Hiển thị trang thanh toán thất bại
+end
+
+@enduml

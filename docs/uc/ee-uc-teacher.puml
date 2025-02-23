@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+
+' Define Actors
+actor Teacher as T
+
+rectangle "Easy English System" {
+  ' Common functionalities
+  T --> (UC_002. Đăng nhập)
+  T --> (UC_003. Quên mật khẩu)
+  T --> (UC_004. Xem thông báo)
+
+  ' Use cases for Teacher
+  T --> (UC_015. Quản lý khóa học)
+  (UC_015. Quản lý khóa học) <|-- (UC_016. Quản lý phần của khóa học) : <<extend>>
+
+  (UC_016. Quản lý phần của khóa học) <|-- (UC_017. Quản lý bài học) : <<extend>>
+  
+  (UC_016. Quản lý phần của khóa học) <|-- (UC_018. Quản lý bài kiểm tra) : <<extend>>
+  (UC_018. Quản lý bài kiểm tra) <|-- (UC_019. Quản lý các phần của bài kiểm tra) : <<extend>>
+  (UC_019. Quản lý các phần của bài kiểm tra) <|-- (UC_020. Quản lý nhóm câu hỏi) : <<extend>>
+  (UC_020. Quản lý nhóm câu hỏi) <|-- (UC_021. Quản lý câu hỏi) : <<extend>>
+
+  (UC_018. Quản lý bài kiểm tra) <|-- (UC_022. Xem lịch sử bài kiểm tra) : <<extend>>
+
+  T --> (UC_023. Tương tác với học viên)
+  T --> (UC_024. Xem thống kê)
+}
+@enduml

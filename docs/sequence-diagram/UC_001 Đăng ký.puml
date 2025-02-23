@@ -1,0 +1,91 @@
+@startuml
+
+title Đăng ký
+
+autonumber
+
+actor Guest
+boundary LoginView
+boundary RegisterView
+boundary OtpValidationView
+control AuthController
+control AuthService
+control OTPService
+control EmailService
+entity UserModel
+database Database
+
+Guest -> LoginView : Ấn vào chữ "Register"
+activate LoginView
+LoginView -> RegisterView : navigate()
+deactivate LoginView
+
+activate RegisterView
+Guest -> RegisterView : Điền thông tin
+RegisterView -> AuthController : register(registerReq)
+activate AuthController
+AuthController -> AuthService : registerStudentAccount(registerReq)
+activate AuthService
+
+ref over RegisterView, AuthController, AuthService
+    Xác thực thông tin đăng ký
+end
+
+AuthService -> UserModel: save()
+activate UserModel
+UserModel -> Database: save()
+activate Database
+Database --> UserModel: return user
+deactivate Database
+UserModel --> AuthService: return user
+deactivate UserModel
+
+AuthService -> OTPService : generateAndSendOtp(email)
+activate OTPService
+OTPService -> EmailService : sendOtpToActiveAccount(email, otp)
+EmailService -> Guest : sendEmail(otp)
+deactivate OTPService
+
+AuthService --> AuthController: return use
+deactivate AuthService
+AuthController --> RegisterView: return user
+deactivate AuthController
+RegisterView -> OtpValidationView : navigate()
+deactivate RegisterView
+activate OtpValidationView
+OtpValidationView -> OtpValidationView : msg “Register successfully”
+
+alt Người dùng yêu cầu gửi lại OTP
+    ref over Guest, OtpValidationView, AuthController, OTPService, EmailService
+        Gửi lại OTP
+    end
+end
+
+Guest -> OtpValidationView : Nhập OTP
+OtpValidationView -> AuthController : activeAccount(req)
+activate AuthController
+AuthController -> AuthService : activeAccount(req)
+activate AuthService
+AuthService -> OTPService : validateOtp(email, otp)
+activate OTPService
+AuthService -> OTPService : invalidateOtp(email, otp)
+deactivate OTPService
+AuthService -> UserModel: save()
+activate UserModel
+UserModel -> Database: save()
+activate Database
+Database --> UserModel: return user
+deactivate Database
+UserModel --> AuthService: return user
+deactivate UserModel
+AuthService --> AuthController: return activeAccountResponse
+deactivate AuthService
+AuthController --> OtpValidationView : return activeAccountResponse
+deactivate AuthController
+OtpValidationView -> LoginView : navigate()
+deactivate OtpValidationView
+activate LoginView
+LoginView -> LoginView : msg “User account activated successfully”
+
+
+@enduml

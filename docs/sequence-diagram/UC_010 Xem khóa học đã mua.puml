@@ -1,0 +1,69 @@
+@startuml
+title Xem khóa học đã mua
+
+autonumber
+
+actor Student
+boundary NavigationBar
+boundary OrdersView
+control OrdersController
+control OrderService
+entity OrderModel
+database Database
+
+Student -> NavigationBar : Nhấn vào avatar
+activate NavigationBar
+NavigationBar -> OrdersView : Hiển thị danh sách lựa chọn
+activate OrdersView
+
+Student -> OrdersView : Nhấn vào "My Orders"
+OrdersView -> OrdersController : fetchOrders()
+activate OrdersController
+
+OrdersController -> OrderService : fetchOrders(studentId)
+activate OrderService
+
+OrderService -> OrderModel : loadOrdersByStudent(studentId)
+activate OrderModel
+OrderModel -> Database : findOrdersByStudentId(studentId)
+activate Database
+Database --> OrderModel : return orders
+deactivate Database
+OrderModel --> OrderService : return orders
+deactivate OrderModel
+
+OrderService --> OrdersController : return orders list
+deactivate OrderService
+
+OrdersController --> OrdersView : return orders list
+deactivate OrdersController
+
+OrdersView -> OrdersView : Hiển thị danh sách "All, Pending payment, Paid, Failed, Expired"
+deactivate OrdersView
+
+Student -> OrdersView : Chọn 1 đơn mua
+OrdersView -> OrdersController : fetchOrderDetails(orderId)
+activate OrdersController
+
+OrdersController -> OrderService : fetchOrderDetails(orderId)
+activate OrderService
+
+OrderService -> OrderModel : loadOrderDetails(orderId)
+activate OrderModel
+OrderModel -> Database : findOrderById(orderId)
+activate Database
+Database --> OrderModel : return order details
+deactivate Database
+OrderModel --> OrderService : return order details
+deactivate OrderModel
+
+OrderService --> OrdersController : return order details
+deactivate OrderService
+
+OrdersController --> OrdersView : return order details
+deactivate OrdersController
+
+OrdersView -> OrdersView : Hiển thị chi tiết đơn mua
+deactivate OrdersView
+
+@enduml

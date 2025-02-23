@@ -1,0 +1,89 @@
+@startuml
+title Đánh giá khóa học
+
+autonumber
+
+actor Student
+boundary CourseView
+boundary ReviewView
+control CourseController
+control ReviewController
+control ReviewService
+entity CourseModel
+entity ReviewModel
+database Database
+
+Student -> CourseView : Vào trang chi tiết khóa học
+activate CourseView
+CourseView -> CourseController : viewCourseDetails(courseId)
+activate CourseController
+
+CourseController -> CourseModel : loadCourseDetails(courseId)
+activate CourseModel
+CourseModel -> Database : findCourseById(courseId)
+activate Database
+Database --> CourseModel : return course details
+deactivate Database
+CourseModel --> CourseController : return course details
+deactivate CourseModel
+
+CourseController --> CourseView : showCourseDetails(courseDetails)
+deactivate CourseController
+
+CourseView -> CourseView : Hiển thị giao diện trang chi tiết khóa học
+deactivate CourseView
+
+Student -> CourseView : Nhấn tab "Reviews"
+CourseView -> ReviewView : displayReviewsTab()
+activate ReviewView
+
+ReviewView -> ReviewView : Hiển thị giao diện tab "Reviews"
+deactivate ReviewView
+
+Student -> ReviewView : Nhấn nút "Write review"
+ReviewView -> ReviewController : openReviewForm(courseId)
+activate ReviewController
+
+ReviewController -> ReviewView : showReviewForm()
+deactivate ReviewController
+
+Student -> ReviewView : Chọn sao và viết đánh giá
+ReviewView -> ReviewController : submitReview(courseId, rating, reviewText)
+activate ReviewController
+
+ReviewController -> ReviewService : submitReview(courseId, rating, reviewText)
+activate ReviewService
+
+ReviewService -> ReviewModel : saveReview(courseId, rating, reviewText)
+activate ReviewModel
+ReviewModel -> Database : saveReview(courseId, rating, reviewText)
+activate Database
+Database --> ReviewModel : return success
+deactivate Database
+ReviewModel --> ReviewService : return success
+deactivate ReviewModel
+
+ReviewService --> ReviewController : return success
+deactivate ReviewService
+
+ReviewController --> ReviewView : showSuccessMessage("Review submitted successfully")
+deactivate ReviewController
+
+ReviewView -> ReviewView : Hiển thị thông báo thành công
+deactivate ReviewView
+
+ReviewView -> CourseView : cập nhật lại danh sách đánh giá
+CourseView -> CourseView : Hiển thị danh sách đánh giá mới
+deactivate CourseView
+
+alt Người dùng không chọn điểm đánh giá
+    ReviewController -> ReviewView : showError("You must select a rating")
+    ReviewView -> ReviewView : Hiển thị lỗi "You must select a rating"
+end
+
+alt Người dùng không viết đánh giá
+    ReviewController -> ReviewView : showError("You must write a review")
+    ReviewView -> ReviewView : Hiển thị lỗi "You must write a review"
+end
+
+@enduml

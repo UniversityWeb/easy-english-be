@@ -1,0 +1,126 @@
+@startuml
+title Làm các bài tập
+
+autonumber
+
+actor Student
+boundary NavigationBar
+boundary CourseView
+boundary TestView
+control CourseController
+control TestController
+control CourseService
+control TestService
+entity CourseModel
+entity TestModel
+database Database
+
+Student -> NavigationBar : Nhấn vào avatar
+activate NavigationBar
+NavigationBar -> CourseView : Hiển thị danh sách "Enrolled Courses"
+activate CourseView
+
+Student -> CourseView : Nhấn vào "Enrolled Courses"
+CourseView -> CourseController : fetchEnrolledCourses(studentId)
+activate CourseController
+
+CourseController -> CourseService : getEnrolledCourses(studentId)
+activate CourseService
+
+CourseService -> CourseModel : loadCoursesByStudent(studentId)
+activate CourseModel
+CourseModel -> Database : findCoursesByStudentId(studentId)
+activate Database
+Database --> CourseModel : return courses
+deactivate Database
+CourseModel --> CourseService : return courses
+deactivate CourseModel
+
+CourseService --> CourseController : return courses list
+deactivate CourseService
+
+CourseController --> CourseView : return courses list
+deactivate CourseController
+
+CourseView -> CourseView : Hiển thị danh sách các khóa học đã mua
+deactivate CourseView
+
+Student -> CourseView : Chọn khóa học và nhấn "Start Course"
+CourseView -> CourseController : startCourse(courseId)
+activate CourseController
+
+CourseController -> TestService : getTests(courseId)
+activate TestService
+
+TestService -> TestModel : loadTestsByCourse(courseId)
+activate TestModel
+TestModel -> Database : findTestsByCourseId(courseId)
+activate Database
+Database --> TestModel : return tests
+deactivate Database
+TestModel --> TestService : return tests
+deactivate TestModel
+
+TestService --> CourseController : return tests list
+deactivate TestService
+
+CourseController --> TestView : Hiển thị danh sách bài tập
+activate TestView
+
+Student -> TestView : Chọn bài tập kiểu "Test"
+TestView -> TestController : startTest(testId)
+activate TestController
+
+TestController -> TestService : getTestDetails(testId)
+activate TestService
+
+TestService -> TestModel : loadTestById(testId)
+activate TestModel
+TestModel -> Database : findTestById(testId)
+activate Database
+Database --> TestModel : return test details
+deactivate Database
+TestModel --> TestService : return test details
+deactivate TestModel
+
+TestService --> TestController : return test details
+deactivate TestService
+
+TestController --> TestView : Hiển thị bài tập
+deactivate TestController
+
+TestView -> TestView : Hiển thị giao diện làm bài tập
+deactivate TestView
+
+Student -> TestView : Điền các câu trả lời
+Student -> TestView : Nhấn "Submit"
+TestView -> TestController : submitTest(testId, answers)
+activate TestController
+
+TestController -> TestService : submitTest(testId, answers)
+activate TestService
+
+TestService -> TestModel : submitTest(testId, answers)
+activate TestModel
+TestModel -> Database : saveTestResults(testId, answers)
+activate Database
+Database --> TestModel : return result
+deactivate Database
+TestModel --> TestService : return result
+deactivate TestModel
+
+TestService --> TestController : return result
+deactivate TestService
+
+TestController --> TestView : showTestResult(result)
+deactivate TestController
+
+TestView -> TestView : Hiển thị kết quả bài tập
+deactivate TestView
+
+alt Không điền bất kỳ đáp án nào
+    TestController -> TestView : showError("You have not answered any questions")
+    TestView -> TestView : Hiển thị lỗi
+end
+
+@enduml

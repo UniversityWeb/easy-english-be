@@ -1,0 +1,81 @@
+@startuml
+
+title Quản lý đáp án của câu hỏi
+
+autonumber
+
+actor Teacher
+boundary QuestionView
+control QuestionController
+control QuestionService
+database Database
+
+== Thêm đáp án ==
+Teacher -> QuestionView : Nhập vào "Add new option" và nhấn "Add"
+activate QuestionView
+QuestionView -> QuestionController : addOption(option)
+activate QuestionController
+QuestionController -> QuestionService : addOption(option)
+activate QuestionService
+QuestionService -> Database : saveOption(option)
+activate Database
+Database --> QuestionService : return success
+deactivate Database
+QuestionService --> QuestionController : return success
+deactivate QuestionService
+QuestionController --> QuestionView : "Question updated successfully."
+deactivate QuestionController
+
+deactivate QuestionView
+
+== Xóa đáp án ==
+Teacher -> QuestionView : Nhấn vào biểu tượng thùng rác
+activate QuestionView
+QuestionView -> QuestionController : deleteOption(optionId)
+activate QuestionController
+QuestionController -> QuestionService : deleteOption(optionId)
+activate QuestionService
+QuestionService -> Database : deleteOption(optionId)
+activate Database
+Database --> QuestionService : return success
+deactivate Database
+QuestionService --> QuestionController : return success
+deactivate QuestionService
+QuestionController --> QuestionView : "Question updated successfully."
+deactivate QuestionController
+
+deactivate QuestionView
+
+== Sửa đáp án ==
+Teacher -> QuestionView : Chọn đáp án cần sửa
+activate QuestionView
+QuestionView -> QuestionController : onUpdateQuestionField()
+activate QuestionController
+QuestionController -> QuestionService : updateOption(optionId, newContent)
+activate QuestionService
+QuestionService -> Database : updateOption(optionId, newContent)
+activate Database
+Database --> QuestionService : return success
+deactivate Database
+QuestionService --> QuestionController : return success
+deactivate QuestionService
+QuestionController --> QuestionView : "Question updated successfully."
+deactivate QuestionController
+
+Teacher -> QuestionView : Chọn Radio Button đánh dấu đáp án đúng
+QuestionView -> QuestionController : markCorrectOption(optionId)
+activate QuestionController
+QuestionController -> QuestionService : markCorrectOption(optionId)
+activate QuestionService
+QuestionService -> Database : updateCorrectOption(optionId)
+activate Database
+Database --> QuestionService : return success
+deactivate Database
+QuestionService --> QuestionController : return success
+deactivate QuestionService
+QuestionController --> QuestionView : "Question updated successfully."
+deactivate QuestionController
+
+deactivate QuestionView
+
+@enduml

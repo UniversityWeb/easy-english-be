@@ -1,0 +1,48 @@
+@startuml
+title Quản lý yêu thích
+
+actor Student
+entity View
+entity Controller
+entity Service
+entity Model
+database Database
+
+Student -> View : displayFavoritesPage()
+View -> Controller : requestFavoriteCourses(studentId)
+Controller -> Service : getFavoriteCourses(studentId)
+Service -> Model : fetchFavoriteCourses(studentId)
+Model -> Database : queryFavoriteCourses(studentId)
+Database --> Model : returnFavoriteCourses(favoriteCourses)
+Model --> Service : returnFavoriteCourses(favoriteCourses)
+Service --> Controller : returnFavoriteCourses(favoriteCourses)
+Controller --> View : showFavoriteCourses(favoriteCourses)
+View --> Student : displayFavoriteCourses(favoriteCourses)
+
+alt Add to Favorites
+    Student -> View : addCourseToFavorites(courseId)
+    View -> Controller : addCourseToFavorites(courseId, studentId)
+    Controller -> Service : addCourseToFavorites(courseId, studentId)
+    Service -> Model : addCourseToFavorites(courseId, studentId)
+    Model -> Database : insertFavoriteCourse(courseId, studentId)
+    Database --> Model : returnInsertStatus(success/failure)
+    Model --> Service : returnInsertStatus(success/failure)
+    Service --> Controller : returnInsertStatus(success/failure)
+    Controller --> View : updateFavoritesView(favoriteCourses)
+    View --> Student : displayUpdatedFavorites(favoriteCourses)
+end
+
+alt Remove from Favorites
+    Student -> View : removeCourseFromFavorites(courseId)
+    View -> Controller : removeCourseFromFavorites(courseId, studentId)
+    Controller -> Service : removeCourseFromFavorites(courseId, studentId)
+    Service -> Model : removeCourseFromFavorites(courseId, studentId)
+    Model -> Database : deleteFavoriteCourse(courseId, studentId)
+    Database --> Model : returnDeleteStatus(success/failure)
+    Model --> Service : returnDeleteStatus(success/failure)
+    Service --> Controller : returnDeleteStatus(success/failure)
+    Controller --> View : updateFavoritesView(favoriteCourses)
+    View --> Student : displayUpdatedFavorites(favoriteCourses)
+end
+
+@enduml

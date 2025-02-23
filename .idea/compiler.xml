@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="discovery-service" />
+        <module name="gateway-service" />
+        <module name="config-service" />
+      </profile>
+      <profile name="Annotation profile for sample-spring-microservices-new" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="course-service" />
+        <module name="common-service" />
+        <module name="engagement-service" />
+        <module name="analytics-service" />
+        <module name="test-service" />
+        <module name="user-service" />
+        <module name="ecommerce-service" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="analytics-service" options="-parameters" />
+      <module name="common-service" options="-parameters" />
+      <module name="config-service" options="-parameters" />
+      <module name="course-service" options="-parameters" />
+      <module name="discovery-service" options="-parameters" />
+      <module name="easy-english-be" options="" />
+      <module name="ecommerce-service" options="-parameters" />
+      <module name="engagement-service" options="-parameters" />
+      <module name="gateway-service" options="-parameters" />
+      <module name="test-service" options="-parameters" />
+      <module name="user-service" options="-parameters" />
+    </option>
+  </component>
+</project>
