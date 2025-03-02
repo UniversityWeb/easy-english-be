@@ -51,6 +51,30 @@ public class MediaController {
         }
     }
 
+    @PostMapping("/upload-base64")
+    public ResponseEntity<String> uploadFileBase64(
+            @RequestBody MediaReq mediaReq
+    ) {
+        try {
+            String base64Str = mediaReq.getBase64Str();
+            if (base64Str == null || base64Str.isEmpty()) {
+                log.warn("Base64 upload attempted with empty data");
+                return ResponseEntity.badRequest().body("Base64 data is empty");
+            }
+
+            String suffixPath = mediaService.uploadFile(base64Str);
+            log.info("File uploaded successfully: {}", suffixPath);
+
+            return ResponseEntity.ok("File uploaded successfully: " + suffixPath);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid Base64 data: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid Base64 format: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Base64 file upload failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body("Upload failed: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/delete/{fileName}")
     public ResponseEntity<Void> deleteFileByName(@PathVariable("fileName") String fileName) throws Exception {
         mediaService.deleteFile(fileName);

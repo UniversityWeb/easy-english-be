@@ -11,11 +11,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -35,6 +37,26 @@ public class MediaServiceImpl implements MediaService {
         validateFile(file);
         String uniqueFileName = generateUniqueFileName(file.getOriginalFilename());
         return uploadToMinio(file, uniqueFileName);
+    }
+
+    @Override
+    public String uploadFile(String base64Str) {
+        try {
+            String[] parsedData = parseBase64Data(base64Str);
+            String contentType = parsedData[0];
+            String pureBase64 = parsedData[1];
+
+            String objectName = generateUniqueFileName(contentType.replace('/', '.'));
+
+            byte[] decodedBytes = Base64.getDecoder().decode(pureBase64);
+            return uploadToMinio(decodedBytes, contentType, objectName);
+        } catch (MinioException e) {
+            throw new RuntimeException("Minio error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid base64: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -98,6 +120,25 @@ public class MediaServiceImpl implements MediaService {
         }
     }
 
+    private String[] parseBase64Data(String base64Data) {
+        if (base64Data.startsWith("data:")) {
+            String[] parts = base64Data.split(",", 2);
+            String[] header = parts[0].split(";");
+            String contentType = header[0].substring(5);
+            return new String[]{contentType, parts[1]};
+        }
+        return new String[]{"application/octet-stream", base64Data};
+    }
+
+    private String resolveFileExtension(String contentType) {
+        return switch (contentType) {
+            case "image/jpeg" -> "jpg";
+            case "image/png" -> "png";
+            case "application/pdf" -> "pdf";
+            default -> "bin";
+        };
+    }
+
     private String generateUniqueFileName(String originalFilename) {
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         return UUID.randomUUID().toString() + fileExtension; // Use UUID for unique name
@@ -124,5 +165,16 @@ public class MediaServiceImpl implements MediaService {
 
     private String extractFileName(String suffixPath) {
         return suffixPath.startsWith("/") ? suffixPath.substring(1) : suffixPath;
+    }
+
+    private String uploadToMinio(byte[] data, String contentType, String objectName) throws Exception {
+        minioClient.putObject(
+                PutObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(objectName)
+                        .stream(new ByteArrayInputStream(data), data.length, -1)
+                        .contentType(contentType)
+                        .build());
+        return "/" + objectName;
     }
 }
