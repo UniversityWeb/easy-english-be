@@ -65,6 +65,9 @@ public class User implements UserDetails, Serializable {
     @Column(name = "avatar_path", columnDefinition = "TEXT")
     private String avatarPath;
 
+    @Column(name = "settings", columnDefinition = "TEXT")
+    private String settings;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
 

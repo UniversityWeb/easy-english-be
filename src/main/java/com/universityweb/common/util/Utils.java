@@ -1,5 +1,8 @@
 package com.universityweb.common.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.universityweb.common.auth.dto.SettingsDTO;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.Instant;
@@ -11,6 +14,7 @@ import java.util.Locale;
 
 public class Utils {
     public static final BigDecimal MIN_PRICE_LIMIT = new BigDecimal(10_000);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static Date toDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -104,5 +108,23 @@ public class Utils {
         Locale vietnam = new Locale("vi", "VN");
         NumberFormat formatter = NumberFormat.getCurrencyInstance(vietnam);
         return formatter.format(amount).replace("₫", "").trim() + "₫";
+    }
+
+    public static String convertToJson(SettingsDTO settings) {
+        try {
+            return objectMapper.writeValueAsString(settings);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{}";
+        }
+    }
+
+    public static <T> T convertFromJson(String json, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(json, clazz);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

@@ -79,4 +79,6 @@ public class UserDTO {
     LocalDateTime createdAt;
 
     String avatarPath;
+
+    SettingsDTO settings;
 }
