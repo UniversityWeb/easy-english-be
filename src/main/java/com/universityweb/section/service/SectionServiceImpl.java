@@ -23,8 +23,12 @@ public class SectionServiceImpl
     private final CourseService courseService;
 
     @Autowired
-    protected SectionServiceImpl(SectionRepository repository, CourseService courseService) {
-        super(repository, SectionMapper.INSTANCE);
+    protected SectionServiceImpl(
+            SectionRepository repository,
+            SectionMapper mapper,
+            CourseService courseService
+    ) {
+        super(repository, mapper);
         this.courseService = courseService;
     }
 

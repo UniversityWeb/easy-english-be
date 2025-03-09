@@ -73,7 +73,7 @@ public class UC_002_Login_Tests {
         when(jwtGenerator.generateAndSaveToken(user)).thenReturn("mockJwtToken");
         when(uMapper.toDTO(user)).thenReturn(new UserDTO("john", "John Doe",
                 "john@gmail.com", "+84972640891", "", User.EGender.MALE,
-                LocalDate.of(2000, 1, 1), User.ERole.STUDENT, LocalDateTime.now(), null));
+                LocalDate.of(2000, 1, 1), User.ERole.STUDENT, LocalDateTime.now(), null, ""));
 
         // Act
         LoginResponse response = authService.login(request);

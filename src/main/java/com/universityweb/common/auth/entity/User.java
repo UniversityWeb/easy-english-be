@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.entity;
 
+import com.universityweb.bundle.Bundle;
 import com.universityweb.cart.entity.Cart;
 import com.universityweb.course.entity.Course;
 import com.universityweb.message.Message;
@@ -85,6 +86,9 @@ public class User implements UserDetails, Serializable {
 
     @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Message> receivedMessages;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Bundle> bundles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

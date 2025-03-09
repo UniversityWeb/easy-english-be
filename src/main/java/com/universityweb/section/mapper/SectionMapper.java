@@ -12,18 +12,16 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface SectionMapper extends BaseMapper<Section, SectionDTO> {
-    SectionMapper INSTANCE = Mappers.getMapper(SectionMapper.class);
-
     @Mapping(source = "course.id", target = "courseId")
+    @Override
     SectionDTO toDTO(Section entity);
-    List<SectionDTO> toDTOs(List<Section> entities);
 
     SectionDTO toDTO(SectionRequest request);
 
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "lessons", ignore = true)
+    @Override
     Section toEntity(SectionDTO dto);
-    List<Section> toEntities(List<SectionDTO> dtos);
 
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "lessons", ignore = true)

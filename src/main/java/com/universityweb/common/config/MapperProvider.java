@@ -1,5 +1,6 @@
 package com.universityweb.common.config;
 
+import com.universityweb.bundle.BundleMapper;
 import com.universityweb.cart.mapper.CartItemMapper;
 import com.universityweb.cart.mapper.CartMapper;
 import com.universityweb.category.mapper.CategoryMapper;
@@ -17,6 +18,7 @@ import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.payment.mapper.PaymentMapper;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.review.mapper.ReviewMapper;
+import com.universityweb.section.mapper.SectionMapper;
 import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
 import com.universityweb.topic.mapper.TopicMapper;
@@ -152,5 +154,17 @@ public class MapperProvider {
     @Primary
     public ReviewMapper reviewMapper() {
         return Mappers.getMapper(ReviewMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public SectionMapper sectionMapper() {
+        return Mappers.getMapper(SectionMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public BundleMapper bundleMapper() {
+        return Mappers.getMapper(BundleMapper.class);
     }
 }

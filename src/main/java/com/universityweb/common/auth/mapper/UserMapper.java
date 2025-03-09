@@ -17,13 +17,21 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper extends BaseMapper<User, UserDTO> {
-    @Mapping(target = "settings", source = "settings", qualifiedByName = "jsonToSettingsDTO")
+    @Mapping(target = "username", source = "username") // Explicit mapping
+    @Override
     UserDTO toDTO(User user);
 
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "username", ignore = true)
-    @Mapping(target = "settings", source = "settings", qualifiedByName = "settingsDTOToJson")
+    @Mapping(target = "cart", ignore = true)
+    @Mapping(target = "token", ignore = true)
+    @Mapping(target = "courses", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "sentMessages", ignore = true)
+    @Mapping(target = "receivedMessages", ignore = true)
+    @Mapping(target = "bundles", ignore = true)
+    @Override
     User toEntity(UserDTO userDTO);
 
     User toEntity(UserForAdminDTO userForAdminDTO);
@@ -43,22 +51,4 @@ public interface UserMapper extends BaseMapper<User, UserDTO> {
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
-
-    @Named("jsonToSettingsDTO")
-    default SettingsDTO jsonToSettingsDTO(String settings) {
-        try {
-            return objectMapper.readValue(settings, SettingsDTO.class);
-        } catch (Exception e) {
-            return new SettingsDTO();
-        }
-    }
-
-    @Named("settingsDTOToJson")
-    default String settingsDTOToJson(SettingsDTO settingsDTO) {
-        try {
-            return objectMapper.writeValueAsString(settingsDTO);
-        } catch (Exception e) {
-            return "{}";
-        }
-    }
 }
