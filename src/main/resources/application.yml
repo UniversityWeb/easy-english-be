@@ -1,5 +1,13 @@
 server:
   port: 8001
+
+  ssl:
+    enabled: true
+    key-alias: keystore
+    key-store: classpath:keystore/keystore.p12
+    key-store-type: PKCS12
+    key-password: 123456@@
+    key-store-password: 123456@@
   
   prod:
     url: ${PROD_BASE_URL}

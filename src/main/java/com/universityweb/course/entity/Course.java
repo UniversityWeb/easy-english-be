@@ -1,5 +1,6 @@
 package com.universityweb.course.entity;
 
+import com.universityweb.bundle.Bundle;
 import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.drip.Drip;
@@ -86,6 +87,9 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "level_id")
     Level level;
+
+    @ManyToMany(mappedBy = "courses")
+    List<Bundle> bundles;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Section> sections = new ArrayList<>();

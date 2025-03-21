@@ -79,7 +79,8 @@ public class UC_001_Register_Tests {
                 request.dob(),
                 User.ERole.STUDENT,
                 LocalDateTime.now(),
-                null // avatarPath
+                null, // avatarPath
+                ""
         );
 
         when(userService.existsByUsername(request.username())).thenReturn(false);

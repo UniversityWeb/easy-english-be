@@ -1,4 +1,4 @@
-package com.universityweb.enrollment;
+package com.universityweb.enrollment.controller;
 
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
@@ -7,7 +7,9 @@ import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
+import com.universityweb.enrollment.request.CourseStatsFilterReq;
 import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
+import com.universityweb.enrollment.request.StudentStatsFilterReq;
 import com.universityweb.enrollment.service.EnrollmentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +17,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RequestMapping("/api/v1/enrollments")
 @RestController
@@ -86,5 +91,33 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
 
         Page<CourseResponse> coursesWithMediaUrls = MediaUtils.addCourseMediaUrls(mediaService, courseResponses);
         return ResponseEntity.ok(coursesWithMediaUrls);
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PostMapping("/get-courses-statistics")
+    public ResponseEntity<Page<Map<String, Object>>> getCoursesStatistics(
+            @RequestBody CourseStatsFilterReq courseStatsFilterReq
+    ) {
+        courseStatsFilterReq.setTeacherUsername(authService.getCurrentUsername());
+        log.info("Entering getCoursesStatistics with filter request: {}", courseStatsFilterReq);
+
+        Page<Map<String, Object>> courseStats = service.getCoursesStatistics(courseStatsFilterReq);
+
+        log.debug("Retrieved {} course statistics entries", courseStats.getTotalElements());
+        return ResponseEntity.ok(courseStats);
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PostMapping("/get-students-statistics")
+    public ResponseEntity<Page<Map<String, Object>>> getStudentsStatistics(
+            @RequestBody StudentStatsFilterReq studentStatsFilterReq
+    ) {
+        studentStatsFilterReq.setTeacherUsername(authService.getCurrentUsername());
+        log.info("Entering getStudentsStatistics with filter request: {}", studentStatsFilterReq);
+
+        Page<Map<String, Object>> studentStats = service.getStudentsStatistics(studentStatsFilterReq);
+
+        log.debug("Retrieved {} student statistics entries", studentStats.getTotalElements());
+        return ResponseEntity.ok(studentStats);
     }
 }

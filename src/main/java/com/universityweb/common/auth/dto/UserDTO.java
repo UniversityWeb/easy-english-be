@@ -1,5 +1,8 @@
 package com.universityweb.common.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universityweb.common.auth.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -79,4 +82,18 @@ public class UserDTO {
     LocalDateTime createdAt;
 
     String avatarPath;
+
+    @JsonIgnore
+    String settings = "";
+
+    @JsonGetter("settings")
+    public SettingsDTO getSettingsDTO() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            SettingsDTO settings = objectMapper.readValue(this.settings, SettingsDTO.class);
+            return settings;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
