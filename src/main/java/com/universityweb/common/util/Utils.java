@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universityweb.common.auth.dto.SettingsDTO;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -126,5 +127,14 @@ public class Utils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static LocalDateTime convertToLocalDateTime(Object obj) {
+        if (obj instanceof Timestamp) {
+            return ((Timestamp) obj).toLocalDateTime();
+        } else if (obj instanceof java.util.Date) {
+            return ((java.util.Date) obj).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        }
+        return null;
     }
 }

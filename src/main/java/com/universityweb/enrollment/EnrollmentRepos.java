@@ -67,4 +67,60 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
     Optional<Enrollment> findByUserAndCourse(User user, Course course);
 
     boolean existsByCourseId(Long courseId);
+
+    @Query("""
+        SELECT 
+            c.title AS courseTitle,
+            COUNT(DISTINCT e.user) AS totalStudents,
+            AVG(e.progress) AS averageProgress, 
+            2.0 AS passedQuizzesPercentage,
+            2 AS passedLessonsPercentage
+        FROM Course c
+        LEFT JOIN c.enrollments e
+        LEFT JOIN c.sections s
+        LEFT JOIN s.lessons l
+        LEFT JOIN s.tests t
+        LEFT JOIN LessonTracker lt ON lt.lesson = l AND lt.user = e.user
+        LEFT JOIN TestResult tr ON tr.test = t AND tr.user = e.user
+        WHERE c.owner.username = :teacherUsername
+        AND (:courseTitle IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :courseTitle, '%')))
+        GROUP BY c.id, c.title
+    """)
+    Page<Object[]> getCourseStatistics(
+            @Param("teacherUsername") String teacherUsername,
+            @Param("courseTitle") String courseTitle,
+            Pageable pageable);
+
+    @Query("""
+        SELECT 
+            new com.universityweb.enrollment.dto.StudentStatisticsDTO(
+                e.user.username,
+                e.user.fullName,
+                e.user.email,
+                e.createdAt,
+                SUM(CASE WHEN lt.isCompleted = true THEN 1 ELSE 0 END),
+                COUNT(DISTINCT l.id),
+                SUM(CASE WHEN tr.status = 'DONE' THEN 1 ELSE 0 END),
+                COUNT(DISTINCT t.id),
+                e.progress
+            )
+        FROM Enrollment e
+        LEFT JOIN e.course c
+        LEFT JOIN c.sections s
+        LEFT JOIN s.lessons l
+        LEFT JOIN s.tests t
+        LEFT JOIN LessonTracker lt ON lt.lesson = l AND lt.user = e.user
+        LEFT JOIN TestResult tr ON tr.test = t AND tr.user = e.user
+        WHERE c.owner.username = :teacherUsername
+        AND c.id = :courseId
+        AND (:studentUsername IS NULL OR 
+             LOWER(e.user.username) LIKE LOWER(CONCAT('%', :studentUsername, '%')) OR
+             LOWER(e.user.fullName) LIKE LOWER(CONCAT('%', :studentUsername, '%')))
+        GROUP BY e.user.username, e.user.fullName, e.user.email, e.createdAt, e.progress
+    """)
+    Page<Object[]> getStudentStatistics(
+            @Param("teacherUsername") String teacherUsername,
+            @Param("courseId") Long courseId,
+            @Param("studentUsername") String studentUsername,
+            Pageable pageable);
 }

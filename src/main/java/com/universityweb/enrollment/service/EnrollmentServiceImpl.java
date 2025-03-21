@@ -4,6 +4,7 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.util.Utils;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
@@ -12,7 +13,9 @@ import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
 import com.universityweb.enrollment.request.AddEnrollmentRequest;
+import com.universityweb.enrollment.request.CourseStatsFilterReq;
 import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
+import com.universityweb.enrollment.request.StudentStatsFilterReq;
 import com.universityweb.lesson.LessonRepository;
 import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lessontracker.LessonTracker;
@@ -24,14 +27,10 @@ import com.universityweb.test.entity.Test;
 import com.universityweb.testresult.TestResultRepos;
 import com.universityweb.testresult.entity.TestResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EnrollmentServiceImpl
@@ -183,6 +182,69 @@ public class EnrollmentServiceImpl
         enrollment.setProgress(progress);
         Enrollment saved = repository.save(enrollment);
         return saved.getProgress();
+    }
+
+    @Override
+    public Page<Map<String, Object>> getCoursesStatistics(
+            CourseStatsFilterReq courseStatsFilterReq
+    ) {
+        String teacherUsername = courseStatsFilterReq.getTeacherUsername();
+        String courseTitle = courseStatsFilterReq.getCourseTitle();
+        int pageNumber = courseStatsFilterReq.getPageNumber();
+        int size = courseStatsFilterReq.getSize();
+
+        Sort sort = Sort.by("courseTitle");
+        Pageable pageable = PageRequest.of(pageNumber, size, sort.ascending());
+
+        Page<Object[]> results = repository.getCourseStatistics(
+                teacherUsername, courseTitle, pageable);
+
+        List<Map<String, Object>> courseList = new ArrayList<>();
+        for (Object[] result : results) {
+            Map<String, Object> courseData = new HashMap<>();
+            courseData.put("courseTitle", result[0]);
+            courseData.put("totalStudents", ((Number) result[1]).intValue());
+            courseData.put("averageProgress", ((Number) result[2]).doubleValue());
+            courseData.put("passedQuizzesPercentage", ((Number) result[3]).doubleValue());
+            courseData.put("passedLessonsPercentage", ((Number) result[4]).doubleValue());
+            courseList.add(courseData);
+        }
+
+        return new PageImpl<>(courseList, pageable, results.getTotalElements());
+    }
+
+    @Override
+    public Page<Map<String, Object>> getStudentsStatistics(
+            StudentStatsFilterReq studentStatsFilterReq
+    ) {
+        String teacherUsername = studentStatsFilterReq.getTeacherUsername();
+        Long courseId = studentStatsFilterReq.getCourseId();
+        String studentName = studentStatsFilterReq.getStudentUsername();
+        int pageNumber = studentStatsFilterReq.getPageNumber();
+        int size = studentStatsFilterReq.getSize();
+
+        Sort sort = Sort.by("studentUsername");
+        Pageable pageable = PageRequest.of(pageNumber, size, sort.ascending());
+
+        Page<Object[]> results = repository.getStudentStatistics(
+                teacherUsername, courseId, studentName, pageable);
+
+        List<Map<String, Object>> studentList = new ArrayList<>();
+        for (Object[] result : results) {
+            Map<String, Object> studentData = new HashMap<>();
+            studentData.put("username", result[0]);
+            studentData.put("fullName", result[1]);
+            studentData.put("email", result[2]);
+            studentData.put("startedDate", Utils.convertToLocalDateTime(result[3]));
+            studentData.put("lessonsPassed", ((Number) result[4]).intValue());
+            studentData.put("totalLessons", ((Number) result[5]).intValue());
+            studentData.put("quizzesPassed", ((Number) result[6]).intValue());
+            studentData.put("totalQuizzes", ((Number) result[7]).intValue());
+            studentData.put("progress", ((Number) result[8]).doubleValue());
+            studentList.add(studentData);
+        }
+
+        return new PageImpl<>(studentList, pageable, results.getTotalElements());
     }
 
     private int calculateProgress(String username, Long courseId) {
