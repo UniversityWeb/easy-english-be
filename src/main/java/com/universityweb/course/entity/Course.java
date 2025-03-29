@@ -21,7 +21,9 @@ import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -89,7 +91,7 @@ public class Course {
     Level level;
 
     @ManyToMany(mappedBy = "courses")
-    List<Bundle> bundles;
+    private Set<Bundle> bundles = new HashSet<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Section> sections = new ArrayList<>();

@@ -2,14 +2,15 @@ package com.universityweb.bundle;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
-import com.universityweb.price.entity.Price;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -22,7 +23,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Bundle implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(name = "title", nullable = false)
@@ -31,15 +32,14 @@ public class Bundle implements Serializable {
     @Column(name = "image_preview")
     String imagePreview;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT")
     String desc;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     Boolean isDeleted;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "price_id", referencedColumnName = "id")
-    Price price;
+    @Column(name = "price")
+    BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "username")
@@ -51,7 +51,7 @@ public class Bundle implements Serializable {
             joinColumns = @JoinColumn(name = "bundle_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
-    private List<Course> courses;
+    private Set<Course> courses = new HashSet<>();
 
     @PrePersist
     private void setDefaults() {
