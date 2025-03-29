@@ -1,12 +1,9 @@
 package com.universityweb.bundle;
 
-import com.universityweb.course.entity.Course;
-import com.universityweb.price.entity.Price;
-import com.universityweb.price.response.PriceResponse;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @AllArgsConstructor
@@ -20,7 +17,6 @@ public class BundleDTO {
     String name;
     String imagePreview;
     String desc;
-    Boolean isDeleted;
-    PriceResponse price;
+    BigDecimal price;
     List<Long> courseIds;
 }
