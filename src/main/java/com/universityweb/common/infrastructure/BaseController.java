@@ -35,6 +35,7 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
         log.info("Fetching {} with ID: {}", entityName, id);
         D dto = service.getById(id);
         log.info("Found {} with ID: {}", entityName, id);
+        postGetById(dto);
         return (dto != null) ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
@@ -43,6 +44,8 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
         log.info("Creating new {}", entityName);
         D createdDto = service.create(dto);
         log.info("Created new {} with ID: {}", entityName, createdDto);
+
+        postCreate(createdDto);
         return ResponseEntity.status(201).body(createdDto);
     }
 
@@ -70,5 +73,16 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
         Class<?> entityClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];  // E is at index 0
 
         return entityClass.getSimpleName().toLowerCase();
+    }
+
+    public void postGetById(D createdDto) {
+    }
+
+    /**
+     * Post-creation processing for a D object.
+     *
+     * @param createdDto The created D object.
+     */
+    public void postCreate(D createdDto) {
     }
 }
