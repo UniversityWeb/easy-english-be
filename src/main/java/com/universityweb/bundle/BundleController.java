@@ -33,13 +33,18 @@ public class BundleController
     }
 
     @Override
-    public void postCreate(BundleDTO createdDto) {
-        createdDto = MediaUtils.attachBundleUrl(mediaService, createdDto);
+    public void postCreate(BundleDTO dto) {
+        dto = MediaUtils.attachBundleUrl(mediaService, dto);
     }
 
     @Override
-    public void postGetById(BundleDTO createdDto) {
-        createdDto = MediaUtils.attachBundleUrl(mediaService, createdDto);
+    public void postGetById(BundleDTO dto) {
+        dto = MediaUtils.attachBundleUrl(mediaService, dto);
+    }
+
+    @Override
+    public void postUpdate(BundleDTO dto) {
+        dto = MediaUtils.attachBundleUrl(mediaService, dto);
     }
 
     @PostMapping("/update-image-preview/{id}")

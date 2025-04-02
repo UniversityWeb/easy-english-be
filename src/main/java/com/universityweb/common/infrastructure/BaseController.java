@@ -57,6 +57,8 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
         log.info("Updating {} with ID: {}", entityName, id);
         D updatedDto = service.update(id, dto);
         log.info("Updated {} with ID: {}", entityName, id);
+
+        postUpdate(updatedDto);
         return ResponseEntity.ok(updatedDto);
     }
 
@@ -75,14 +77,17 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
         return entityClass.getSimpleName().toLowerCase();
     }
 
-    public void postGetById(D createdDto) {
+    public void postGetById(D dto) {
     }
 
     /**
      * Post-creation processing for a D object.
      *
-     * @param createdDto The created D object.
+     * @param dto The created D object.
      */
-    public void postCreate(D createdDto) {
+    public void postCreate(D dto) {
+    }
+
+    public void postUpdate(D dto) {
     }
 }
