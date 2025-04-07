@@ -29,9 +29,6 @@ public class Bundle implements Serializable {
     @Column(name = "title", nullable = false)
     String name;
 
-    @Column(name = "image_preview")
-    String imagePreview;
-
     @Column(name = "description", columnDefinition = "TEXT")
     String desc;
 

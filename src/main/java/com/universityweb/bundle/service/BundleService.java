@@ -8,6 +8,4 @@ import org.springframework.data.domain.Page;
 
 public interface BundleService extends BaseService<Bundle, BundleDTO, Long> {
     Page<BundleDTO> getMyBundles(BundleFilterReq filterReq);
-
-    BundleDTO updateImagePreview(Long id, String savedImagePreview);
 }
