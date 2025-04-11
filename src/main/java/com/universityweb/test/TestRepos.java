@@ -3,6 +3,7 @@ package com.universityweb.test;
 import com.universityweb.test.entity.Test;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +22,7 @@ public interface TestRepos extends JpaRepository<Test, Long> {
             WHERE t.id = :id
             """)
     Long findCourseIdByTestId(Long id);
+
+    @Query("SELECT t.id FROM Test t WHERE t.section.course.id = :courseId")
+    List<Long> findTestIdsByCourseId(@Param("courseId") Long courseId);
 }

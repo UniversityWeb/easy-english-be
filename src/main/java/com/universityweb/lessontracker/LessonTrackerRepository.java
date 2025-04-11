@@ -23,4 +23,7 @@ public interface LessonTrackerRepository extends JpaRepository<LessonTracker, Lo
         AND lt.isDeleted = false
     """)
     boolean isLessonCompleted(@Param("username") String username, @Param("lessonId") Long lessonId);
+
+    @Query("SELECT COUNT(lt) FROM LessonTracker lt WHERE lt.lesson.id IN :lessonIds AND lt.isCompleted = true")
+    long countCompletedByLessonIds(@Param("lessonIds") List<Long> lessonIds);
 }

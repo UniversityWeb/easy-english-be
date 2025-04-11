@@ -6,6 +6,7 @@ import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.util.Utils;
 import com.universityweb.course.entity.Course;
+import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.course.service.CourseService;
 import com.universityweb.enrollment.EnrollmentRepos;
@@ -31,6 +32,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentServiceImpl
@@ -41,7 +43,7 @@ public class EnrollmentServiceImpl
     private final CourseService courseService;
     private final SectionRepository sectionRepository;
     private final LessonTrackerRepository lessonTrackerRepository;
-    private final TestResultRepos testResultRepository;
+    private final TestResultRepos testResultRepos;
     private final LessonRepository lessonRepository;
     private final TestRepos testRepos;
 
@@ -62,7 +64,7 @@ public class EnrollmentServiceImpl
         this.courseService = courseService;
         this.sectionRepository = sectionRepository;
         this.lessonTrackerRepository = lessonTrackerRepository;
-        this.testResultRepository = testResultRepository;
+        this.testResultRepos = testResultRepository;
         this.lessonRepository = lessonRepository;
         this.testRepos = testRepos;
     }
@@ -185,32 +187,53 @@ public class EnrollmentServiceImpl
     }
 
     @Override
-    public Page<Map<String, Object>> getCoursesStatistics(
-            CourseStatsFilterReq courseStatsFilterReq
-    ) {
+    public Page<Map<String, Object>> getCoursesStatistics(CourseStatsFilterReq courseStatsFilterReq) {
         String teacherUsername = courseStatsFilterReq.getTeacherUsername();
         String courseTitle = courseStatsFilterReq.getCourseTitle();
         int pageNumber = courseStatsFilterReq.getPageNumber();
         int size = courseStatsFilterReq.getSize();
 
-        Sort sort = Sort.by("courseTitle");
-        Pageable pageable = PageRequest.of(pageNumber, size, sort.ascending());
+        CourseRequest courseRequest = CourseRequest.builder()
+                .title(courseTitle)
+                .pageNumber(pageNumber)
+                .size(size)
+                .build();
 
-        Page<Object[]> results = repository.getCourseStatistics(
-                teacherUsername, courseTitle, pageable);
+        Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(teacherUsername, courseRequest);
 
-        List<Map<String, Object>> courseList = new ArrayList<>();
-        for (Object[] result : results) {
+        List<Map<String, Object>> courseList = courseResponses.getContent().stream().map(course -> {
             Map<String, Object> courseData = new HashMap<>();
-            courseData.put("courseTitle", result[0]);
-            courseData.put("totalStudents", ((Number) result[1]).intValue());
-            courseData.put("averageProgress", ((Number) result[2]).doubleValue());
-            courseData.put("passedQuizzesPercentage", ((Number) result[3]).doubleValue());
-            courseData.put("passedLessonsPercentage", ((Number) result[4]).doubleValue());
-            courseList.add(courseData);
-        }
 
-        return new PageImpl<>(courseList, pageable, results.getTotalElements());
+            Long courseId = course.getId();
+
+            // 1. Enrollments
+            List<Enrollment> enrollments = repository.findAllByCourseId(courseId);
+            int totalStudents = enrollments.size();
+            double averageProgress = enrollments.stream()
+                    .mapToInt(Enrollment::getProgress)
+                    .average()
+                    .orElse(0.0);
+
+            // 2. Lessons
+            List<Long> lessonIds = lessonRepository.findLessonIdsByCourseId(courseId); // custom query
+            long totalLessons = lessonIds.size();
+            long totalLessonCompletions = lessonTrackerRepository.countCompletedByLessonIds(lessonIds);
+
+            double passedLessonsPercentage = 0.0;
+            if (totalStudents > 0 && totalLessons > 0) {
+                passedLessonsPercentage = (double) totalLessonCompletions / (totalStudents * totalLessons) * 100;
+            }
+
+            courseData.put("courseTitle", course.getTitle());
+            courseData.put("totalStudents", totalStudents);
+            courseData.put("averageProgress", averageProgress);
+            courseData.put("passedQuizzesPercentage", testResultRepos.getAveragePassedPercentageByCourseId(courseId));
+            courseData.put("passedLessonsPercentage", passedLessonsPercentage);
+
+            return courseData;
+        }).collect(Collectors.toList());
+
+        return new PageImpl<>(courseList, courseResponses.getPageable(), courseResponses.getTotalElements());
     }
 
     @Override
@@ -267,7 +290,7 @@ public class EnrollmentServiceImpl
 
         List<LessonTracker> completedLessons = lessonTrackerRepository
                 .findByUserUsernameAndLessonSectionCourseIdAndIsCompletedTrue(username, courseId);
-        int completedTests = testResultRepository.countDistinctTestsByUsernameAndCourseId(username, courseId, TestResult.EStatus.DONE);
+        int completedTests = testResultRepos.countDistinctTestsByUsernameAndCourseId(username, courseId, TestResult.EStatus.DONE);
         int completedItems = completedLessons.size() + completedTests;
         double progress = ((double) completedItems / totalItems) * 100;
         return (int) Math.round(progress);

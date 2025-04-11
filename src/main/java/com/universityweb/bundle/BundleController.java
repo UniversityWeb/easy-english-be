@@ -6,14 +6,11 @@ import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jdk.jfr.Frequency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/bundles")
@@ -33,34 +30,18 @@ public class BundleController
     }
 
     @Override
-    public void postCreate(BundleDTO createdDto) {
-        createdDto = MediaUtils.attachBundleUrl(mediaService, createdDto);
+    public void postCreate(BundleDTO dto) {
+        dto = MediaUtils.attachBundleUrl(mediaService, dto);
     }
 
     @Override
-    public void postGetById(BundleDTO createdDto) {
-        createdDto = MediaUtils.attachBundleUrl(mediaService, createdDto);
+    public void postGetById(BundleDTO dto) {
+        dto = MediaUtils.attachBundleUrl(mediaService, dto);
     }
 
-    @PostMapping("/update-image-preview/{id}")
-    public ResponseEntity<BundleDTO> updateImagePreview(
-            @PathVariable Long id,
-            @RequestParam(value = "imagePreview") MultipartFile imagePreview
-    ) {
-        BundleDTO bundle = service.getById(id);
-
-        if (imagePreview != null && !imagePreview.isEmpty()) {
-            try {
-                mediaService.deleteFile(bundle.getImagePreview());
-                String savedImagePreview = mediaService.uploadFile(imagePreview);
-                BundleDTO saved = service.updateImagePreview(id, savedImagePreview);
-                return ResponseEntity.ok(saved);
-            } catch (Exception e) {
-                log.error("Failed to upload image file for course request: {}", e.getMessage(), e);
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    @Override
+    public void postUpdate(BundleDTO dto) {
+        dto = MediaUtils.attachBundleUrl(mediaService, dto);
     }
 
     @PreAuthorize("hasRole('TEACHER')")

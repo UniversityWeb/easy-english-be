@@ -98,11 +98,4 @@ public class BundleServiceImpl
 
         return mapper.mapPageToPageDTO(bundlesPage);
     }
-
-    @Override
-    public BundleDTO updateImagePreview(Long id, String savedImagePreview) {
-        Bundle bundle = getEntityById(id);
-        bundle.setImagePreview(savedImagePreview);
-        return savedAndConvertToDTO(bundle);
-    }
 }

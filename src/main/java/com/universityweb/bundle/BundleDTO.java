@@ -15,7 +15,7 @@ import java.util.List;
 public class BundleDTO {
     Long id;
     String name;
-    String imagePreview;
+    String imagePreview = "";
     String desc;
     BigDecimal price;
     List<Long> courseIds;

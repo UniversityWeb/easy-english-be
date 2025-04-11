@@ -47,4 +47,19 @@ public interface TestResultRepos extends JpaRepository<TestResult, Long> {
     Page<TestResult> findAllByUsername(
             @Param("username") String username,
             Pageable pageable);
+
+    @Query(value = """
+    SELECT AVG(passed_percentage)
+        FROM (
+            SELECT
+                tr.username,
+                100.0 * SUM(CASE WHEN tr.status = 'DONE' THEN 1 ELSE 0 END) / COUNT(*) AS passed_percentage
+            FROM test_results tr
+            JOIN tests t ON tr.id = t.id
+            JOIN sections s ON t.id = s.id
+            WHERE s.course_id = 96
+            GROUP BY tr.username
+        ) AS student_passed_percentages;
+    """, nativeQuery = true)
+    Double getAveragePassedPercentageByCourseId(@Param("courseId") Long courseId);
 }

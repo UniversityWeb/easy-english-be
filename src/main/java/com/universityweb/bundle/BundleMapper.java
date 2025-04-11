@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public interface BundleMapper extends BaseMapper<Bundle, BundleDTO> {
 
     @Mapping(source = "courses", target = "courseIds")
+    @Mapping(target = "imagePreview", ignore = true)
     @Override
     BundleDTO toDTO(Bundle entity);
 
@@ -22,7 +23,6 @@ public interface BundleMapper extends BaseMapper<Bundle, BundleDTO> {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "courses", ignore = true)
-    @Mapping(target = "imagePreview", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE) // Ignore null values
     void updateEntityFromDTO(BundleDTO dto, @MappingTarget Bundle entity);
 

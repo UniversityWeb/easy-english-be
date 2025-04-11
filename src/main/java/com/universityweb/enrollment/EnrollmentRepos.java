@@ -123,4 +123,6 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             @Param("courseId") Long courseId,
             @Param("studentUsername") String studentUsername,
             Pageable pageable);
+
+    List<Enrollment> findAllByCourseId(Long courseId);
 }
