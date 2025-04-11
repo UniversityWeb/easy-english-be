@@ -1,0 +1,15 @@
+json chấm bài là 1 object có các thuộc tính
+score: số điểm chấm cho bài làm
+errorGrammarAndVocabulary: [
+    {
+        error: "Sử dụng sai thì hoặc dạng động từ: 'look same' nên sửa thành 'look the same' hoặc 'look similar'.",
+        corrected: "Sửa 'look same' thành 'look the same' hoặc 'look similar'."
+    }
+],
+fixByAI : Sửa lại bài làm và dùng <span id="span-before></span> để bọc từ sai và <span id="span-after></span> bọc từ đã sửa lỗi cho bài làm.
+upgradeByAI : Nâng cấp bài làm hoàn chỉnh và bọc các từ ăn điểm bằng <span></span>
+sampleByAI: Viết 1 bài hoàn chỉnh từ để bài.
+
+
+chỉ trả về cho tôi json theo cấu trúc trên .
+

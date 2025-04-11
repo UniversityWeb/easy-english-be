@@ -72,3 +72,7 @@ minio:
   secret-key: ${PROD_MINIO_SECRET_KEY}
   bucket:
     name: ${PROD_MINIO_BUCKET_NAME}
+
+gemini:
+  url: ${PROD_GEMINI_URL}
+  api-key: ${PROD_GEMINI_API_KEY}
