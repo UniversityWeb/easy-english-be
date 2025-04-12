@@ -2,6 +2,7 @@ package com.universityweb.writingtask;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.universityweb.common.infrastructure.BaseController;
+import com.universityweb.writingresult.WritingResult;
 import com.universityweb.writingtask.dto.WritingTaskDTO;
 import com.universityweb.writingtask.entity.WritingTask;
 import com.universityweb.writingtask.service.WritingTaskService;
@@ -38,14 +39,14 @@ public class WritingTaskController
         super(service);
     }
     @PostMapping("/submit")
-    public ResponseEntity<?> generate(@RequestBody WritingTask writingTask) {
+    public ResponseEntity<?> generate(@RequestBody WritingResult writingResult) {
 
 
         try {
             // Đọc file prompt.txt trong resources folder
             var resource = new ClassPathResource("prompt.txt");
             String prompt = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-            var textFinal = prompt + writingTask.getSubmittedText();
+            var textFinal = prompt + writingResult.getSubmittedText();
             // Tạo payload
             String requestBody = String.format("""
                 {
