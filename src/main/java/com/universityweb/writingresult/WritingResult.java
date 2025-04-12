@@ -1,17 +1,16 @@
-package com.universityweb.writingtask.entity;
+package com.universityweb.writingresult;
 
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "writing_tasks")
+@Table(name = "writing_results")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -19,44 +18,31 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Where(clause = "status != 'DELETED'")
-public class WritingTask implements Serializable {
+public class WritingResult implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     // foreign keys
-    Long sectionId;
+    Long writingTaskId;
     String ownerUsername;
 
-    String title;
+    @Column(columnDefinition = "TEXT")
+    String submittedText;
 
     @Column(columnDefinition = "TEXT")
-    String instructions;
-
-    @Enumerated(EnumType.STRING)
-    EDifficultyLevel level;
+    String feedback;
 
     @Enumerated(EnumType.STRING)
     EStatus status;
 
-    LocalDateTime startDate;
-    LocalDateTime endDate;
-
     @CreationTimestamp
-    LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    LocalDateTime updatedAt;
-
-    public enum EDifficultyLevel {
-        BEGINNER,
-        INTERMEDIATE,
-        ADVANCED
-    }
+    LocalDateTime submittedAt;
 
     public enum EStatus {
         DELETED,
         DRAFT,
-        PUBLIC,
+        SUBMITTED,
+        FEEDBACK_PROVIDED,
     }
 }
