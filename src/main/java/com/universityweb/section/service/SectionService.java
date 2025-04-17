@@ -15,4 +15,5 @@ public interface SectionService extends BaseService<Section, SectionDTO, Long> {
     List<SectionDTO> getAllSectionByCourse(SectionRequest sectionRequest);
     List<SectionDTO> getAllSectionByCourse(Long courseId);
     List<Section> getAllSectionEntitiesByCourse(Long courseId);
+    boolean isAccessible(String username, Long sectionId);
 }

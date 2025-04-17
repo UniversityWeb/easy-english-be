@@ -1,15 +1,19 @@
 package com.universityweb.writingtask;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
+import com.universityweb.section.service.SectionService;
 import com.universityweb.writingresult.WritingResult;
 import com.universityweb.writingtask.dto.WritingTaskDTO;
 import com.universityweb.writingtask.entity.WritingTask;
+import com.universityweb.writingtask.req.WritingTaskFilterReq;
 import com.universityweb.writingtask.service.WritingTaskService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -32,12 +36,35 @@ public class WritingTaskController
 
     @Value("${gemini.url}")
     private String GEMINI_URL;
+
+    private final AuthService authService;
+    private final SectionService sectionService;
+
     @Autowired
     public WritingTaskController(
-            WritingTaskService service
+            WritingTaskService service,
+            AuthService authService,
+            SectionService sectionService
     ) {
         super(service);
+        this.authService = authService;
+        this.sectionService = sectionService;
     }
+
+    @PostMapping("/get-tasks")
+    public ResponseEntity<Page<WritingTaskDTO>> getMyWritingTasks(
+            @RequestBody WritingTaskFilterReq filterReq
+    ) {
+        String username = authService.getCurrentUsername();
+        boolean isAccessible = sectionService.isAccessible(username, filterReq.getSectionId());
+        if (!isAccessible) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Page<WritingTaskDTO> bundles = service.getByFilters(filterReq);
+        return ResponseEntity.ok(bundles);
+    }
+
     @PostMapping("/submit")
     public ResponseEntity<?> generate(@RequestBody WritingResult writingResult) {
 
