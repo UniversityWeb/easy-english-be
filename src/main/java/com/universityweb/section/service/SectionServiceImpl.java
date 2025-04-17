@@ -1,9 +1,12 @@
 package com.universityweb.section.service;
 
+import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.service.CourseService;
+import com.universityweb.order.service.OrderService;
 import com.universityweb.section.SectionRepository;
 import com.universityweb.section.dto.SectionDTO;
 import com.universityweb.section.entity.Section;
@@ -13,7 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.relation.Role;
 import java.util.List;
+
+import static com.universityweb.common.auth.entity.User.ERole.*;
 
 @Service
 public class SectionServiceImpl
@@ -21,15 +27,21 @@ public class SectionServiceImpl
     implements SectionService {
 
     private final CourseService courseService;
+    private final UserService userService;
+    private final OrderService orderService;
 
     @Autowired
     protected SectionServiceImpl(
             SectionRepository repository,
             SectionMapper mapper,
-            CourseService courseService
+            CourseService courseService,
+            UserService userService,
+            OrderService orderService
     ) {
         super(repository, mapper);
         this.courseService = courseService;
+        this.userService = userService;
+        this.orderService = orderService;
     }
 
     @Override
@@ -64,6 +76,24 @@ public class SectionServiceImpl
     @Override
     public List<Section> getAllSectionEntitiesByCourse(Long courseId) {
         return repository.findByCourseId(courseId);
+    }
+
+    @Override
+    public boolean isAccessible(String username, Long sectionId) {
+        User.ERole role = userService.loadUserByUsername(username).getRole();
+
+        if (role == User.ERole.ADMIN) {
+            return true;
+        }
+
+        Section section = getEntityById(sectionId);
+        Course course = section.getCourse();
+
+        return switch (role) {
+            case STUDENT -> orderService.isPurchasedCourse(username, course.getId());
+            case TEACHER -> username.equals(course.getOwner().getUsername());
+            default -> false;
+        };
     }
 
     @Override

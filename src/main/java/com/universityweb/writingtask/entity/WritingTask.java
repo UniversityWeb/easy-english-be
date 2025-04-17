@@ -56,6 +56,7 @@ public class WritingTask implements Serializable {
     public enum EStatus {
         DELETED,
         DRAFT,
+        PENDING_APPROVAL,
         PUBLIC,
     }
 }
