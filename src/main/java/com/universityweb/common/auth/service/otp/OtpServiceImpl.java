@@ -9,6 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -26,6 +28,9 @@ public class OtpServiceImpl implements OtpService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public boolean validateOtp(String email, String otpStr, EPurpose purpose) {
         String key = generateKey(email, purpose);
@@ -42,7 +47,7 @@ public class OtpServiceImpl implements OtpService {
             throw new ExpiredOtpException("OTP has expired for the given email: " + email);
         }
 
-        if (!otp.getOtpStr().equals(otpStr)) {
+        if (!passwordEncoder.matches(otpStr, otp.getOtpStr())) {
             throw new InvalidOtpException("Invalid OTP provided for the given email: " + email);
         }
 
@@ -69,11 +74,12 @@ public class OtpServiceImpl implements OtpService {
 
     private String generateOtp(String email, EPurpose purpose) {
         String otpStr = String.valueOf((int) (Math.random() * 900000) + 100000);
+        String encodedOtpStr = passwordEncoder.encode(otpStr);
         log.info("Generated OTP for {}: {}", email, otpStr);
 
         String key = generateKey(email, purpose);
         OTP otp = OTP.builder()
-                .otpStr(otpStr)
+                .otpStr(encodedOtpStr)
                 .expiryTime(LocalDateTime.now().plus(OTP_TTL))
                 .build();
         String otpJson = otp.toJson();
