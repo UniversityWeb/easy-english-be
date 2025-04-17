@@ -45,8 +45,6 @@ public class WritingTaskServiceImpl
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(WritingTask entity, WritingTaskDTO dto) {
-        super.setEntityRelationshipsBeforeAdd(entity, dto);
-
         if (entity.getStatus() == null) {
             entity.setStatus(WritingTask.EStatus.DRAFT);
         }
