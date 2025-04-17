@@ -3,6 +3,7 @@ package com.universityweb.writingtask.service;
 import com.universityweb.common.auth.exception.UserNotFoundException;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.lesson.service.LessonService;
 import com.universityweb.writingtask.WritingTaskMapper;
 import com.universityweb.writingtask.WritingTaskRepos;
 import com.universityweb.writingtask.dto.WritingTaskDTO;
@@ -16,15 +17,18 @@ public class WritingTaskImpl
         implements WritingTaskService {
 
     private final UserService userService;
+    private final LessonService lessonService;
 
     @Autowired
     public WritingTaskImpl(
             WritingTaskRepos repository,
             WritingTaskMapper mapper,
-            UserService userService
+            UserService userService,
+            LessonService lessonService
     ) {
         super(repository, mapper);
         this.userService = userService;
+        this.lessonService = lessonService;
     }
 
     @Override
@@ -34,15 +38,8 @@ public class WritingTaskImpl
 
     @Override
     protected void checkBeforeAdd(WritingTaskDTO dto) {
-        String ownerUsername = dto.getOwnerUsername();
-        String teacherUsername = dto.getTeacherUsername();
+        Long sectionId = dto.getSectionId();
 
-        if (!userService.existsByUsername(ownerUsername)) {
-            throw new UserNotFoundException("Owner username not found: " + ownerUsername);
-        }
-
-        if (teacherUsername != null && !userService.existsByUsername(teacherUsername)) {
-            throw new UserNotFoundException("Teacher username not found: " + teacherUsername);
-        }
+        lessonService.getEntityById(sectionId);
     }
 }

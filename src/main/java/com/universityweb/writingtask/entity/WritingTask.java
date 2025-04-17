@@ -26,7 +26,6 @@ public class WritingTask implements Serializable {
 
     // foreign keys
     Long sectionId;
-    String ownerUsername;
 
     String title;
 

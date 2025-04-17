@@ -53,6 +53,7 @@ public interface UserRepos extends JpaRepository<User, String> {
             AND (
                 :role IS NULL OR u.role = :role
             )
+        GROUP BY u.username
     """)
     Page<User> findAllNonRoleUsersWithFilters(
             @Param("excludedRoles") List<User.ERole> excludedRoles,

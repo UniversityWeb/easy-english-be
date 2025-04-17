@@ -14,14 +14,15 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WritingTaskDTO {
     Long id;
-    String ownerUsername;
-    String teacherUsername;
+
+    Long sectionId;
+
     String title;
     String instructions;
     WritingTask.EDifficultyLevel level;
-    String submittedText;
-    Integer score;
-    String feedback;
     WritingTask.EStatus status;
-    LocalDateTime submittedAt;
+    LocalDateTime startDate;
+    LocalDateTime endDate;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

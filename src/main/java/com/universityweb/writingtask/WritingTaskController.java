@@ -38,6 +38,7 @@ public class WritingTaskController
     ) {
         super(service);
     }
+
     @PostMapping("/submit")
     public ResponseEntity<?> generate(@RequestBody WritingResult writingResult) {
 
