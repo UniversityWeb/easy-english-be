@@ -4,7 +4,6 @@ import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.websocket.WebSocketConstants;

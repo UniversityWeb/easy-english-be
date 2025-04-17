@@ -1,7 +1,6 @@
 package com.universityweb.writingresult.req;
 
 import com.universityweb.writingresult.entity.WritingResult;
-import com.universityweb.writingtask.entity.WritingTask;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

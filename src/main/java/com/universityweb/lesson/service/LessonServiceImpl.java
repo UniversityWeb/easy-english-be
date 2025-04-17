@@ -1,7 +1,6 @@
 package com.universityweb.lesson.service;
 
 
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.drip.Drip;

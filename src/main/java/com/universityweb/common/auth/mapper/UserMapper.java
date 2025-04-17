@@ -1,7 +1,6 @@
 package com.universityweb.common.auth.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.universityweb.common.auth.dto.SettingsDTO;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
@@ -9,7 +8,6 @@ import com.universityweb.common.infrastructure.BaseMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 

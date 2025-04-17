@@ -1,7 +1,6 @@
 package com.universityweb.drip.service;
 
 import com.universityweb.common.auth.service.auth.AuthService;
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;

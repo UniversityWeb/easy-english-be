@@ -5,7 +5,6 @@ import com.universityweb.category.entity.Category;
 import com.universityweb.category.mapper.CategoryMapper;
 import com.universityweb.category.request.CategoryRequest;
 import com.universityweb.category.response.CategoryResponse;
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

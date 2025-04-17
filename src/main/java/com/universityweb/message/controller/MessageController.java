@@ -5,18 +5,15 @@ import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
-import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
 import com.universityweb.message.service.MessageService;
-import com.universityweb.notification.controller.NotificationController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

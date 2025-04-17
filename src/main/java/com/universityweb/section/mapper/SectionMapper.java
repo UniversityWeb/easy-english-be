@@ -6,9 +6,6 @@ import com.universityweb.section.entity.Section;
 import com.universityweb.section.request.SectionRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface SectionMapper extends BaseMapper<Section, SectionDTO> {
