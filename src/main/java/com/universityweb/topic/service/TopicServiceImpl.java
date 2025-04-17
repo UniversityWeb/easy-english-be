@@ -1,6 +1,7 @@
 package com.universityweb.topic.service;
 
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.topic.TopicRepository;
 import com.universityweb.topic.entity.Topic;
@@ -51,7 +52,7 @@ public class TopicServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Topic not found");
+        throw new ResourceNotFoundException("Topic not found");
     }
 
     @Override

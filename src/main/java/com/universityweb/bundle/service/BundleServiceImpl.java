@@ -6,7 +6,8 @@ import com.universityweb.bundle.BundleMapper;
 import com.universityweb.bundle.BundleRepos;
 import com.universityweb.bundle.req.BundleFilterReq;
 import com.universityweb.common.auth.service.auth.AuthService;
-import com.universityweb.common.auth.service.auth.AuthServiceImpl;
+import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.repository.CourseRepository;
@@ -40,7 +41,7 @@ public class BundleServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find bundle with id " + id);
+        throw new ResourceNotFoundException("Could not find bundle with id " + id);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class BundleServiceImpl
 
         List<Course> courses = courseRepos.findAllById(dto.getCourseIds());
         if (courses.isEmpty()) {
-            throw new RuntimeException("No valid courses found for given IDs.");
+            throw new CustomException("No valid courses found for given IDs.");
         }
 
         entity.setIsDeleted(false);
@@ -71,7 +72,7 @@ public class BundleServiceImpl
         if (courseIds != null && !courseIds.isEmpty()) {
             List<Course> courses = courseRepos.findAllById(dto.getCourseIds());
             if (courses.isEmpty()) {
-                throw new RuntimeException("No valid courses found for given IDs.");
+                throw new CustomException("No valid courses found for given IDs.");
             }
 
             bundle.setCourses(new HashSet<>(courses));

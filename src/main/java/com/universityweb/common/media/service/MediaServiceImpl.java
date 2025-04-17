@@ -51,9 +51,9 @@ public class MediaServiceImpl implements MediaService {
             byte[] decodedBytes = Base64.getDecoder().decode(pureBase64);
             return uploadToMinio(decodedBytes, contentType, objectName);
         } catch (MinioException e) {
-            throw new RuntimeException("Minio error: " + e.getMessage());
+            throw new CustomException("Minio error: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid base64: " + e.getMessage());
+            throw new CustomException("Invalid base64: " + e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

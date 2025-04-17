@@ -5,6 +5,7 @@ import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.message.Message;
@@ -46,7 +47,7 @@ public class MessageServiceImpl
 
     @Override
     protected void throwNotFoundException(UUID id) {
-        throw new CustomException("Couldn't find message with id: " + id);
+        throw new ResourceNotFoundException("Couldn't find message with id: " + id);
     }
 
     @Override

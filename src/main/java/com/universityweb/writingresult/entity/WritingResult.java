@@ -1,4 +1,4 @@
-package com.universityweb.writingresult;
+package com.universityweb.writingresult.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

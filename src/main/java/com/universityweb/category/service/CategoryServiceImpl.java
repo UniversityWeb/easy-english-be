@@ -6,6 +6,7 @@ import com.universityweb.category.mapper.CategoryMapper;
 import com.universityweb.category.request.CategoryRequest;
 import com.universityweb.category.response.CategoryResponse;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class CategoryServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Category not found");
+        throw new ResourceNotFoundException("Category not found");
     }
 
     @Override

@@ -3,6 +3,8 @@ package com.universityweb.lessontracker.service;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceAlreadyExistsException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.enrollment.service.EnrollmentService;
 import com.universityweb.lesson.entity.Lesson;
@@ -55,7 +57,7 @@ public class LessonTrackerServiceImpl
         Long lessonId = dto.getLessonId();
         Optional<LessonTracker> optionalLessonTracker = repository.findByUser_UsernameAndLesson_Id(username, lessonId);
         if (optionalLessonTracker.isPresent()) {
-            throw new CustomException("LessonTracker already exists");
+            throw new ResourceAlreadyExistsException("LessonTracker already exists");
         }
     }
 
@@ -71,7 +73,7 @@ public class LessonTrackerServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find LessonTracker with id " + id);
+        throw new ResourceNotFoundException("Could not find LessonTracker with id " + id);
     }
 
     @Override

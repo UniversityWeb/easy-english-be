@@ -3,6 +3,7 @@ package com.universityweb.review.service;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.util.FrontendRoutes;
 import com.universityweb.course.entity.Course;
@@ -154,7 +155,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find review with id=" + id);
+        throw new ResourceNotFoundException("Could not find review with id=" + id);
     }
 
     private void notifyCourseRated(Course course, int rating) {
