@@ -1,6 +1,8 @@
 package com.universityweb.common.config;
 
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceAlreadyExistsException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.response.ErrorResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +45,22 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCommonException(ResourceNotFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), LocalDateTime.now());
+        log.error("Not found", e);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCommonException(ResourceAlreadyExistsException e) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), LocalDateTime.now());
+        log.error("Already exists", e);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(errorResponse);
     }
 
     @ExceptionHandler(CustomException.class)

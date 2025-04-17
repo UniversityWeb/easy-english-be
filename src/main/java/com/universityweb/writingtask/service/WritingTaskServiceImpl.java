@@ -1,5 +1,6 @@
 package com.universityweb.writingtask.service;
 
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.lesson.service.LessonService;
 import com.universityweb.writingtask.WritingTaskMapper;
@@ -32,7 +33,7 @@ public class WritingTaskServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new RuntimeException("Could not find any writing tasks with id=" + id);
+        throw new ResourceNotFoundException("Could not find any writing tasks with id=" + id);
     }
 
     @Override

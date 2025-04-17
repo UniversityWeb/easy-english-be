@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.section.service.SectionService;
-import com.universityweb.writingresult.WritingResult;
+import com.universityweb.writingresult.entity.WritingResult;
 import com.universityweb.writingtask.dto.WritingTaskDTO;
 import com.universityweb.writingtask.entity.WritingTask;
 import com.universityweb.writingtask.req.WritingTaskFilterReq;
@@ -61,8 +61,8 @@ public class WritingTaskController
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<WritingTaskDTO> bundles = service.getByFilters(filterReq);
-        return ResponseEntity.ok(bundles);
+        Page<WritingTaskDTO> tasks = service.getByFilters(filterReq);
+        return ResponseEntity.ok(tasks);
     }
 
     @PostMapping("/submit")

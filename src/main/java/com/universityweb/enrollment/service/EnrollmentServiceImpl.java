@@ -3,6 +3,8 @@ package com.universityweb.enrollment.service;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceAlreadyExistsException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.util.Utils;
 import com.universityweb.course.entity.Course;
@@ -76,7 +78,7 @@ public class EnrollmentServiceImpl
 
         Optional<Enrollment> optionalEnrollment = repository.findByUserAndCourse(user, course);
         if (optionalEnrollment.isPresent()) {
-            throw new CustomException("Enrollment already exists");
+            throw new ResourceAlreadyExistsException("Enrollment already exists");
         }
 
         Enrollment enrollment = Enrollment.builder()
@@ -154,7 +156,7 @@ public class EnrollmentServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find any enrollments with id=" + id);
+        throw new ResourceNotFoundException("Could not find any enrollments with id=" + id);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.universityweb.common.auth.exception.ExpiredOtpException;
 import com.universityweb.common.auth.exception.InvalidOtpException;
+import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.service.mail.EmailService;
 import com.universityweb.common.service.mail.EmailUtils;
 import org.apache.logging.log4j.LogManager;
