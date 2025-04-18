@@ -47,6 +47,7 @@ spring:
     redis:
       host: ${PROD_REDIS_HOST}
       port: ${PROD_REDIS_PORT}
+      password: ${PROD_REDIS_PASS}
       timeout: ${PROD_REDIS_TIMEOUT}
 
 security:

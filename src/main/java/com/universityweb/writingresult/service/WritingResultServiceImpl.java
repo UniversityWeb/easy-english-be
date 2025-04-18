@@ -8,7 +8,6 @@ import com.universityweb.writingresult.WritingResultRepos;
 import com.universityweb.writingresult.dto.WritingResultDTO;
 import com.universityweb.writingresult.entity.WritingResult;
 import com.universityweb.writingresult.req.WritingResultFilterReq;
-import com.universityweb.writingtask.entity.WritingTask;
 import com.universityweb.writingtask.service.WritingTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,13 +57,17 @@ public class WritingResultServiceImpl
     }
 
     @Override
-    public WritingResultDTO update(Long aLong, WritingResultDTO dto) {
-        return super.update(aLong, dto);
+    public WritingResultDTO update(Long id, WritingResultDTO dto) {
+        WritingResult curEntity = getEntityById(id);
+        mapper.updateEntityFromDTO(dto, curEntity);
+        return savedAndConvertToDTO(curEntity);
     }
 
     @Override
-    public void softDelete(Long aLong) {
-        super.softDelete(aLong);
+    public void softDelete(Long id) {
+        WritingResult curEntity = getEntityById(id);
+        curEntity.setStatus(WritingResult.EStatus.DELETED);
+        save(curEntity);
     }
 
     @Override
