@@ -1,6 +1,5 @@
 package com.universityweb.testpart.service;
 
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.test.entity.Test;

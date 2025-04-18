@@ -2,7 +2,6 @@ package com.universityweb.lessontracker.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceAlreadyExistsException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;

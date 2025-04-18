@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface WritingResultMapper extends BaseMapper<WritingResult, WritingResultDTO> {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "submittedAt", ignore = true)
     @Override
     void updateEntityFromDTO(WritingResultDTO dto, @MappingTarget WritingResult entity);
 }

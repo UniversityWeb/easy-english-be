@@ -1,22 +1,18 @@
 package com.universityweb.common.auth.service.otp;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.universityweb.common.auth.entity.OTP;
 import com.universityweb.common.auth.exception.ExpiredOtpException;
 import com.universityweb.common.auth.exception.InvalidOtpException;
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.service.mail.EmailService;
 import com.universityweb.common.service.mail.EmailUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +28,11 @@ public class OtpServiceImpl implements OtpService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
-    public boolean validateOtp(String email, String otp, EPurpose purpose) {
+    public boolean validateOtp(String email, String otpStr, EPurpose purpose) {
         String key = generateKey(email, purpose);
         String json = (String) redisTemplate.opsForValue().get(key);
 
@@ -41,14 +40,14 @@ public class OtpServiceImpl implements OtpService {
             throw new InvalidOtpException("OTP not found for the given email: " + email);
         }
 
-        OtpRecord otpRecord = OtpRecord.fromJson(json);
+        OTP otp = OTP.fromJson(json);
 
-        if (otpRecord.expiryTime().isBefore(LocalDateTime.now())) {
+        if (otp.getExpiryTime().isBefore(LocalDateTime.now())) {
             redisTemplate.delete(key);
             throw new ExpiredOtpException("OTP has expired for the given email: " + email);
         }
 
-        if (!otpRecord.otp().equals(otp)) {
+        if (!passwordEncoder.matches(otpStr, otp.getOtpStr())) {
             throw new InvalidOtpException("Invalid OTP provided for the given email: " + email);
         }
 
@@ -74,15 +73,20 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private String generateOtp(String email, EPurpose purpose) {
-        String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
-        log.info("Generated OTP for {}: {}", email, otp);
+        String otpStr = String.valueOf((int) (Math.random() * 900000) + 100000);
+        String encodedOtpStr = passwordEncoder.encode(otpStr);
+        log.info("Generated OTP for {}: {}", email, otpStr);
 
-        OtpRecord otpRecord = new OtpRecord(otp, LocalDateTime.now().plus(OTP_TTL));
         String key = generateKey(email, purpose);
+        OTP otp = OTP.builder()
+                .otpStr(encodedOtpStr)
+                .expiryTime(LocalDateTime.now().plus(OTP_TTL))
+                .build();
+        String otpJson = otp.toJson();
 
-        redisTemplate.opsForValue().set(key, otpRecord.toJson(), OTP_TTL.toSeconds(), TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, otpJson, OTP_TTL.toSeconds(), TimeUnit.SECONDS);
 
-        return otp;
+        return otpStr;
     }
 
     private String generateKey(String email, EPurpose purpose) {
@@ -127,46 +131,5 @@ public class OtpServiceImpl implements OtpService {
                 "Please use this code to update your profile. The OTP is valid for " +
                         OTP_EXPIRATION_MINUTES + " minutes.");
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
-    }
-
-    /**
-     * Serializable record class for Redis.
-     */
-    public static class OtpRecord implements Serializable {
-        private final String otp;
-        private final LocalDateTime expiryTime;
-
-        public OtpRecord(String otp, LocalDateTime expiryTime) {
-            this.otp = otp;
-            this.expiryTime = expiryTime;
-        }
-
-        public String otp() {
-            return otp;
-        }
-
-        public LocalDateTime expiryTime() {
-            return expiryTime;
-        }
-
-        public String toJson() {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.registerModule(new JavaTimeModule());
-            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            try {
-                return objectMapper.writeValueAsString(this);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Failed to convert OtpRecord to JSON", e);
-            }
-        }
-
-        public static OtpRecord fromJson(String json) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                return mapper.readValue(json, OtpRecord.class);
-            } catch (Exception e) {
-                throw new RuntimeException("Deserialization failed", e);
-            }
-        }
     }
 }

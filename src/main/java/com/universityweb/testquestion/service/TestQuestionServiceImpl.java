@@ -1,6 +1,5 @@
 package com.universityweb.testquestion.service;
 
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.questiongroup.entity.QuestionGroup;

@@ -23,6 +23,7 @@ import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
 import com.universityweb.topic.mapper.TopicMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
+import com.universityweb.writingresult.WritingResultMapper;
 import com.universityweb.writingtask.WritingTaskMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
@@ -173,5 +174,11 @@ public class MapperProvider {
     @Primary
     public WritingTaskMapper writingTaskMapper() {
         return Mappers.getMapper(WritingTaskMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public WritingResultMapper writingResultMapper() {
+        return Mappers.getMapper(WritingResultMapper.class);
     }
 }
