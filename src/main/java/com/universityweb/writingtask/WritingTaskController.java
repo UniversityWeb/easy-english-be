@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +53,24 @@ public class WritingTaskController
         super(service);
         this.authService = authService;
         this.sectionService = sectionService;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @Override
+    public ResponseEntity<WritingTaskDTO> create(WritingTaskDTO dto) {
+        return super.create(dto);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @Override
+    public ResponseEntity<WritingTaskDTO> update(Long id, WritingTaskDTO dto) {
+        return super.update(id, dto);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @Override
+    public ResponseEntity<Void> delete(Long id) {
+        return super.delete(id);
     }
 
     @PostMapping("/get-tasks")

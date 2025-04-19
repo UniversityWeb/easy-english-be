@@ -148,7 +148,7 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         TestResult testResult = getEntityById(id);
         testResult.setIsDeleted(true);
         repository.save(testResult);

@@ -54,7 +54,7 @@ public class SectionController {
     }
     @PostMapping("/delete-section")
     public String deleteSection(@RequestBody SectionRequest sectionRequest) {
-        sectionService.softDelete(sectionRequest.getId());
+        sectionService.delete(sectionRequest.getId());
         return "Section deleted successfully";
     }
 

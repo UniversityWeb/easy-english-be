@@ -176,7 +176,7 @@ public class UserServiceImpl
     }
 
     @Override
-    public void softDelete(String username) {
+    public void delete(String username) {
         User user = loadUserByUsername(username);
         user.setStatus(User.EStatus.DELETED);
         repository.save(user);

@@ -82,7 +82,7 @@ public class BundleServiceImpl
     }
 
     @Override
-    public void softDelete(Long bundleId) {
+    public void delete(Long bundleId) {
         Bundle bundle = getEntityById(bundleId);
         bundle.setIsDeleted(true);
         save(bundle);

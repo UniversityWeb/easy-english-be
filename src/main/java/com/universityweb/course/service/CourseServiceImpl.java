@@ -465,7 +465,7 @@ public class CourseServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Course course = getEntityById(id);
         course.setStatus(Course.EStatus.DELETED);
         repository.save(course);

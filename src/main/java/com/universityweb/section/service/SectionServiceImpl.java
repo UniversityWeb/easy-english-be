@@ -116,7 +116,7 @@ public class SectionServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Section section = getEntityById(id);
         section.setStatus(Section.EStatus.DELETED);
         repository.save(section);

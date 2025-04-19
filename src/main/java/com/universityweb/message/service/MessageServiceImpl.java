@@ -71,7 +71,7 @@ public class MessageServiceImpl
     }
 
     @Override
-    public void softDelete(UUID id) {
+    public void delete(UUID id) {
         repository.deleteById(id);
     }
 

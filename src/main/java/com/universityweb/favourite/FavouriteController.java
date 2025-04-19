@@ -57,7 +57,7 @@ public class FavouriteController {
                 "for user {}", courseId, username);
 
         Favourite favourite = favouriteService.getByUsernameAndCourseId(username, courseId);
-        favouriteService.softDelete(favourite.getId());
+        favouriteService.delete(favourite.getId());
         log.info("Course {} removed from favourites " +
                 "for user {}", courseId, username);
 

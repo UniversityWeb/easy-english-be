@@ -176,7 +176,7 @@ public class UC_017_LessonManagement_Tests {
         when(lessonRepository.findById(lessonId)).thenReturn(Optional.of(lesson));
 
         // Act
-        lessonService.softDelete(lessonId);
+        lessonService.delete(lessonId);
 
         // Assert
         assertTrue(lesson.getIsDeleted());

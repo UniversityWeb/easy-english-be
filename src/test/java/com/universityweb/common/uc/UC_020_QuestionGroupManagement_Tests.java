@@ -1,6 +1,5 @@
 package com.universityweb.common.uc;
 
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.questiongroup.QuestionGroupRepos;
 import com.universityweb.questiongroup.dto.QuestionGroupDTO;
@@ -153,7 +152,7 @@ public class UC_020_QuestionGroupManagement_Tests {
         when(questionGroupRepository.findById(questionGroupId)).thenReturn(Optional.of(questionGroup));
 
         // Act
-        questionGroupService.softDelete(questionGroupId);
+        questionGroupService.delete(questionGroupId);
 
         // Assert
         assertTrue(questionGroup.getIsDeleted());

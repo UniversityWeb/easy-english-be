@@ -1,6 +1,5 @@
 package com.universityweb.common.uc;
 
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
 import com.universityweb.testpart.TestPartRepos;
@@ -145,7 +144,7 @@ public class UC_019_TestPartManagement_Test {
         when(testPartRepository.findById(testPartId)).thenReturn(Optional.of(testPart));
 
         // Act
-        testPartService.softDelete(testPartId);
+        testPartService.delete(testPartId);
 
         // Assert
         assertTrue(testPart.getIsDeleted());

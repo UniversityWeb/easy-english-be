@@ -86,7 +86,7 @@ public class LessonTrackerServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         LessonTracker lessonTracker = getEntityById(id);
 
         lessonTracker.setIsDeleted(true);

@@ -62,7 +62,7 @@ public class CategoryServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Category cate = getEntityById(id);
         cate.setIsDeleted(true);
         repository.save(cate);

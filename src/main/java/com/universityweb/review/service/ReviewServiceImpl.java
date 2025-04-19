@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, Long, ReviewRepository, ReviewMapper> implements ReviewService {
+public class ReviewServiceImpl
+        extends BaseServiceImpl<Review, ReviewResponse, Long, ReviewRepository, ReviewMapper>
+        implements ReviewService {
     private final CourseMapper courseMapper;
     private final CourseService courseService;
     private final UserService userService;
@@ -203,4 +205,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
             log.error(e);
         }
     }
+
+    @Override
+    public void delete(Long id) {}
 }

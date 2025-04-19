@@ -82,9 +82,7 @@ public class TestPartServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
-        super.softDelete(id);
-
+    public void delete(Long id) {
         TestPart existingTestPart = getEntityById(id);
         existingTestPart.setIsDeleted(true);
         repository.save(existingTestPart);

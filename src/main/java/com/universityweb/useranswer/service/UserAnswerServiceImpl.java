@@ -54,4 +54,7 @@ public class UserAnswerServiceImpl
         UserAnswer saved = repository.save(userAnswer);
         return mapper.toDTO(saved);
     }
+
+    @Override
+    public void delete(Long id) {}
 }

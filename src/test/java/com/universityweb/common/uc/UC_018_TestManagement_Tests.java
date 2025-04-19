@@ -1,13 +1,11 @@
 package com.universityweb.common.uc;
 
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.section.entity.Section;
 import com.universityweb.section.service.SectionService;
 import com.universityweb.test.TestMapper;
 import com.universityweb.test.TestRepos;
 import com.universityweb.test.dto.TestDTO;
 import com.universityweb.test.entity.Test;
-import com.universityweb.test.exception.TestNotFoundException;
 import com.universityweb.test.service.TestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
@@ -155,7 +153,7 @@ public class UC_018_TestManagement_Tests {
         when(testRepository.findById(testId)).thenReturn(Optional.of(test));
 
         // Act
-        testService.softDelete(testId);
+        testService.delete(testId);
 
         // Assert
         assertEquals(Test.EStatus.DELETED, test.getStatus());
