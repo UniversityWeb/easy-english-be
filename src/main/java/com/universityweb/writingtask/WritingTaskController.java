@@ -1,6 +1,7 @@
 package com.universityweb.writingtask;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.section.service.SectionService;
@@ -15,15 +16,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -128,6 +133,67 @@ public class WritingTaskController
                                     .put("first_100_chars", jsonContent.substring(0, Math.min(100, jsonContent.length())))
                     );
                 }
+            } else {
+                throw new ResponseStatusException(response.getStatusCode(), "Gemini API error: " + response.getBody());
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(objectMapper.createObjectNode().put("error", e.getMessage()));
+        }
+    }
+    @PostMapping("/image-to-text")
+    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        try {
+            // 1. Convert ảnh sang base64
+            byte[] imageBytes = file.getBytes();
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+            // 2. Tạo JSON payload gửi đến Gemini
+            String jsonPayload = """
+            {
+              "contents": [
+                {
+                  "parts": [
+                    {
+                      "text": "Extract all visible text from this image."
+                    },
+                    {
+                      "inline_data": {
+                        "mime_type": "%s",
+                        "data": "%s"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """.formatted(file.getContentType(), base64Image);
+
+            // 3. Sử dụng RestTemplate như hàm generate
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonPayload, headers);
+
+            String urlWithKey = GEMINI_URL + "?key=" + GEMINI_API_KEY;
+            ResponseEntity<String> response = restTemplate.exchange(urlWithKey, HttpMethod.POST, requestEntity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                JsonNode textNode = jsonNode
+                        .path("candidates")
+                        .path(0)
+                        .path("content")
+                        .path("parts")
+                        .path(0)
+                        .path("text");
+
+                if (textNode.isMissingNode() || textNode.asText().isEmpty()) {
+                    return ResponseEntity.ok("Không tìm thấy văn bản trong ảnh.");
+                }
+
+                return ResponseEntity.ok(textNode.asText());
             } else {
                 throw new ResponseStatusException(response.getStatusCode(), "Gemini API error: " + response.getBody());
             }
