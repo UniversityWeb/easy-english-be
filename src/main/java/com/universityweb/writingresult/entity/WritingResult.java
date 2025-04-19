@@ -41,7 +41,6 @@ public class WritingResult implements Serializable {
 
     public enum EStatus {
         DELETED,
-        DRAFT,
         SUBMITTED,
         FEEDBACK_PROVIDED,
     }

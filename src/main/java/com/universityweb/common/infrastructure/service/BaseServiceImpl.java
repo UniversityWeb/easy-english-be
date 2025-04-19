@@ -52,7 +52,7 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
         E entity = mapper.toEntity(dto);
         this.setEntityRelationshipsBeforeAdd(entity, dto);
         E savedEntity = repository.save(entity);
-        this.postCreate(dto);
+        this.postCreate(savedEntity);
         return mapper.toDTO(savedEntity);
     }
 
@@ -88,5 +88,5 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
 
     protected void checkBeforeAdd(D dto) {}
     protected void setEntityRelationshipsBeforeAdd(E entity, D dto) {}
-    protected void postCreate(D savedDTO) {}
+    protected void postCreate(E savedEntity) {}
 }
