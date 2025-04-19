@@ -32,6 +32,7 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
 
     @GetMapping("/get-by-id/{id}")
     public ResponseEntity<D> getById(@PathVariable ID id) {
+        preGetById(id);
         log.info("Fetching {} with ID: {}", entityName, id);
         D dto = service.getById(id);
         log.info("Found {} with ID: {}", entityName, id);
@@ -41,10 +42,10 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
 
     @PostMapping("/add")
     public ResponseEntity<D> create(@RequestBody D dto) {
+        preCreate(dto);
         log.info("Creating new {}", entityName);
         D createdDto = service.create(dto);
         log.info("Created new {} with ID: {}", entityName, createdDto);
-
         postCreate(createdDto);
         return ResponseEntity.status(201).body(createdDto);
     }
@@ -54,16 +55,17 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
             @PathVariable ID id,
             @RequestBody D dto
     ) {
+        preUpdate(id, dto);
         log.info("Updating {} with ID: {}", entityName, id);
         D updatedDto = service.update(id, dto);
         log.info("Updated {} with ID: {}", entityName, id);
-
         postUpdate(updatedDto);
         return ResponseEntity.ok(updatedDto);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable ID id) {
+        preDelete(id);
         log.info("Deleting {} with ID: {}", entityName, id);
         service.softDelete(id);
         log.info("Deleted {} with ID: {}", entityName, id);
@@ -77,17 +79,20 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
         return entityClass.getSimpleName().toLowerCase();
     }
 
-    public void postGetById(D dto) {
-    }
+    public void preGetById(ID id) {}
+    public void postGetById(D dto) {}
+
+    public void preCreate(D dto) {}
 
     /**
      * Post-creation processing for a D object.
      *
-     * @param dto The created D object.
+     * @param savedDTO The created D object.
      */
-    public void postCreate(D dto) {
-    }
+    public void postCreate(D savedDTO) {}
 
-    public void postUpdate(D dto) {
-    }
+    public void preUpdate(ID id, D dto) {}
+    public void postUpdate(D savedDTO) {}
+
+    public void preDelete(ID id) {}
 }

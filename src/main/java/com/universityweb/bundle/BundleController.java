@@ -33,8 +33,8 @@ public class BundleController
     }
 
     @Override
-    public void postCreate(BundleDTO dto) {
-        dto = MediaUtils.attachBundleUrl(mediaService, dto);
+    public void postCreate(BundleDTO savedDTO) {
+        savedDTO = MediaUtils.attachBundleUrl(mediaService, savedDTO);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class BundleController
     }
 
     @Override
-    public void postUpdate(BundleDTO dto) {
-        dto = MediaUtils.attachBundleUrl(mediaService, dto);
+    public void postUpdate(BundleDTO savedDTO) {
+        savedDTO = MediaUtils.attachBundleUrl(mediaService, savedDTO);
     }
 
     @PreAuthorize("hasRole('TEACHER')")
