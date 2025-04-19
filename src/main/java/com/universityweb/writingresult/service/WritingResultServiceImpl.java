@@ -52,7 +52,7 @@ public class WritingResultServiceImpl
     @Override
     protected void setEntityRelationshipsBeforeAdd(WritingResult entity, WritingResultDTO dto) {
         if (entity.getStatus() == null) {
-            entity.setStatus(WritingResult.EStatus.DRAFT);
+            entity.setStatus(WritingResult.EStatus.SUBMITTED);
         }
     }
 
