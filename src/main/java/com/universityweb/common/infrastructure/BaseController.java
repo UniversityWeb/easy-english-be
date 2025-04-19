@@ -67,7 +67,7 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
     public ResponseEntity<Void> delete(@PathVariable ID id) {
         preDelete(id);
         log.info("Deleting {} with ID: {}", entityName, id);
-        service.softDelete(id);
+        service.delete(id);
         log.info("Deleted {} with ID: {}", entityName, id);
         return ResponseEntity.noContent().build();
     }
@@ -79,20 +79,20 @@ public abstract class BaseController<E, D, ID, SERVICE extends BaseService<E, D,
         return entityClass.getSimpleName().toLowerCase();
     }
 
-    public void preGetById(ID id) {}
-    public void postGetById(D dto) {}
+    protected void preGetById(ID id) {}
+    protected void postGetById(D dto) {}
 
-    public void preCreate(D dto) {}
+    protected void preCreate(D dto) {}
 
     /**
      * Post-creation processing for a D object.
      *
      * @param savedDTO The created D object.
      */
-    public void postCreate(D savedDTO) {}
+    protected void postCreate(D savedDTO) {}
 
-    public void preUpdate(ID id, D dto) {}
-    public void postUpdate(D savedDTO) {}
+    protected void preUpdate(ID id, D dto) {}
+    protected void postUpdate(D savedDTO) {}
 
-    public void preDelete(ID id) {}
+    protected void preDelete(ID id) {}
 }

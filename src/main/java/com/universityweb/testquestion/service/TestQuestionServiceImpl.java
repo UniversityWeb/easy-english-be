@@ -112,7 +112,7 @@ public class TestQuestionServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 }

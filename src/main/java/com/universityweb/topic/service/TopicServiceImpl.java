@@ -67,7 +67,7 @@ public class TopicServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Topic topic = getEntityById(id);
 
         if (!topic.getCourses().isEmpty()) {

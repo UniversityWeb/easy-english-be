@@ -67,7 +67,7 @@ public class FavouriteServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Favourite favourite = getEntityById(id);
         favourite.setIsDeleted(true);
         repository.save(favourite);

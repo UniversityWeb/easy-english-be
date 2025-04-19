@@ -142,7 +142,7 @@ public class LessonServiceImpl
 
     @Override
     public void deleteLesson(LessonRequest lessonRequest) {
-        softDelete(lessonRequest.getId());
+        delete(lessonRequest.getId());
     }
 
     @Override
@@ -156,7 +156,7 @@ public class LessonServiceImpl
     }
 
     @Override
-    public void softDelete(Long lessonId) {
+    public void delete(Long lessonId) {
         Lesson lesson = getEntityById(lessonId);
         lesson.setIsDeleted(true);
         lessonRepository.save(lesson);

@@ -58,7 +58,7 @@ public class WritingTaskServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         WritingTask curEntity = getEntityById(id);
         curEntity.setStatus(WritingTask.EStatus.DELETED);
         save(curEntity);

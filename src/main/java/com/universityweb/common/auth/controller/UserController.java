@@ -129,7 +129,7 @@ public class UserController
     public ResponseEntity<Void> deleteUserForAdmin(
             @PathVariable String username
     ) {
-        service.softDelete(username);
+        service.delete(username);
         return ResponseEntity.noContent().build();
     }
 

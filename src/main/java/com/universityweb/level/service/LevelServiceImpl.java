@@ -83,7 +83,7 @@ public class LevelServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Level level = getEntityById(id);
         level.setIsDeleted(true);
         repository.save(level);

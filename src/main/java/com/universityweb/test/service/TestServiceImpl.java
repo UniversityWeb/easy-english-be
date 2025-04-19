@@ -203,9 +203,7 @@ public class TestServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
-        super.softDelete(id);
-
+    public void delete(Long id) {
         updateStatus(id, Test.EStatus.DELETED);
     }
 

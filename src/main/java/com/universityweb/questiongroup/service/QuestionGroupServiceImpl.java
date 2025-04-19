@@ -46,9 +46,7 @@ public class QuestionGroupServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
-        super.softDelete(id);
-
+    public void delete(Long id) {
         QuestionGroup existingQuestionGroup = getEntityById(id);
         existingQuestionGroup.setIsDeleted(true);
         repository.save(existingQuestionGroup);

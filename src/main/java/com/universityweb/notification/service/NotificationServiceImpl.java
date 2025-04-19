@@ -127,7 +127,7 @@ public class NotificationServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Notification notification = getEntityById(id);
         notification.setIsDeleted(true);
         repository.save(notification);

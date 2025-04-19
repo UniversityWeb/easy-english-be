@@ -1,20 +1,16 @@
 package com.universityweb.common.uc;
 
-import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.UserAlreadyExistsException;
 import com.universityweb.common.auth.mapper.UserMapper;
 import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.service.user.UserServiceImpl;
-import com.universityweb.common.exception.CustomException;
-import com.universityweb.testquestion.entity.TestQuestion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -146,7 +142,7 @@ public class UC_026_UserManagement_Tests {
         when(userRepository.findByUsername("tobedeleted")).thenReturn(Optional.of(existingUser));
 
         // Act
-        userService.softDelete("tobedeleted");
+        userService.delete("tobedeleted");
 
         // Assert
         assertEquals(User.EStatus.DELETED, existingUser.getStatus());

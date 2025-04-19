@@ -116,7 +116,7 @@ public class CourseController {
 
     @PostMapping("/delete-course")
     public ResponseEntity<String> deleteCourse(@RequestBody CourseRequest courseRequest) {
-        courseService.softDelete(courseRequest.getId());
+        courseService.delete(courseRequest.getId());
         return ResponseEntity.status(HttpStatus.OK).body("Course deleted successfully");
     }
 

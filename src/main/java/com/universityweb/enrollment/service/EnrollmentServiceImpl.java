@@ -171,7 +171,7 @@ public class EnrollmentServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Enrollment enrollment = getEntityById(id);
         enrollment.setStatus(Enrollment.EStatus.CANCELLED);
         repository.save(enrollment);

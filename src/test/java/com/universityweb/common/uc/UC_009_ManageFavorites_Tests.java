@@ -5,7 +5,6 @@ import com.universityweb.favourite.FavouriteMapper;
 import com.universityweb.favourite.dto.FavouriteDTO;
 import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.favourite.repository.FavouriteRepository;
-import com.universityweb.favourite.service.FavouriteService;
 import com.universityweb.favourite.service.FavouriteServiceImpl;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
@@ -151,7 +150,7 @@ public class UC_009_ManageFavorites_Tests {
         when(favouriteRepository.findById(favouriteId)).thenReturn(Optional.of(favourite));
 
         // Act
-        favouriteService.softDelete(favouriteId);
+        favouriteService.delete(favouriteId);
 
         // Assert
         assertTrue(favourite.getIsDeleted());

@@ -233,4 +233,7 @@ public class OrderServiceImpl
     protected void throwNotFoundException(Long id) {
         throw new ResourceNotFoundException("Could not find order with ID: " + id);
     }
+
+    @Override
+    public void delete(Long id) {}
 }

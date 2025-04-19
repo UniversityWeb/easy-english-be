@@ -145,7 +145,7 @@ public class UC_016_SectionManagement_Tests {
         when(sectionRepository.findById(sectionId)).thenReturn(Optional.of(section));
 
         // Act
-        sectionService.softDelete(sectionId);
+        sectionService.delete(sectionId);
 
         // Assert
         assertEquals(Section.EStatus.DELETED, section.getStatus());

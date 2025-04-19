@@ -64,7 +64,7 @@ public class WritingResultServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         WritingResult curEntity = getEntityById(id);
         curEntity.setStatus(WritingResult.EStatus.DELETED);
         save(curEntity);

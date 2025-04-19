@@ -1,6 +1,5 @@
 package com.universityweb.common.uc;
 
-import com.universityweb.common.exception.CustomException;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.service.QuestionGroupService;
 import com.universityweb.testquestion.TestQuestionMapper;
@@ -163,7 +162,7 @@ public class UC_021_TestQuestionManagement_Tests {
         when(testQuestionRepository.findById(testQuestionId)).thenReturn(Optional.of(testQuestion));
 
         // Act
-        testQuestionService.softDelete(testQuestionId);
+        testQuestionService.delete(testQuestionId);
 
         // Assert
         verify(testQuestionRepository, times(1)).deleteById(testQuestionId);
