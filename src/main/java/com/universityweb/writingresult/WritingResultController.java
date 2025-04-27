@@ -232,4 +232,56 @@ public class WritingResultController
         }
     }
 
+    @PostMapping("/chat-with-ai")
+    public ResponseEntity<?> chatWithAI(@RequestBody WritingResult writingResult) {
+        try {
+            // 1. Tạo JSON payload gửi đến Gemini
+            String jsonPayload = """
+         {
+           "contents": [
+             {
+               "parts": [
+                 {
+                   "text": "%s"
+                 }
+               ]
+             }
+           ]
+         }
+         """.formatted(writingResult.getSubmittedText());
+
+            // 2. Gửi request tới Gemini API
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonPayload, headers);
+
+            String urlWithKey = GEMINI_URL + "?key=" + GEMINI_API_KEY;
+            ResponseEntity<String> response = restTemplate.exchange(urlWithKey, HttpMethod.POST, requestEntity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                JsonNode textNode = jsonNode
+                        .path("candidates")
+                        .path(0)
+                        .path("content")
+                        .path("parts")
+                        .path(0)
+                        .path("text");
+
+                if (textNode.isMissingNode() || textNode.asText().isEmpty()) {
+                    return ResponseEntity.ok("Không tìm thấy câu trả lời.");
+                }
+
+                return ResponseEntity.ok(textNode.asText());
+            } else {
+                throw new ResponseStatusException(response.getStatusCode(), "Gemini API error: " + response.getBody());
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(objectMapper.createObjectNode().put("error", e.getMessage()));
+        }
+    }
+
 }
