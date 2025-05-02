@@ -29,4 +29,5 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req);
     CourseResponse updateNotice(CourseRequest req);
     void incrementViewCount(Long courseId);
+    boolean isAccessible(String username, Long courseId);
 }

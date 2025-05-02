@@ -6,6 +6,7 @@ import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Where(clause = "status != 'CANCELLED'")
 public class Enrollment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -22,6 +22,9 @@ import com.universityweb.level.entity.Level;
 import com.universityweb.notification.request.AddNotificationRequest;
 import com.universityweb.notification.service.NotificationService;
 import com.universityweb.notification.util.CourseContentNotification;
+import com.universityweb.order.entity.Order;
+import com.universityweb.order.repository.OrderRepos;
+import com.universityweb.order.service.OrderService;
 import com.universityweb.price.entity.Price;
 import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
@@ -55,6 +58,7 @@ public class CourseServiceImpl
     private final ReviewRepository reviewRepository;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final OrderRepos orderRepos;
 
     @Autowired
     public CourseServiceImpl(
@@ -66,7 +70,8 @@ public class CourseServiceImpl
             EnrollmentRepos enrollmentRepos,
             ReviewRepository reviewRepository,
             UserService userService,
-            NotificationService notificationService
+            NotificationService notificationService,
+            OrderRepos orderRepos
     ) {
 
         super(repository, mapper);
@@ -77,6 +82,7 @@ public class CourseServiceImpl
         this.reviewRepository = reviewRepository;
         this.userService = userService;
         this.notificationService = notificationService;
+        this.orderRepos = orderRepos;
     }
 
     @Override
@@ -465,9 +471,36 @@ public class CourseServiceImpl
     }
 
     @Override
+    public boolean isAccessible(String username, Long courseId) {
+        User.ERole role = userService.loadUserByUsername(username).getRole();
+
+        if (role == User.ERole.ADMIN) {
+            return true;
+        }
+
+        Course course = getEntityById(courseId);
+
+        return switch (role) {
+            case STUDENT -> hasStudentPurchasedCourse(username, courseId);
+            case TEACHER -> isTeacherOwnerOfCourse(username, course);
+            default -> false;
+        };
+    }
+
+    @Override
     public void delete(Long id) {
         Course course = getEntityById(id);
         course.setStatus(Course.EStatus.DELETED);
         repository.save(course);
+    }
+
+    private boolean hasStudentPurchasedCourse(String username, Long courseId) {
+        return orderRepos.findByUserUsernameAndStatus(username, Order.EStatus.PAID).stream()
+                .flatMap(order -> order.getItems().stream())
+                .anyMatch(item -> item.getCourse().getId().equals(courseId));
+    }
+
+    private boolean isTeacherOwnerOfCourse(String username, Course course) {
+        return username.equals(course.getOwner().getUsername());
     }
 }

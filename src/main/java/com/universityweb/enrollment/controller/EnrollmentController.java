@@ -5,19 +5,22 @@ import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.course.response.CourseResponse;
+import com.universityweb.course.service.CourseService;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.request.CourseStatsFilterReq;
 import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
-import com.universityweb.enrollment.request.StudentStatsFilterReq;
+import com.universityweb.enrollment.request.StudFilterReq;
 import com.universityweb.enrollment.service.EnrollmentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -31,16 +34,19 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
 
     private final AuthService authService;
     private final MediaService mediaService;
+    private final CourseService courseService;
 
     @Autowired
     public EnrollmentController(
             EnrollmentService service,
             AuthService authService,
-            MediaService mediaService
+            MediaService mediaService,
+            CourseService courseService
     ) {
         super(service);
         this.authService = authService;
         this.mediaService = mediaService;
+        this.courseService = courseService;
     }
 
     @GetMapping("/is-enrolled/{courseId}")
@@ -93,7 +99,7 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
         return ResponseEntity.ok(coursesWithMediaUrls);
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @PostMapping("/get-courses-statistics")
     public ResponseEntity<Page<Map<String, Object>>> getCoursesStatistics(
             @RequestBody CourseStatsFilterReq courseStatsFilterReq
@@ -107,17 +113,33 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
         return ResponseEntity.ok(courseStats);
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @PostMapping("/get-students-statistics")
     public ResponseEntity<Page<Map<String, Object>>> getStudentsStatistics(
-            @RequestBody StudentStatsFilterReq studentStatsFilterReq
+            @RequestBody StudFilterReq studentStatsFilterReq
     ) {
-        studentStatsFilterReq.setTeacherUsername(authService.getCurrentUsername());
         log.info("Entering getStudentsStatistics with filter request: {}", studentStatsFilterReq);
 
         Page<Map<String, Object>> studentStats = service.getStudentsStatistics(studentStatsFilterReq);
 
         log.debug("Retrieved {} student statistics entries", studentStats.getTotalElements());
         return ResponseEntity.ok(studentStats);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @PostMapping("/get-enrolled-students")
+    public ResponseEntity<Page<EnrollmentDTO>> getEnrolledStudents(
+            @RequestBody StudFilterReq filterReq
+    ) {
+        String teacherUsername = authService.getCurrentUsername();
+        if (courseService.isAccessible(teacherUsername, filterReq.getCourseId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        log.info("Entering getEnrolledStudents with filter request: {}", filterReq);
+
+        Page<EnrollmentDTO> students = service.getEnrolledStudents(filterReq);
+
+        log.debug("Retrieved {} getEnrolledStudents entries", students.getTotalElements());
+        return ResponseEntity.ok(students);
     }
 }
