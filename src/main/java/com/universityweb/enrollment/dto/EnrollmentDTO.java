@@ -1,5 +1,6 @@
 package com.universityweb.enrollment.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,9 +26,11 @@ public record EnrollmentDTO(
         @Schema(description = "Date and time of the last access", example = "2023-10-10T15:20:30")
         LocalDateTime lastAccessed,
 
+        @JsonIgnore
         @Schema(description = "Username of the enrolled user", example = "john.doe")
         String username,
 
+        @JsonIgnore
         @Schema(description = "Unique identifier for the course", example = "101")
         Long courseId,
 

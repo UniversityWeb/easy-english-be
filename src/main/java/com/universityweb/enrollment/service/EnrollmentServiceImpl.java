@@ -6,6 +6,7 @@ import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceAlreadyExistsException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.util.Utils;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
@@ -15,10 +16,7 @@ import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
-import com.universityweb.enrollment.request.AddEnrollmentRequest;
-import com.universityweb.enrollment.request.CourseStatsFilterReq;
-import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
-import com.universityweb.enrollment.request.StudentStatsFilterReq;
+import com.universityweb.enrollment.request.*;
 import com.universityweb.lesson.LessonRepository;
 import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lessontracker.LessonTracker;
@@ -48,6 +46,7 @@ public class EnrollmentServiceImpl
     private final TestResultRepos testResultRepos;
     private final LessonRepository lessonRepository;
     private final TestRepos testRepos;
+    private final MediaService mediaService;
 
     @Autowired
     public EnrollmentServiceImpl(
@@ -59,7 +58,8 @@ public class EnrollmentServiceImpl
             LessonTrackerRepository lessonTrackerRepository,
             TestResultRepos testResultRepository,
             LessonRepository lessonRepository,
-            TestRepos testRepos
+            TestRepos testRepos,
+            MediaService mediaService
     ) {
         super(repository, enrollmentMapper);
         this.userService = userService;
@@ -69,6 +69,7 @@ public class EnrollmentServiceImpl
         this.testResultRepos = testResultRepository;
         this.lessonRepository = lessonRepository;
         this.testRepos = testRepos;
+        this.mediaService = mediaService;
     }
 
     @Override
@@ -226,7 +227,9 @@ public class EnrollmentServiceImpl
                 passedLessonsPercentage = (double) totalLessonCompletions / (totalStudents * totalLessons) * 100;
             }
 
+            courseData.put("id", course.getId());
             courseData.put("courseTitle", course.getTitle());
+            courseData.put("imagePreview", mediaService.constructFileUrl(course.getImagePreview()));
             courseData.put("totalStudents", totalStudents);
             courseData.put("averageProgress", averageProgress);
             courseData.put("passedQuizzesPercentage", testResultRepos.getAveragePassedPercentageByCourseId(courseId));
@@ -240,9 +243,8 @@ public class EnrollmentServiceImpl
 
     @Override
     public Page<Map<String, Object>> getStudentsStatistics(
-            StudentStatsFilterReq studentStatsFilterReq
+            StudFilterReq studentStatsFilterReq
     ) {
-        String teacherUsername = studentStatsFilterReq.getTeacherUsername();
         Long courseId = studentStatsFilterReq.getCourseId();
         String studentName = studentStatsFilterReq.getStudentUsername();
         int pageNumber = studentStatsFilterReq.getPageNumber();
@@ -251,8 +253,10 @@ public class EnrollmentServiceImpl
         Sort sort = Sort.by("studentUsername");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.ascending());
 
+        Page<Enrollment> enrollmentPage = repository.findByFilters(courseId, studentName, pageable);
+
         Page<Object[]> results = repository.getStudentStatistics(
-                teacherUsername, courseId, studentName, pageable);
+                courseId, studentName, pageable);
 
         List<Map<String, Object>> studentList = new ArrayList<>();
         for (Object[] result : results) {
@@ -261,15 +265,28 @@ public class EnrollmentServiceImpl
             studentData.put("fullName", result[1]);
             studentData.put("email", result[2]);
             studentData.put("startedDate", Utils.convertToLocalDateTime(result[3]));
-            studentData.put("lessonsPassed", ((Number) result[4]).intValue());
+            studentData.put("passedLessons", ((Number) result[4]).intValue());
             studentData.put("totalLessons", ((Number) result[5]).intValue());
-            studentData.put("quizzesPassed", ((Number) result[6]).intValue());
+            studentData.put("passedQuizzes", ((Number) result[6]).intValue());
             studentData.put("totalQuizzes", ((Number) result[7]).intValue());
             studentData.put("progress", ((Number) result[8]).doubleValue());
             studentList.add(studentData);
         }
 
         return new PageImpl<>(studentList, pageable, results.getTotalElements());
+    }
+
+    @Override
+    public Page<EnrollmentDTO> getEnrolledStudents(StudFilterReq filterReq) {
+        Pageable pageable = PageRequest.of(filterReq.getPageNumber(), filterReq.getSize());
+
+        Page<Enrollment> enrollmentPage = repository.findByFilters(
+                filterReq.getCourseId(),
+                filterReq.getStudentUsername(),
+                pageable
+        );
+
+        return mapper.mapPageToPageDTO(enrollmentPage);
     }
 
     private int calculateProgress(String username, Long courseId) {

@@ -2,6 +2,7 @@ package com.universityweb.enrollment;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
+import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,61 +69,50 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
 
     boolean existsByCourseId(Long courseId);
 
-    @Query("""
-        SELECT 
-            c.title AS courseTitle,
-            COUNT(DISTINCT e.user) AS totalStudents,
-            AVG(e.progress) AS averageProgress, 
-            2.0 AS passedQuizzesPercentage,
-            2 AS passedLessonsPercentage
-        FROM Course c
-        LEFT JOIN c.enrollments e
-        LEFT JOIN c.sections s
-        LEFT JOIN s.lessons l
-        LEFT JOIN s.tests t
-        LEFT JOIN LessonTracker lt ON lt.lesson = l AND lt.user = e.user
-        LEFT JOIN TestResult tr ON tr.test = t AND tr.user = e.user
-        WHERE c.owner.username = :teacherUsername
-        AND (:courseTitle IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :courseTitle, '%')))
-        GROUP BY c.id, c.title
-    """)
-    Page<Object[]> getCourseStatistics(
-            @Param("teacherUsername") String teacherUsername,
-            @Param("courseTitle") String courseTitle,
-            Pageable pageable);
-
-    @Query("""
-        SELECT 
-            new com.universityweb.enrollment.dto.StudentStatisticsDTO(
-                e.user.username,
-                e.user.fullName,
-                e.user.email,
-                e.createdAt,
-                SUM(CASE WHEN lt.isCompleted = true THEN 1 ELSE 0 END),
-                COUNT(DISTINCT l.id),
-                SUM(CASE WHEN tr.status = 'DONE' THEN 1 ELSE 0 END),
-                COUNT(DISTINCT t.id),
-                e.progress
+    @Query(value = """
+        SELECT
+            u.username,
+            u.full_name,
+            u.email,
+            e.created_at,
+            SUM(CASE WHEN lt.is_completed = true THEN 1 ELSE 0 END) AS passed_lessons,
+            COUNT(DISTINCT l.id) AS total_lessons,
+            SUM(CASE WHEN tr.status = 'DONE' THEN 1 ELSE 0 END) AS passed_quizzes,
+            COUNT(DISTINCT t.id) AS total_quizzes,
+            e.progress
+        FROM enrollments e
+        JOIN users u ON e.username = u.username
+        JOIN courses c ON e.course_id = c.id
+        LEFT JOIN sections s ON s.course_id = c.id
+        LEFT JOIN lessons l ON l.section_id = s.id
+        LEFT JOIN tests t ON t.course_section_id = s.id
+        LEFT JOIN lesson_trackers lt ON lt.lesson_id = l.id AND lt.username = u.username
+        LEFT JOIN test_results tr ON tr.test_id = t.id AND tr.username = u.username
+        WHERE c.id = :courseId
+            AND (
+              :studentUsername IS NULL OR
+              LOWER(u.username) LIKE LOWER(CONCAT('%', :studentUsername, '%')) OR
+              LOWER(u.full_name) LIKE LOWER(CONCAT('%', :studentUsername, '%'))
             )
-        FROM Enrollment e
-        LEFT JOIN e.course c
-        LEFT JOIN c.sections s
-        LEFT JOIN s.lessons l
-        LEFT JOIN s.tests t
-        LEFT JOIN LessonTracker lt ON lt.lesson = l AND lt.user = e.user
-        LEFT JOIN TestResult tr ON tr.test = t AND tr.user = e.user
-        WHERE c.owner.username = :teacherUsername
-        AND c.id = :courseId
-        AND (:studentUsername IS NULL OR 
-             LOWER(e.user.username) LIKE LOWER(CONCAT('%', :studentUsername, '%')) OR
-             LOWER(e.user.fullName) LIKE LOWER(CONCAT('%', :studentUsername, '%')))
-        GROUP BY e.user.username, e.user.fullName, e.user.email, e.createdAt, e.progress
-    """)
+        GROUP BY u.username, u.full_name, u.email, e.created_at, e.progress
+    """, nativeQuery = true
+    )
     Page<Object[]> getStudentStatistics(
-            @Param("teacherUsername") String teacherUsername,
             @Param("courseId") Long courseId,
             @Param("studentUsername") String studentUsername,
             Pageable pageable);
 
     List<Enrollment> findAllByCourseId(Long courseId);
+
+    @Query("""
+        SELECT e FROM Enrollment e
+        WHERE (:courseId IS NULL OR e.course.id = :courseId)
+            AND (:username IS NULL OR :username = '' OR LOWER(e.user.username) LIKE LOWER(CONCAT('%', :username, '%')))
+        ORDER BY e.createdAt DESC
+    """)
+    Page<Enrollment> findByFilters(
+            @Param("courseId") Long courseId,
+            @Param("username") String username,
+            Pageable pageable
+    );
 }

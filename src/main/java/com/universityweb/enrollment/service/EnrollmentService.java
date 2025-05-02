@@ -5,10 +5,7 @@ import com.universityweb.course.entity.Course;
 import com.universityweb.course.response.CourseResponse;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
-import com.universityweb.enrollment.request.AddEnrollmentRequest;
-import com.universityweb.enrollment.request.CourseStatsFilterReq;
-import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
-import com.universityweb.enrollment.request.StudentStatsFilterReq;
+import com.universityweb.enrollment.request.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -24,5 +21,6 @@ public interface EnrollmentService extends BaseService<Enrollment, EnrollmentDTO
     Page<CourseResponse> getEnrolledCoursesByFilter(String username, EnrolledCourseFilterReq req);
     int refreshProgress(String username, Long courseId);
     Page<Map<String, Object>> getCoursesStatistics(CourseStatsFilterReq courseStatsFilterReq);
-    Page<Map<String, Object>> getStudentsStatistics(StudentStatsFilterReq studentStatsFilterReq);
+    Page<Map<String, Object>> getStudentsStatistics(StudFilterReq studentStatsFilterReq);
+    Page<EnrollmentDTO> getEnrolledStudents(StudFilterReq filterReq);
 }
