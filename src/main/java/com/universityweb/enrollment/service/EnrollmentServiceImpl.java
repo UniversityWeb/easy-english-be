@@ -243,37 +243,29 @@ public class EnrollmentServiceImpl
 
     @Override
     public Page<Map<String, Object>> getStudentsStatistics(
-            StudFilterReq studentStatsFilterReq
+            StudFilterReq req
     ) {
-        Long courseId = studentStatsFilterReq.getCourseId();
-        String studentName = studentStatsFilterReq.getStudentUsername();
-        int pageNumber = studentStatsFilterReq.getPageNumber();
-        int size = studentStatsFilterReq.getSize();
+        Pageable pageable = PageRequest.of(req.getPageNumber(), req.getSize(), Sort.by("user.username"));
 
-        Sort sort = Sort.by("studentUsername");
-        Pageable pageable = PageRequest.of(pageNumber, size, sort.ascending());
+        Page<Enrollment> enrollmentPage = repository.findByFilters(req.getCourseId(), req.getStudentUsername(), pageable);
 
-        Page<Enrollment> enrollmentPage = repository.findByFilters(courseId, studentName, pageable);
+        List<Map<String, Object>> studentList = enrollmentPage.getContent().stream()
+                .map(enrollment -> {
+                    Map<String, Object> map = new HashMap<>();
+                    User user = enrollment.getUser(); // assuming Enrollment has a `getUser()`
+                    String username = user.getUsername();
+                    Long courseId = enrollment.getCourse().getId();
+                    map.put("username", user.getUsername());
+                    map.put("fullName", user.getFullName());
+                    map.put("email", user.getEmail());
+                    map.put("startedDate", enrollment.getCreatedAt());
+                    map.put("passedLesson", calculatePassedLessons(username, courseId));
+                    map.put("passedTests", calculatePassedTests(username, courseId));
+                    map.put("progress", calculateProgress(username, courseId));
+                    return map;
+                }).collect(Collectors.toList());
 
-        Page<Object[]> results = repository.getStudentStatistics(
-                courseId, studentName, pageable);
-
-        List<Map<String, Object>> studentList = new ArrayList<>();
-        for (Object[] result : results) {
-            Map<String, Object> studentData = new HashMap<>();
-            studentData.put("username", result[0]);
-            studentData.put("fullName", result[1]);
-            studentData.put("email", result[2]);
-            studentData.put("startedDate", Utils.convertToLocalDateTime(result[3]));
-            studentData.put("passedLessons", ((Number) result[4]).intValue());
-            studentData.put("totalLessons", ((Number) result[5]).intValue());
-            studentData.put("passedQuizzes", ((Number) result[6]).intValue());
-            studentData.put("totalQuizzes", ((Number) result[7]).intValue());
-            studentData.put("progress", ((Number) result[8]).doubleValue());
-            studentList.add(studentData);
-        }
-
-        return new PageImpl<>(studentList, pageable, results.getTotalElements());
+        return new PageImpl<>(studentList, pageable, enrollmentPage.getTotalElements());
     }
 
     @Override
@@ -287,6 +279,14 @@ public class EnrollmentServiceImpl
         );
 
         return mapper.mapPageToPageDTO(enrollmentPage);
+    }
+
+    private double calculatePassedTests(String username, Long courseId) {
+        return 0;
+    }
+
+    private double calculatePassedLessons(String username, Long courseId) {
+        return 0;
     }
 
     private int calculateProgress(String username, Long courseId) {
