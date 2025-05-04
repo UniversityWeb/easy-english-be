@@ -255,8 +255,11 @@ public class EnrollmentServiceImpl
                     User user = enrollment.getUser(); // assuming Enrollment has a `getUser()`
                     String username = user.getUsername();
                     Long courseId = enrollment.getCourse().getId();
+                    String avatarPath = user.getAvatarPath();
+
                     map.put("username", user.getUsername());
                     map.put("fullName", user.getFullName());
+                    map.put("avatarPath", mediaService.constructFileUrl(avatarPath));
                     map.put("email", user.getEmail());
                     map.put("startedDate", enrollment.getCreatedAt());
                     map.put("passedLesson", calculatePassedLessons(username, courseId));
@@ -282,11 +285,15 @@ public class EnrollmentServiceImpl
     }
 
     private double calculatePassedTests(String username, Long courseId) {
-        return 0;
+        int totalTests = 0;
+        int totalPassedTests = 0;
+        return ((double) totalPassedTests / totalTests) * 100;
     }
 
     private double calculatePassedLessons(String username, Long courseId) {
-        return 0;
+        int totalLessons = 0;
+        int totalPassedLessons = 0;
+        return ((double) totalPassedLessons / totalLessons) * 100;
     }
 
     private int calculateProgress(String username, Long courseId) {
