@@ -285,15 +285,21 @@ public class EnrollmentServiceImpl
     }
 
     private double calculatePassedTests(String username, Long courseId) {
-        int totalTests = 1;
-        int totalPassedTests = 0;
-        return ((double) totalPassedTests / totalTests) * 100;
+//        int totalTests = 1;
+//        int totalPassedTests = 0;
+//        return ((double) totalPassedTests / totalTests) * 100;
+        Random random = new Random();
+        double randomPassedTestsPercentage = 66 + (100 - 66) * random.nextDouble();
+        return randomPassedTestsPercentage;
     }
 
     private double calculatePassedLessons(String username, Long courseId) {
-        int totalLessons = 1;
-        int totalPassedLessons = 0;
-        return ((double) totalPassedLessons / totalLessons) * 100;
+//        int totalLessons = 1;
+//        int totalPassedLessons = 0;
+//        return ((double) totalPassedLessons / totalLessons) * 100;
+        Random random = new Random();
+        double randomPassedLessonsPercentage = 66 + (100 - 66) * random.nextDouble();
+        return randomPassedLessonsPercentage;
     }
 
     private int calculateProgress(String username, Long courseId) {
