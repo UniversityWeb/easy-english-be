@@ -14,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WritingResultFilterReq {
-    Long sectionId;
     Long writingTaskId;
     String ownerUsername;
 

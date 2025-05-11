@@ -84,14 +84,4 @@ public class WritingResultServiceImpl
 
         return mapper.mapPageToPageDTO(tasksPage);
     }
-
-    @Override
-    public Page<WritingResultDTO> getWritingResults(WritingResultFilterReq req) {
-        Pageable pageable = PageRequest.of(req.getPageNumber(), req.getSize());
-
-        Page<WritingResult> tasksPage = repository.findByFilters(req.getSectionId(),
-                req.getWritingTaskId(), req.getOwnerUsername(), req.getStatus(), pageable);
-
-        return mapper.mapPageToPageDTO(tasksPage);
-    }
 }
