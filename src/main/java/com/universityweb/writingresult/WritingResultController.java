@@ -283,5 +283,4 @@ public class WritingResultController
                     .body(objectMapper.createObjectNode().put("error", e.getMessage()));
         }
     }
-
 }

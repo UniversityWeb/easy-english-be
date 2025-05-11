@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface WritingResultRepos extends JpaRepository<WritingResult, Long> {
     @Query("""
         SELECT w FROM WritingResult w
-        WHERE (:writingTaskId IS NULL OR w.writingTaskId = :writingTaskId)
+        WHERE w.writingTaskId = :writingTaskId
           AND (:ownerUsername IS NULL OR :ownerUsername = '' OR w.ownerUsername = :ownerUsername)
           AND (:status IS NULL OR w.status = :status)
     """)
