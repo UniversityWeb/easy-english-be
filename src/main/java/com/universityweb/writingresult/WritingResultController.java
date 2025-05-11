@@ -284,4 +284,15 @@ public class WritingResultController
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @PostMapping("/get-results-for-teacher")
+    public ResponseEntity<Page<WritingResultDTO>> getWritingResults(
+            @RequestBody WritingResultFilterReq req
+    ) {
+        String curUsername = authService.getCurrentUsername();
+        Long sectionId = req.getSectionId();
+        sectionService.isAccessible(curUsername, sectionId);
+        Page<WritingResultDTO> results = service.getWritingResults(req);
+        return ResponseEntity.ok(results);
+    }
 }
