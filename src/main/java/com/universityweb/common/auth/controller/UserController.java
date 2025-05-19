@@ -172,9 +172,11 @@ public class UserController
         SettingsDTO existingSettingsDTO = Utils.convertFromJson(user.getSettings(), SettingsDTO.class);
 
         if (newSettingsDTO.getAutoReplyMessage() == null) {
+            assert existingSettingsDTO != null;
             newSettingsDTO.setAutoReplyMessage(existingSettingsDTO.getAutoReplyMessage());
         }
         if (newSettingsDTO.getAutoReplyEnabled() == null) {
+            assert existingSettingsDTO != null;
             newSettingsDTO.setAutoReplyEnabled(existingSettingsDTO.getAutoReplyEnabled());
         }
 

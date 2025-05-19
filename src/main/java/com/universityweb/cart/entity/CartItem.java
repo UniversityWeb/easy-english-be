@@ -37,6 +37,8 @@ public class CartItem implements Serializable {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    private Long bundleId = null;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;

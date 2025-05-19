@@ -60,6 +60,9 @@ public class User implements UserDetails, Serializable {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Column(name = "last_login", columnDefinition = "TIMESTAMP")
+    private LocalDateTime lastLogin ;
+
     @Enumerated(EnumType.STRING)
     private EStatus status;
 

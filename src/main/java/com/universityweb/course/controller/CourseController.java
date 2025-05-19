@@ -155,7 +155,7 @@ public class CourseController {
     public ResponseEntity<CourseResponse> updateStatus(
             @PathVariable Long courseId,
             @PathVariable Course.EStatus status,
-            @RequestParam String reason
+            @RequestParam(required = false) String reason
     ) {
         User curUser = authService.getCurUser();
         CourseResponse courseResponse = courseService.updateStatus(curUser, courseId, status, reason);

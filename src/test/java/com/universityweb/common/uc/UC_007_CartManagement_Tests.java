@@ -97,7 +97,7 @@ public class UC_007_CartManagement_Tests {
         when(cartItemMapper.toDTO(cartItem)).thenReturn(cartItemResponse);
 
         // Act
-        CartItemResponse result = cartService.addItemToCart(username, courseId);
+        CartItemResponse result = cartService.addItemToCart(username, courseId, null);
 
         // Assert
         assertNotNull(result);
@@ -125,7 +125,7 @@ public class UC_007_CartManagement_Tests {
         // Act & Assert
         CartItemAlreadyExistsException exception = assertThrows(
                 CartItemAlreadyExistsException.class,
-                () -> cartService.addItemToCart(username, courseId)
+                () -> cartService.addItemToCart(username, courseId, null)
         );
 
         assertEquals("Item already exists", exception.getMessage());

@@ -8,4 +8,5 @@ import org.springframework.data.domain.Page;
 
 public interface BundleService extends BaseService<Bundle, BundleDTO, Long> {
     Page<BundleDTO> getMyBundles(BundleFilterReq filterReq);
+    boolean isCourseInBundle(Long courseId, Long bundleId);
 }
