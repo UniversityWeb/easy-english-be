@@ -1,5 +1,7 @@
 package com.universityweb.cart.service;
 
+import com.universityweb.bundle.Bundle;
+import com.universityweb.bundle.service.BundleService;
 import com.universityweb.cart.entity.Cart;
 import com.universityweb.cart.entity.CartItem;
 import com.universityweb.cart.exception.CartItemAlreadyExistsException;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,10 +36,11 @@ public class CartServiceImpl implements CartService {
     private final CartItemRepos cartItemRepos;
     private final UserService userService;
     private final CourseService courseService;
+    private final BundleService bundleService;
 
     @Override
-    public CartItemResponse addItemToCart(String username, Long courseId) {
-        boolean isValid = existNotInCart(username, courseId);
+    public CartItemResponse addItemToCart(String username, Long courseId, Long bundleId) {
+        boolean isValid = existNotInCart(username, courseId) && bundleService.isCourseInBundle(courseId, bundleId);
         if (!isValid) {
             throw new CartItemAlreadyExistsException("Item already exists");
         }
@@ -53,6 +57,7 @@ public class CartServiceImpl implements CartService {
                 .discountPercent(BigDecimal.ZERO)
                 .updatedAt(LocalDateTime.now())
                 .course(course)
+                .bundleId(bundleId)
                 .cart(cart)
                 .build();
 
@@ -165,6 +170,20 @@ public class CartServiceImpl implements CartService {
         List<CartItem> cartItems = cartItemRepos.findByUsernameAndCourseId(username, courseId);
         return cartItems.stream()
                 .noneMatch(cartItem -> cartItem.getStatus() == CartItem.EStatus.ACTIVE);
+    }
+
+    @Override
+    public List<CartItemResponse> addBundleToCart(String username, Long bundleId) {
+        Bundle bundle = bundleService.getEntityById(bundleId);
+        List<Long> courseIds = bundle.getCourses().stream()
+                .map(Course::getId)
+                .toList();
+        List<CartItemResponse> cartItemResponses = new ArrayList<>();
+        courseIds.forEach(courseId -> {
+            CartItemResponse cartItemResponse = addItemToCart(username, courseId, bundleId);
+            cartItemResponses.add(cartItemResponse);
+        });
+        return cartItemResponses;
     }
 
     private List<CartItem> getCartItemsToDisplay(String username) {

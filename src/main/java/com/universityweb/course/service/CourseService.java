@@ -1,6 +1,7 @@
 package com.universityweb.course.service;
 
 import com.universityweb.common.auth.entity.User;
+import com.universityweb.common.auth.service.permission.PermissionService;
 import com.universityweb.common.infrastructure.service.BaseService;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
@@ -10,7 +11,8 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface CourseService extends BaseService<Course, CourseResponse, Long> {
+public interface CourseService
+        extends BaseService<Course, CourseResponse, Long>, PermissionService<Long> {
     Page<CourseResponse> getAllCourseOfTeacher(String username, CourseRequest courseRequest);
     CourseResponse updateCourse(CourseRequest courseRequest);
     CourseResponse createCourse(CourseRequest courseRequest);
@@ -29,5 +31,4 @@ public interface CourseService extends BaseService<Course, CourseResponse, Long>
     List<CourseResponse> getRelatedCourses(GetRelatedCourseReq req);
     CourseResponse updateNotice(CourseRequest req);
     void incrementViewCount(Long courseId);
-    boolean isAccessible(String username, Long courseId);
 }

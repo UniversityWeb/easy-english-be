@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
@@ -68,8 +70,20 @@ public class CartController {
     ) {
         String username = authService.getCurrentUsername();
         log.info("Adding course with ID: {} to cart for user: {}", courseId, username);
-        CartItemResponse cartItem = cartService.addItemToCart(username, courseId);
+        CartItemResponse cartItem = cartService.addItemToCart(username, courseId, null);
         log.info("Successfully added course with ID: {} to cart for user: {}", courseId, username);
+        return ResponseEntity.ok(cartItem);
+    }
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/add-bundle/{bundleId}")
+    public ResponseEntity<List<CartItemResponse>> addBundleToCart(
+            @PathVariable Long bundleId
+    ) {
+        String username = authService.getCurrentUsername();
+        log.info("Adding a bundle with ID: {} to cart for user: {}", bundleId, username);
+        List<CartItemResponse> cartItem = cartService.addBundleToCart(username, bundleId);
+        log.info("Successfully added bundle with ID: {} to cart for user: {}", bundleId, username);
         return ResponseEntity.ok(cartItem);
     }
 

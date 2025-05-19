@@ -5,6 +5,7 @@ import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.ActiveAccountResponse;
 import com.universityweb.common.auth.response.LoginResponse;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
@@ -22,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class AuthController {
     private static final Logger log = LogManager.getLogger(AuthController.class);
 
     private final AuthService authService;
+    private final UserService userService;
     private final MediaService mediaService;
 
     @Operation(
@@ -84,6 +88,7 @@ public class AuthController {
             @RequestBody LoginRequest generateOTPRequest
     ) {
         authService.generateAndSendOtpToLogin(generateOTPRequest);
+        userService.setLastLogin(generateOTPRequest.username(), LocalDateTime.now());
         return ResponseEntity.ok("OTP has been sent to your email");
     }
 
@@ -127,6 +132,7 @@ public class AuthController {
     ) {
         log.info("Login with OTP method called with request: {}", loginWithOtpRequest);
         LoginResponse loginResponse = authService.loginWithOtp(loginWithOtpRequest);
+        userService.setLastLogin(loginWithOtpRequest.username(), LocalDateTime.now());
         log.info("Login with OTP method completed successfully with response: {}", loginResponse);
         return ResponseEntity.ok(loginResponse);
     }

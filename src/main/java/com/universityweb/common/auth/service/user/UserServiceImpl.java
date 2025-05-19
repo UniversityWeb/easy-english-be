@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,6 +174,13 @@ public class UserServiceImpl
     @Override
     public boolean existsByEmail(String email) {
         return repository.existsByEmail(email);
+    }
+
+    @Override
+    public void setLastLogin(String username, LocalDateTime lastLogin) {
+        User user = loadUserByUsername(username);
+        user.setLastLogin(lastLogin);
+        save(user);
     }
 
     @Override

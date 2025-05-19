@@ -488,6 +488,24 @@ public class CourseServiceImpl
     }
 
     @Override
+    public boolean canEdit(String username, Long courseId) {
+        return canDelete(username, courseId);
+    }
+
+    @Override
+    public boolean canDelete(String username, Long courseId) {
+        User.ERole role = userService.loadUserByUsername(username).getRole();
+
+        if (role == User.ERole.ADMIN) {
+            return true;
+        }
+
+        Course course = getEntityById(courseId);
+
+        return role.equals(User.ERole.TEACHER) && isTeacherOwnerOfCourse(username, course);
+    }
+
+    @Override
     public void delete(Long id) {
         Course course = getEntityById(id);
         course.setStatus(Course.EStatus.DELETED);

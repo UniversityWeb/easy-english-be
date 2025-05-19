@@ -99,4 +99,9 @@ public class BundleServiceImpl
 
         return mapper.mapPageToPageDTO(bundlesPage);
     }
+
+    @Override
+    public boolean isCourseInBundle(Long courseId, Long bundleId) {
+        return false;
+    }
 }
