@@ -141,4 +141,13 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
         log.debug("Retrieved {} getEnrolledStudents entries", students.getTotalElements());
         return ResponseEntity.ok(students);
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @PostMapping("/students/dropout-risk")
+    public ResponseEntity<Page<Map<String, Object>>> getStudentsAtRiskOfDroppingOut(
+            @RequestBody StudFilterReq filterReq
+    ) {
+        Page<Map<String, Object>> students = service.getStudentsAtRiskOfDroppingOut(filterReq);
+        return ResponseEntity.ok(students);
+    }
 }

@@ -30,7 +30,7 @@ services:
       - pgnetwork
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-02-03T21-03-04Z
     container_name: minio
     environment:
       MINIO_ACCESS_KEY: minioadmin
@@ -69,6 +69,7 @@ services:
 volumes:
   easy-english-data:
   minio-data:
+  redis_data:
 
 networks:
   pgnetwork:
