@@ -45,6 +45,27 @@ services:
     networks:
       - pgnetwork
 
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=redis
+    volumes:
+      - redis_data:/data
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "redis" ]
+    restart: unless-stopped
+
+  redisinsight:
+    container_name: redisinsight
+    image: redislabs/redisinsight:latest
+    ports:
+      - '5540:5540'
+    restart: unless-stopped
+    depends_on:
+      - redis
+
 volumes:
   easy-english-data:
   minio-data:
