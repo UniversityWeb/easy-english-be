@@ -10,6 +10,7 @@ import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.request.CourseStatsFilterReq;
 import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
+import com.universityweb.enrollment.request.NotifyStudentReq;
 import com.universityweb.enrollment.request.StudFilterReq;
 import com.universityweb.enrollment.service.EnrollmentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -150,4 +151,11 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
 //        Page<Map<String, Object>> students = service.getStudentsAtRiskOfDroppingOut(filterReq);
 //        return ResponseEntity.ok(students);
 //    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PostMapping("/teachers/notify-dropout-risk")
+    public ResponseEntity<Void> notifyDropoutRiskStudent(@RequestBody NotifyStudentReq request) {
+        request.getStudentEmails().forEach(service::sendReminderToAtRiskStudent);
+        return ResponseEntity.ok().build();
+    }
 }
