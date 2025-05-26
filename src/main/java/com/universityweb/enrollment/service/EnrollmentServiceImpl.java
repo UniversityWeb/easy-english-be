@@ -7,6 +7,8 @@ import com.universityweb.common.exception.ResourceAlreadyExistsException;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.media.service.MediaService;
+import com.universityweb.common.service.mail.EmailService;
+import com.universityweb.common.service.mail.EmailUtils;
 import com.universityweb.common.util.Utils;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
@@ -47,6 +49,7 @@ public class EnrollmentServiceImpl
     private final LessonRepository lessonRepository;
     private final TestRepos testRepos;
     private final MediaService mediaService;
+    private final EmailService emailService;
 
     @Autowired
     public EnrollmentServiceImpl(
@@ -59,7 +62,8 @@ public class EnrollmentServiceImpl
             TestResultRepos testResultRepository,
             LessonRepository lessonRepository,
             TestRepos testRepos,
-            MediaService mediaService
+            MediaService mediaService,
+            EmailService emailService
     ) {
         super(repository, enrollmentMapper);
         this.userService = userService;
@@ -70,6 +74,7 @@ public class EnrollmentServiceImpl
         this.lessonRepository = lessonRepository;
         this.testRepos = testRepos;
         this.mediaService = mediaService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -284,22 +289,26 @@ public class EnrollmentServiceImpl
         return mapper.mapPageToPageDTO(enrollmentPage);
     }
 
+    @Override
+    public void sendReminderToAtRiskStudent(String email) {
+        String subject = "Reminder: Stay on Track with Your Studies";
+        String htmlBody = EmailUtils.generateHtmlReminderTemplate(
+                "Keep Learning!",
+                "We noticed that you're at risk of falling behind. Please continue your studies to stay on track and succeed!"
+        );
+        emailService.sendHtmlContent(email, subject, htmlBody);
+    }
+
     private double calculatePassedTests(String username, Long courseId) {
-//        int totalTests = 1;
-//        int totalPassedTests = 0;
-//        return ((double) totalPassedTests / totalTests) * 100;
-        Random random = new Random();
-        double randomPassedTestsPercentage = 66 + (100 - 66) * random.nextDouble();
-        return randomPassedTestsPercentage;
+        int totalTests = 1;
+        int totalPassedTests = 0;
+        return ((double) totalPassedTests / totalTests) * 100;
     }
 
     private double calculatePassedLessons(String username, Long courseId) {
-//        int totalLessons = 1;
-//        int totalPassedLessons = 0;
-//        return ((double) totalPassedLessons / totalLessons) * 100;
-        Random random = new Random();
-        double randomPassedLessonsPercentage = 66 + (100 - 66) * random.nextDouble();
-        return randomPassedLessonsPercentage;
+        int totalLessons = 1;
+        int totalPassedLessons = 0;
+        return ((double) totalPassedLessons / totalLessons) * 100;
     }
 
     private int calculateProgress(String username, Long courseId) {

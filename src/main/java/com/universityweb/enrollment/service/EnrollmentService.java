@@ -23,4 +23,5 @@ public interface EnrollmentService extends BaseService<Enrollment, EnrollmentDTO
     Page<Map<String, Object>> getCoursesStatistics(CourseStatsFilterReq courseStatsFilterReq);
     Page<Map<String, Object>> getStudentsStatistics(StudFilterReq studentStatsFilterReq);
     Page<EnrollmentDTO> getEnrolledStudents(StudFilterReq filterReq);
+    void sendReminderToAtRiskStudent(String email);
 }
