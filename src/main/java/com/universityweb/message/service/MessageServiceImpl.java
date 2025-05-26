@@ -1,11 +1,15 @@
 package com.universityweb.message.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.universityweb.common.auth.dto.SettingsDTO;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.mapper.UserMapper;
+import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.util.Utils;
 import com.universityweb.common.websocket.WebSocketConstants;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
@@ -29,6 +33,7 @@ public class MessageServiceImpl
     private final UserService userService;
     private final UserMapper userMapper;
     private final NotificationService notificationService;
+    private final AuthService authService;
 
     @Autowired
     public MessageServiceImpl(
@@ -36,12 +41,13 @@ public class MessageServiceImpl
             MessageMapper mapper,
             UserService userService,
             UserMapper userMapper,
-            NotificationService notificationService
-    ) {
+            NotificationService notificationService,
+            AuthService authService) {
         super(repository, mapper);
         this.userService = userService;
         this.userMapper = userMapper;
         this.notificationService = notificationService;
+        this.authService = authService;
     }
 
     @Override
@@ -102,5 +108,30 @@ public class MessageServiceImpl
         String recentChatsOfRecipientTopic = WebSocketConstants.getRecentChatsTopic(dto.getRecipientUsername());
         notificationService.sendRealtimeNotification(recentChatsOfRecipientTopic, messageDTO);
         return messageDTO;
+    }
+
+    @Override
+    public MessageDTO sendAutoMessage(String senderUsername, String recipientUsername, LocalDateTime sendingTime) {
+        User recipient = userService.loadUserByUsername(recipientUsername);
+        SettingsDTO existingSettingsDTO = Utils.convertFromJson(recipient.getSettings(), SettingsDTO.class);
+        assert existingSettingsDTO != null;
+        String autoMsg = existingSettingsDTO.getAutoReplyMessage();
+
+        MessageDTO messageDTO = MessageDTO.builder()
+                .type(Message.EType.TEXT)
+                .content(autoMsg)
+                .sendingTime(sendingTime)
+                .senderUsername(recipientUsername)
+                .recipientUsername(senderUsername)
+                .build();
+
+        return sendRealtimeMessage(messageDTO);
+    }
+
+    @Override
+    public Message getLastMsg(String senderUsername, String recipientUsername) {
+        return repository
+                .findTopBySenderAndRecipientOrderBySendingTimeDesc(senderUsername, recipientUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find the last message between " + recipientUsername + " and " + senderUsername));
     }
 }
