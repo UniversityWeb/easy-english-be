@@ -55,4 +55,13 @@ public class BundleController
         Page<BundleDTO> bundles = service.getMyBundles(filterReq);
         return ResponseEntity.ok(bundles);
     }
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/students/get-bundles")
+    public ResponseEntity<Page<BundleDTO>> getBundlesForStudent(
+            @RequestBody BundleFilterReq filterReq
+    ) {
+        Page<BundleDTO> bundles = service.getBundlesForStudent(filterReq);
+        return ResponseEntity.ok(bundles);
+    }
 }

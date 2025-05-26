@@ -104,4 +104,15 @@ public class BundleServiceImpl
     public boolean isCourseInBundle(Long courseId, Long bundleId) {
         return false;
     }
+
+    @Override
+    public Page<BundleDTO> getBundlesForStudent(BundleFilterReq filterReq) {
+        Pageable pageable = PageRequest.of(filterReq.getPageNumber(), filterReq.getSize());
+
+        Page<Bundle> bundlesPage = repository.findBundlesByFilters(
+                null, filterReq.getName(), pageable
+        );
+
+        return mapper.mapPageToPageDTO(bundlesPage);
+    }
 }

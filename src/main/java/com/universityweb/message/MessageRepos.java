@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -42,4 +43,13 @@ public interface MessageRepos extends JpaRepository<Message, UUID> {
     Page<User> getRecentChats(
             String curUsername,
             Pageable pageable);
+
+    @Query("""
+        SELECT m FROM Message m
+        WHERE m.sender.username = :senderUsername
+          AND m.recipient.username = :recipientUsername
+        ORDER BY m.sendingTime DESC
+        LIMIT 1
+    """)
+    Optional<Message> findTopBySenderAndRecipientOrderBySendingTimeDesc(String senderUsername, String recipientUsername);
 }

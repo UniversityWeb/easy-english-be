@@ -13,7 +13,8 @@ public interface BundleRepos extends JpaRepository<Bundle, Long> {
     @Query("""
         SELECT b FROM Bundle b WHERE
         (:teacherUsername IS NULL OR b.owner.username = :teacherUsername) AND
-        (:name IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :name, '%')))
+        (:name IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND
+        b.isDeleted = false
     """)
     Page<Bundle> findBundlesByFilters(
             @Param("teacherUsername") String teacherUsername,

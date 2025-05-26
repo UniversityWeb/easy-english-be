@@ -1,8 +1,10 @@
 package com.universityweb.message.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.auth.AuthService;
+import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.message.Message;
@@ -16,6 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/v1/messages")
 @Tag(name = "Messages")
@@ -27,6 +31,7 @@ public class MessageController {
     private final AuthService authService;
     private final MessageService messageService;
     private final MediaService mediaService;
+    private final UserService userService;
 
     @GetMapping("/{senderUsername}/{recipientUsername}")
     public ResponseEntity<Page<MessageDTO>> getAllMessages(
@@ -55,7 +60,7 @@ public class MessageController {
     }
 
     @PostMapping("/send")
-    public void handleMessage(@RequestBody MessageDTO message) {
+    public ResponseEntity<Void> handleMessage(@RequestBody MessageDTO message) {
         log.info("Received message request: {}", message);
 
         if (message.getType() == Message.EType.IMAGE && message.getContent() != null && !message.getContent().isEmpty()) {
@@ -69,6 +74,27 @@ public class MessageController {
         }
 
         MessageDTO messageDTO = messageService.sendRealtimeMessage(message);
+
+        //send auto msg
+//        try {
+//            String senderUsername = authService.getCurrentUsername();
+//            String recipientUsername = messageDTO.getRecipientUsername();
+//            User recipient = userService.loadUserByUsername(recipientUsername);
+//            Message lastMsg = messageService.getLastMsg(senderUsername, recipientUsername);
+//            LocalDateTime now = LocalDateTime.now();
+//
+//            if (recipient.getRole() == User.ERole.TEACHER
+//                    && lastMsg != null
+//                    && senderUsername.equals(lastMsg.getSender().getUsername())
+////                    &&
+//            ) {
+//                messageService.sendAutoMessage(senderUsername, recipientUsername, now);
+//            }
+//        } catch (Exception e) {
+//            log.error(e);
+//        }
+
         log.info("Sent message: {}", messageDTO);
+        return ResponseEntity.ok().build();
     }
 }
