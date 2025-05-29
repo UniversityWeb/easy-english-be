@@ -1,11 +1,13 @@
 package com.universityweb.message.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
+import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
+import com.universityweb.common.util.Utils;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
 import com.universityweb.message.service.MessageService;
@@ -16,6 +18,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/messages")
@@ -60,38 +65,54 @@ public class MessageController {
     public ResponseEntity<Void> handleMessage(@RequestBody MessageDTO message) {
         log.info("Received message request: {}", message);
 
+        handleImageMessage(message);
+
+        String senderUsername = authService.getCurrentUsername();
+        String recipientUsername = message.getRecipientUsername();
+        Message lastMsgBeforeSending = messageService.getLastMsg(senderUsername, recipientUsername);
+
+        MessageDTO messageDTO = messageService.sendRealtimeMessage(message);
+        log.info("Sent message: {}", messageDTO);
+
+        sendAutoMessageIfNeeded(senderUsername, recipientUsername, lastMsgBeforeSending);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void handleImageMessage(MessageDTO message) {
         if (message.getType() == Message.EType.IMAGE && message.getContent() != null && !message.getContent().isEmpty()) {
             try {
                 String base64Str = message.getContent();
                 String suffixUrl = mediaService.uploadFile(base64Str);
                 message.setContent(suffixUrl);
             } catch (Exception e) {
-                log.error(e);
+                log.error("Failed to upload image", e);
             }
         }
+    }
 
-        MessageDTO messageDTO = messageService.sendRealtimeMessage(message);
+    private void sendAutoMessageIfNeeded(String senderUsername, String recipientUsername, Message lastMsgBeforeSending) {
+        try {
+            LocalDateTime now = LocalDateTime.now();
 
-        //send auto msg
-//        try {
-//            String senderUsername = authService.getCurrentUsername();
-//            String recipientUsername = messageDTO.getRecipientUsername();
-//            User recipient = userService.loadUserByUsername(recipientUsername);
-//            Message lastMsg = messageService.getLastMsg(senderUsername, recipientUsername);
-//            LocalDateTime now = LocalDateTime.now();
-//
-//            if (recipient.getRole() == User.ERole.TEACHER
-//                    && lastMsg != null
-//                    && senderUsername.equals(lastMsg.getSender().getUsername())
-////                    &&
-//            ) {
-//                messageService.sendAutoMessage(senderUsername, recipientUsername, now);
-//            }
-//        } catch (Exception e) {
-//            log.error(e);
-//        }
+            if (lastMsgBeforeSending == null || !senderUsername.equals(lastMsgBeforeSending.getSender().getUsername())) {
+                return;
+            }
 
-        log.info("Sent message: {}", messageDTO);
-        return ResponseEntity.ok().build();
+            long minutesSinceLastMsg = Duration.between(lastMsgBeforeSending.getSendingTime(), now).toMinutes();
+            if (minutesSinceLastMsg <= Utils.AUTO_MESSAGE_TIMEOUT_MINUTES) {
+                return;
+            }
+
+            User recipient = userService.loadUserByUsername(recipientUsername);
+
+            if (recipient.getRole() != User.ERole.TEACHER) {
+                return;
+            }
+
+            messageService.sendAutoMessage(senderUsername, recipientUsername, now);
+        } catch (Exception e) {
+            log.error("Failed to send auto-message", e);
+        }
     }
 }

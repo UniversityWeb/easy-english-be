@@ -101,12 +101,16 @@ public class MessageServiceImpl
     @Override
     public MessageDTO sendRealtimeMessage(MessageDTO dto) {
         MessageDTO messageDTO = super.create(dto);
-        String chatBoxOfRecipientTopic = WebSocketConstants.getMessageTopic(dto.getRecipientUsername());
-        notificationService.sendRealtimeNotification(chatBoxOfRecipientTopic, messageDTO);
 
-        String recentChatsOfRecipientTopic = WebSocketConstants.getRecentChatsTopic(dto.getRecipientUsername());
-        notificationService.sendRealtimeNotification(recentChatsOfRecipientTopic, messageDTO);
+        sendNotifications(dto.getRecipientUsername(), messageDTO);
+        sendNotifications(dto.getSenderUsername(), messageDTO);
+
         return messageDTO;
+    }
+
+    private void sendNotifications(String username, MessageDTO messageDTO) {
+        notificationService.sendRealtimeNotification(WebSocketConstants.getMessageTopic(username), messageDTO);
+        notificationService.sendRealtimeNotification(WebSocketConstants.getRecentChatsTopic(username), messageDTO);
     }
 
     @Override

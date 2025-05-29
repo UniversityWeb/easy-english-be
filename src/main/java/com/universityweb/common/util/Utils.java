@@ -15,6 +15,7 @@ import java.util.Locale;
 
 public class Utils {
     public static final BigDecimal MIN_PRICE_LIMIT = new BigDecimal(10_000);
+    public static final long AUTO_MESSAGE_TIMEOUT_MINUTES = 5;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static Date toDate(LocalDateTime localDateTime) {
