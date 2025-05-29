@@ -27,9 +27,6 @@ public class CartItem implements Serializable {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Column(name = "discount_percent")
-    private BigDecimal discountPercent;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

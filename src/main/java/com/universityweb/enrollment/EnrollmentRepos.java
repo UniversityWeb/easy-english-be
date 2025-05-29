@@ -2,7 +2,6 @@ package com.universityweb.enrollment;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.course.entity.Course;
-import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

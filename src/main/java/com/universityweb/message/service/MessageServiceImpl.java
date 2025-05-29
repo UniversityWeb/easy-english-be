@@ -1,6 +1,5 @@
 package com.universityweb.message.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universityweb.common.auth.dto.SettingsDTO;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;
@@ -102,12 +101,16 @@ public class MessageServiceImpl
     @Override
     public MessageDTO sendRealtimeMessage(MessageDTO dto) {
         MessageDTO messageDTO = super.create(dto);
-        String chatBoxOfRecipientTopic = WebSocketConstants.getMessageTopic(dto.getRecipientUsername());
-        notificationService.sendRealtimeNotification(chatBoxOfRecipientTopic, messageDTO);
 
-        String recentChatsOfRecipientTopic = WebSocketConstants.getRecentChatsTopic(dto.getRecipientUsername());
-        notificationService.sendRealtimeNotification(recentChatsOfRecipientTopic, messageDTO);
+        sendNotifications(dto.getRecipientUsername(), messageDTO);
+        sendNotifications(dto.getSenderUsername(), messageDTO);
+
         return messageDTO;
+    }
+
+    private void sendNotifications(String username, MessageDTO messageDTO) {
+        notificationService.sendRealtimeNotification(WebSocketConstants.getMessageTopic(username), messageDTO);
+        notificationService.sendRealtimeNotification(WebSocketConstants.getRecentChatsTopic(username), messageDTO);
     }
 
     @Override

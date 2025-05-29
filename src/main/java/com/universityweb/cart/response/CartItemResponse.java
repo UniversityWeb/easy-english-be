@@ -25,10 +25,6 @@ public class CartItemResponse implements Serializable {
             example = "99.99")
     private BigDecimal price;
 
-    @Schema(description = "Discount percentage applied to the item",
-            example = "10.00")
-    private BigDecimal discountPercent;
-
     @Schema(description = "Date and time when the item was last updated",
             example = "2024-09-28T14:30:00")
     private LocalDateTime updatedAt;

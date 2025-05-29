@@ -77,7 +77,6 @@ public class UC_007_CartManagement_Tests {
                 .id(1L)
                 .status(CartItem.EStatus.ACTIVE)
                 .price(BigDecimal.valueOf(100))
-                .discountPercent(BigDecimal.ZERO)
                 .updatedAt(LocalDateTime.now())
                 .course(course)
                 .cart(cart)
@@ -86,7 +85,6 @@ public class UC_007_CartManagement_Tests {
         CartItemResponse cartItemResponse = CartItemResponse.builder()
                 .id(1L)
                 .price(BigDecimal.valueOf(100))
-                .discountPercent(BigDecimal.ZERO)
                 .status(CartItem.EStatus.ACTIVE)
                 .build();
 
