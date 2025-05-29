@@ -1,6 +1,5 @@
 package com.universityweb.message.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universityweb.common.auth.dto.SettingsDTO;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.entity.User;

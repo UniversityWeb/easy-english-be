@@ -9,7 +9,6 @@ import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.service.mail.EmailService;
 import com.universityweb.common.service.mail.EmailUtils;
-import com.universityweb.common.util.Utils;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
 import com.universityweb.course.response.CourseResponse;
@@ -18,7 +17,10 @@ import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.dto.EnrollmentDTO;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.enrollment.mapper.EnrollmentMapper;
-import com.universityweb.enrollment.request.*;
+import com.universityweb.enrollment.request.AddEnrollmentRequest;
+import com.universityweb.enrollment.request.CourseStatsFilterReq;
+import com.universityweb.enrollment.request.EnrolledCourseFilterReq;
+import com.universityweb.enrollment.request.StudFilterReq;
 import com.universityweb.lesson.LessonRepository;
 import com.universityweb.lesson.entity.Lesson;
 import com.universityweb.lessontracker.LessonTracker;
@@ -33,7 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

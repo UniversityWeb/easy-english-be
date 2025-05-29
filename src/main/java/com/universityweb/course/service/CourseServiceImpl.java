@@ -24,7 +24,6 @@ import com.universityweb.notification.service.NotificationService;
 import com.universityweb.notification.util.CourseContentNotification;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.repository.OrderRepos;
-import com.universityweb.order.service.OrderService;
 import com.universityweb.price.entity.Price;
 import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;

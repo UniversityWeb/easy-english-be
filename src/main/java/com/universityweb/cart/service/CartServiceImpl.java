@@ -54,7 +54,6 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = CartItem.builder()
                 .status(CartItem.EStatus.ACTIVE)
                 .price(priceToUse)
-                .discountPercent(BigDecimal.ZERO)
                 .updatedAt(LocalDateTime.now())
                 .course(course)
                 .bundleId(bundleId)
@@ -70,12 +69,6 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartItemResponse updateItem(Long cartItemId) {
         CartItem cartItem = getCartItemByCartItemId(cartItemId);
-
-        Long courseId = cartItem.getCourse().getId();
-        Course course = courseService.getEntityById(courseId);
-
-        BigDecimal discountPercent = calculateDiscount(course.getPrice().getPrice(), cartItem.getPrice());
-        cartItem.setDiscountPercent(discountPercent);
         CartItemResponse cartItemResponse = cartItemMapper.toDTO(cartItem);
         updateCartTime(cartItem.getCart());
         return cartItemResponse;

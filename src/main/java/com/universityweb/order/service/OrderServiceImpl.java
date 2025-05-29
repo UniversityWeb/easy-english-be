@@ -86,7 +86,6 @@ public class OrderServiceImpl
                     Course course = cartItem.getCourse();
                     return OrderItem.builder()
                             .price(cartItem.getPrice())
-                            .discountPercent(cartItem.getDiscountPercent())
                             .course(course)
                             .order(savedOrder)
                             .build();
