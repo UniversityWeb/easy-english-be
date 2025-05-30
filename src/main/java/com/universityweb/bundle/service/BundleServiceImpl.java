@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BundleServiceImpl
@@ -102,7 +103,9 @@ public class BundleServiceImpl
 
     @Override
     public boolean isCourseInBundle(Long courseId, Long bundleId) {
-        return false;
+        Bundle bundle = getEntityById(bundleId);
+        Set<Course> courses = bundle.getCourses();
+        return courses.stream().anyMatch(course -> course.getId().equals(courseId));
     }
 
     @Override

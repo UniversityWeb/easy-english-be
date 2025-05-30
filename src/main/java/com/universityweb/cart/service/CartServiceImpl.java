@@ -40,7 +40,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItemResponse addItemToCart(String username, Long courseId, Long bundleId) {
-        boolean isValid = existNotInCart(username, courseId) && bundleService.isCourseInBundle(courseId, bundleId);
+        boolean existNotInCart = existNotInCart(username, courseId);
+        boolean isCourseInBundle = true;
+        if (bundleId != null) {
+            isCourseInBundle =  bundleService.isCourseInBundle(courseId, bundleId);
+        }
+        boolean isValid = existNotInCart && isCourseInBundle;
         if (!isValid) {
             throw new CartItemAlreadyExistsException("Item already exists");
         }
@@ -116,6 +121,16 @@ public class CartServiceImpl implements CartService {
         CartResponse cartResponse = cartMapper.toDTO(cart);
         BigDecimal totalAmount = cartResponse.getTotalAmount();
         cartResponse.setTotalAmount(totalAmount);
+
+        try {
+            for (int i = 0; i < cart.getItems().size(); i++) {
+                CartItem c1 = cart.getItems().get(i);
+                CartItemResponse c2 = cartResponse.getItems().get(i);
+                c2.setBundleId(c1.getBundleId());
+            }
+        } catch (Exception e) {
+        }
+
         return cartResponse;
     }
 

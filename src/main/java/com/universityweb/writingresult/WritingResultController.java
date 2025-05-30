@@ -63,6 +63,7 @@ public class WritingResultController
     @PostMapping("/submit")
     @Override
     public ResponseEntity<WritingResultDTO> create(WritingResultDTO dto) {
+        dto.setStatus(WritingResult.EStatus.SUBMITTED);
         return super.create(dto);
     }
 
