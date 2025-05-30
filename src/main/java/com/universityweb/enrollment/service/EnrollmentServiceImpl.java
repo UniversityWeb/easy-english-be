@@ -305,15 +305,35 @@ public class EnrollmentServiceImpl
     }
 
     private double calculatePassedTests(String username, Long courseId) {
-        int totalTests = 1;
-        int totalPassedTests = 0;
-        return ((double) totalPassedTests / totalTests) * 100;
+        List<Section> sections = sectionRepository.findByCourseId(courseId);
+        int totalTests = 0;
+
+        for (Section section : sections) {
+            Long sectionId = section.getId();
+            List<Test> tests = testRepos.findBySectionId(sectionId);
+            totalTests += tests.size();
+        }
+
+        int passedTests = testResultRepos.countDistinctTestsByUsernameAndCourseId(username, courseId, TestResult.EStatus.DONE);
+
+        return ((double) passedTests / totalTests) * 100;
     }
 
     private double calculatePassedLessons(String username, Long courseId) {
-        int totalLessons = 1;
-        int totalPassedLessons = 0;
-        return ((double) totalPassedLessons / totalLessons) * 100;
+        List<Section> sections = sectionRepository.findByCourseId(courseId);
+        int totalLessons = 0;
+
+        for (Section section : sections) {
+            Long sectionId = section.getId();
+            List<Lesson> lessons = lessonRepository.findBySectionId(sectionId);
+            totalLessons += lessons.size();
+        }
+
+        int completedLessons = lessonTrackerRepository
+                .findByUserUsernameAndLessonSectionCourseIdAndIsCompletedTrue(username, courseId)
+                .size();
+
+        return ((double) completedLessons / totalLessons) * 100;
     }
 
     private int calculateProgress(String username, Long courseId) {
