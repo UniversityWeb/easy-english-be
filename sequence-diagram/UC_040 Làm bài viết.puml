@@ -1,0 +1,66 @@
+@startuml
+title UC_040 – Làm bài viết
+
+autonumber
+
+actor Student
+actor Teacher
+boundary AssignmentListView
+boundary EssayEditorView
+control EssayController
+control EssayService
+entity EssayModel
+database Database
+
+== 1. Truy cập danh sách bài viết ==
+
+Student -> AssignmentListView : Truy cập "Bài tập/Nhiệm vụ"
+AssignmentListView -> AssignmentListView : Hiển thị danh sách bài viết cần làm
+
+Student -> AssignmentListView : Chọn bài viết
+AssignmentListView -> EssayEditorView : openEssayEditor(taskId)
+EssayEditorView -> EssayEditorView : Hiển thị yêu cầu (chủ đề, độ dài, hạn nộp...)
+
+== 2. Soạn thảo và lưu nháp ==
+
+Student -> EssayEditorView : Nhập nội dung bài viết
+Student -> EssayEditorView : Ấn “Lưu nháp”
+EssayEditorView -> EssayController : saveDraft(essayData)
+activate EssayController
+EssayController -> EssayService : saveDraft(essayData)
+activate EssayService
+EssayService -> EssayModel : saveDraft()
+activate EssayModel
+EssayModel -> Database : insert/update bản nháp
+Database --> EssayModel : success
+deactivate EssayModel
+EssayService --> EssayController : success
+deactivate EssayService
+EssayController --> EssayEditorView : “Bản nháp đã được lưu”
+deactivate EssayController
+
+== 3. Nộp bài viết ==
+
+Student -> EssayEditorView : Ấn “Nộp bài”
+EssayEditorView -> EssayController : submitEssay(essayData)
+activate EssayController
+EssayController -> EssayService : submitEssay(essayData)
+activate EssayService
+EssayService -> EssayModel : updateStatus("submitted")
+activate EssayModel
+EssayModel -> Database : cập nhật trạng thái + thời gian nộp
+Database --> EssayModel : success
+deactivate EssayModel
+EssayService --> EssayController : “Bài viết đã được nộp thành công”
+deactivate EssayService
+EssayController --> EssayEditorView : Hiển thị thời gian nộp
+deactivate EssayController
+
+== 4. Giáo viên xem bài viết sau khi nộp ==
+
+Teacher -> System : Truy cập danh sách bài viết đã nộp
+System -> Database : Truy vấn bài viết theo trạng thái "submitted"
+Database --> System : Trả về nội dung bài viết
+System -> Teacher : Hiển thị bài viết để chấm điểm
+
+@enduml

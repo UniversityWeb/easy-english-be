@@ -1,0 +1,70 @@
+@startuml
+title UC_038 – Nhắc nhở sinh viên
+
+autonumber
+
+actor Teacher
+actor Student
+boundary TaskCreationView
+boundary NotificationView
+control TaskController
+control TaskService
+control ReminderService
+control NotificationService
+entity TaskModel
+entity NotificationModel
+database Database
+database EmailService
+
+== 1. Giáo viên tạo nhiệm vụ ==
+
+Teacher -> TaskCreationView : Nhập thông tin nhiệm vụ (bài tập, hạn nộp...)
+TaskCreationView -> TaskController : createTask(taskData)
+activate TaskController
+TaskController -> TaskService : save(taskData)
+activate TaskService
+TaskService -> TaskModel : save()
+activate TaskModel
+TaskModel -> Database : insert task
+Database --> TaskModel : success
+deactivate TaskModel
+TaskService --> TaskController : success
+deactivate TaskService
+TaskController --> TaskCreationView : “Nhiệm vụ đã được tạo thành công”
+deactivate TaskController
+
+== 2. Hệ thống kiểm tra hạn nhiệm vụ ==
+
+ReminderService -> Database : Lấy danh sách nhiệm vụ sắp đến hạn
+Database --> ReminderService : danh sách nhiệm vụ đến hạn
+
+loop Mỗi nhiệm vụ đến hạn
+    ReminderService -> NotificationService : createReminder(task, studentList)
+    activate NotificationService
+    NotificationService -> NotificationModel : save()
+    NotificationModel -> Database : insert notification
+    Database --> NotificationModel : success
+    NotificationService -> EmailService : sendEmail(to: student.email, msg)
+    deactivate NotificationService
+end
+
+== 3. Sinh viên nhận nhắc nhở ==
+
+Student -> NotificationView : Truy cập thông báo
+NotificationView -> Database : Truy vấn thông báo của sinh viên
+Database --> NotificationView : danh sách thông báo
+NotificationView -> Student : Hiển thị nhắc nhở (bài tập, hạn nộp, lịch thi...)
+
+== 4. Sinh viên đánh dấu "Đã hoàn thành" ==
+
+Student -> NotificationView : Chọn “Đã hoàn thành”
+NotificationView -> TaskController : markAsDone(taskId, studentId)
+activate TaskController
+TaskController -> TaskService : updateStatus(taskId, studentId)
+TaskService -> Database : update task status
+Database --> TaskService : success
+TaskService --> TaskController : success
+TaskController --> NotificationView : Cập nhật giao diện
+deactivate TaskController
+
+@enduml
