@@ -1,0 +1,39 @@
+@startuml
+title UC_035 – Hỏi đáp với Chatbot
+
+autonumber
+
+actor Student
+boundary ChatbotUI
+control ChatbotController
+control ChatbotEngine
+database ChatbotDB
+actor HumanSupport
+
+== 1. Người dùng truy cập giao diện Chatbot ==
+
+Student -> ChatbotUI : Truy cập giao diện Chatbot
+ChatbotUI -> ChatbotUI : Hiển thị hộp thoại và gợi ý nhập câu hỏi
+
+== 2. Người dùng nhập câu hỏi ==
+
+Student -> ChatbotUI : Nhập câu hỏi
+ChatbotUI -> ChatbotController : sendQuestion()
+ChatbotController -> ChatbotEngine : processQuestion()
+ChatbotEngine -> ChatbotDB : findAnswer()
+ChatbotDB --> ChatbotEngine : Trả về câu trả lời
+
+== 3. Chatbot trả lời nếu có trong cơ sở dữ liệu ==
+
+ChatbotEngine --> ChatbotController : answer
+ChatbotController --> ChatbotUI : displayAnswer()
+ChatbotUI --> Student : Hiển thị câu trả lời
+
+== 4. Nếu không tìm thấy câu trả lời ==
+
+ChatbotEngine --> ChatbotController : noMatchFound
+ChatbotController --> ChatbotUI : Gợi ý hỗ trợ trực tiếp
+ChatbotUI --> Student : Thông báo chuyển sang nhân viên hỗ trợ
+ChatbotController -> HumanSupport : Chuyển tiếp yêu cầu
+
+@enduml

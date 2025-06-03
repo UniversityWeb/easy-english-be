@@ -1,0 +1,54 @@
+@startuml
+title UC_033 – Chỉnh sửa thông tin cá nhân
+
+autonumber
+
+actor User
+boundary UserMenu
+boundary ProfileView
+boundary EditProfileForm
+control ProfileController
+control ProfileService
+entity UserModel
+database Database
+
+== Truy cập trang thông tin cá nhân ==
+
+User -> UserMenu : Chọn “Thông tin cá nhân”
+UserMenu -> ProfileView : navigate()
+ProfileView -> ProfileView : Hiển thị thông tin (tên, email, mật khẩu, SĐT, địa chỉ)
+
+== Chỉnh sửa và lưu thông tin ==
+
+User -> EditProfileForm : Chỉnh sửa các trường thông tin
+User -> EditProfileForm : Ấn nút “Save Changes”
+EditProfileForm -> ProfileController : updateProfile(data)
+activate ProfileController
+
+== Kiểm tra tính hợp lệ ==
+ProfileController -> ProfileService : validate(data)
+activate ProfileService
+ProfileService -> ProfileService : validate email format, check password strength, validate phone/address
+ProfileService --> ProfileController : validationResult (OK)
+deactivate ProfileService
+
+== Cập nhật dữ liệu ==
+
+ProfileController -> ProfileService : update(data)
+activate ProfileService
+ProfileService -> UserModel : update()
+activate UserModel
+UserModel -> Database : update user
+Database --> UserModel : success
+deactivate UserModel
+ProfileService --> ProfileController : updateSuccess
+deactivate ProfileService
+
+ProfileController --> EditProfileForm : Hiển thị “Thông tin cá nhân đã được cập nhật thành công.”
+deactivate ProfileController
+
+== Kết thúc ==
+EditProfileForm -> ProfileView : navigate()
+User -> System : Truy cập trang khác hoặc quay lại trang chính
+
+@enduml

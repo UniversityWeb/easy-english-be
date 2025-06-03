@@ -1,0 +1,59 @@
+@startuml
+title UC_041 – Xem khóa học được đề xuất
+
+autonumber
+
+actor Student
+boundary MyCoursesView
+boundary RecommendationView
+boundary CourseDetailView
+control RecommendationController
+control LearningAnalysisService
+control RecommendationService
+control EnrollmentService
+entity LearningResultModel
+entity CourseRecommendationModel
+database Database
+
+== 1. Truy cập đề xuất khóa học ==
+
+Student -> MyCoursesView : Truy cập “Khóa học của tôi” / “Đề xuất khóa học”
+MyCoursesView -> RecommendationController : loadLearningData(studentId)
+activate RecommendationController
+RecommendationController -> LearningAnalysisService : analyzeProgress(studentId)
+activate LearningAnalysisService
+LearningAnalysisService -> LearningResultModel : fetchResults()
+LearningResultModel -> Database : SELECT điểm, bài tập, khóa học hoàn thành
+Database --> LearningResultModel : học lực hiện tại
+LearningResultModel --> LearningAnalysisService : trả kết quả
+deactivate LearningResultModel
+
+== 2. Phân tích và đề xuất khóa học ==
+
+LearningAnalysisService -> RecommendationService : generateRecommendations(analysisData)
+activate RecommendationService
+RecommendationService -> CourseRecommendationModel : fetchMatchingCourses()
+CourseRecommendationModel -> Database : SELECT khóa học phù hợp
+Database --> CourseRecommendationModel : danh sách đề xuất
+CourseRecommendationModel --> RecommendationService : return list
+RecommendationService --> LearningAnalysisService : return recommendations
+deactivate RecommendationService
+LearningAnalysisService --> RecommendationController : return list
+deactivate LearningAnalysisService
+RecommendationController --> RecommendationView : Hiển thị danh sách đề xuất
+deactivate RecommendationController
+
+== 3. Xem chi tiết & đăng ký khóa học ==
+
+Student -> RecommendationView : Chọn khóa học đề xuất
+RecommendationView -> CourseDetailView : Hiển thị thông tin khóa học (giảng viên, lịch học, độ khó)
+
+Student -> CourseDetailView : Ấn “Đăng ký khóa học”
+CourseDetailView -> EnrollmentService : enroll(courseId, studentId)
+activate EnrollmentService
+EnrollmentService -> Database : insert đăng ký khóa học
+Database --> EnrollmentService : success
+EnrollmentService --> CourseDetailView : “Đăng ký khóa học thành công”
+deactivate EnrollmentService
+
+@enduml

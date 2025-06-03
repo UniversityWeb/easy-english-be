@@ -1,0 +1,67 @@
+@startuml
+title UC_039 – Xem tiến độ học tập
+
+autonumber
+
+actor Student
+actor Teacher
+boundary ProgressDashboard
+boundary TaskDetailView
+control ProgressController
+control ProgressService
+entity ProgressModel
+database Database
+
+== 1. Truy cập giao diện tiến độ học tập ==
+
+Student -> ProgressDashboard : Truy cập "Tiến độ học tập"
+activate ProgressDashboard
+ProgressDashboard -> ProgressController : fetchProgress(userId)
+activate ProgressController
+ProgressController -> ProgressService : getProgressData(userId)
+activate ProgressService
+ProgressService -> ProgressModel : queryProgress(userId)
+activate ProgressModel
+ProgressModel -> Database : SELECT bài đã hoàn thành, điểm, nhiệm vụ sắp tới
+Database --> ProgressModel : trả dữ liệu tiến độ
+deactivate ProgressModel
+ProgressService --> ProgressController : trả dữ liệu tiến độ
+deactivate ProgressService
+ProgressController --> ProgressDashboard : hiển thị bảng tiến độ
+deactivate ProgressController
+
+== 2. Xem chi tiết bài tập ==
+
+Student -> ProgressDashboard : Chọn bài cụ thể
+ProgressDashboard -> TaskDetailView : openTaskDetail(taskId)
+TaskDetailView -> ProgressController : getTaskDetail(taskId)
+activate ProgressController
+ProgressController -> ProgressService : getTaskDetail(taskId)
+activate ProgressService
+ProgressService -> Database : SELECT điểm, thời gian nộp, nhận xét
+Database --> ProgressService : kết quả chi tiết
+ProgressService --> ProgressController : trả dữ liệu chi tiết
+deactivate ProgressService
+ProgressController --> TaskDetailView : hiển thị thông tin bài
+deactivate ProgressController
+
+== 3. Xem thống kê tiến độ học tập ==
+
+Student -> ProgressDashboard : Xem thống kê
+ProgressDashboard -> ProgressController : getStatistics(userId)
+activate ProgressController
+ProgressController -> ProgressService : calculateStatistics(userId)
+activate ProgressService
+ProgressService -> Database : Truy vấn điểm, hạn nộp, số lượng hoàn thành
+Database --> ProgressService : dữ liệu tổng hợp
+ProgressService -> ProgressController : trả số liệu thống kê
+deactivate ProgressService
+ProgressController -> ProgressDashboard : hiển thị biểu đồ/thống kê
+deactivate ProgressController
+
+== Giảng viên thực hiện tương tự với quyền truy cập sinh viên ==
+
+Teacher -> ProgressDashboard : Truy cập tiến độ học tập sinh viên
+... (các bước giống như trên với `userId` là của sinh viên) ...
+
+@enduml
