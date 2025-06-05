@@ -96,4 +96,22 @@ public class StatisticsController {
         };
         return ResponseEntity.ok(MediaUtils.addCourseMediaUrls(mediaService, courseResponses));
     }
+
+    @PostMapping("/suggestions/get-users")
+    public ResponseEntity<List<Map<String, Object>>> getUsersForSuggestions() {
+        List<Map<String, Object>> users = courseStatisticsService.getUsersForSuggestions();
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/suggestions/get-courses")
+    public ResponseEntity<List<Map<String, Object>>> getCoursesForSuggestions() {
+        List<Map<String, Object>> courses = courseStatisticsService.getCoursesForSuggestions();
+        return ResponseEntity.ok(courses);
+    }
+
+    @PostMapping("/suggestions/get-interactions")
+    public ResponseEntity<List<Map<String, Object>>> getInteractionsForSuggestions() {
+        List<Map<String, Object>> interactions = courseStatisticsService.getInteractionsForSuggestions();
+        return ResponseEntity.ok(interactions);
+    }
 }
