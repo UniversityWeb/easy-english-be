@@ -113,8 +113,7 @@ public class CourseStatisticsServiceImpl implements CourseStatisticsService {
             Map<String, Object> courseData = new HashMap<>();
             courseData.put("username", user.getUsername());
 
-            int age = 16 + random.nextInt(30); // Random age from 16 to 45
-            courseData.put("age", age);
+            courseData.put("age", user.calculateAge());
 
             int level = random.nextInt(5); // 0 to 4
             courseData.put("current_level", level);

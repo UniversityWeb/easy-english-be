@@ -74,6 +74,12 @@ public class Course {
     @Enumerated(EnumType.STRING)
     EStatus status;
 
+    @Enumerated(EnumType.STRING)
+    User.ECurrentLevel prerequisiteLevel;
+
+    @Enumerated(EnumType.STRING)
+    EDifficulty difficulty;
+
     @ManyToOne
     @JoinColumn(name = "username")
     User owner;
@@ -125,6 +131,48 @@ public class Course {
         PENDING_APPROVAL,
         DRAFT,
         DELETED,
+    }
+
+    public enum EDifficulty {
+        BEGINNER,
+        ELEMENTARY,
+        INTERMEDIATE,
+        UPPER_INTERMEDIATE,
+        ADVANCED;
+
+        public static EDifficulty fromString(String label) {
+            switch (label.trim().toUpperCase().replace("-", "_")) {
+                case "BEGINNER":
+                    return BEGINNER;
+                case "ELEMENTARY":
+                    return ELEMENTARY;
+                case "INTERMEDIATE":
+                    return INTERMEDIATE;
+                case "UPPER_INTERMEDIATE":
+                    return UPPER_INTERMEDIATE;
+                case "ADVANCED":
+                    return ADVANCED;
+                default:
+                    throw new IllegalArgumentException("Unknown difficulty level: " + label);
+            }
+        }
+
+        public String toDisplayName() {
+            switch (this) {
+                case BEGINNER:
+                    return "Beginner";
+                case ELEMENTARY:
+                    return "Elementary";
+                case INTERMEDIATE:
+                    return "Intermediate";
+                case UPPER_INTERMEDIATE:
+                    return "Upper-Intermediate";
+                case ADVANCED:
+                    return "Advanced";
+                default:
+                    return name();
+            }
+        }
     }
 
     @PrePersist
