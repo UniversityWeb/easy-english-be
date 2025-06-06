@@ -80,7 +80,8 @@ public class UC_001_Register_Tests {
                 User.ERole.STUDENT,
                 LocalDateTime.now(),
                 null, // avatarPath
-                ""
+                "",
+                "Business",""
         );
 
         when(userService.existsByUsername(request.username())).thenReturn(false);
