@@ -81,7 +81,7 @@ public class UC_001_Register_Tests {
                 LocalDateTime.now(),
                 null, // avatarPath
                 "",
-                "Business",""
+                "Business", User.ECurrentLevel.ADVANCED,""
         );
 
         when(userService.existsByUsername(request.username())).thenReturn(false);
