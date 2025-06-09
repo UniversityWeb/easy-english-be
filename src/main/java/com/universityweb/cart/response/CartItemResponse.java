@@ -35,4 +35,6 @@ public class CartItemResponse implements Serializable {
     @Schema(description = "Cart ID to which this item belongs",
             example = "1")
     private Long cartId;
+
+    private Long bundleId;
 }
