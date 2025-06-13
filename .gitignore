@@ -39,10 +39,6 @@ build/
 .vscode/
 mylog.log.*.gz
 
-*.plantuml
-
 **/.env
 
 .DS_Store
-
-sequence-diagram/**.png
