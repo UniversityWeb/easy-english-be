@@ -74,7 +74,9 @@ public class MessageController {
         MessageDTO messageDTO = messageService.sendRealtimeMessage(message);
         log.info("Sent message: {}", messageDTO);
 
-        sendAutoMessageIfNeeded(senderUsername, recipientUsername, lastMsgBeforeSending);
+        if (message.getType() == Message.EType.TEXT) {
+            sendAutoMessageIfNeeded(senderUsername, recipientUsername, lastMsgBeforeSending);
+        }
 
         return ResponseEntity.ok().build();
     }
