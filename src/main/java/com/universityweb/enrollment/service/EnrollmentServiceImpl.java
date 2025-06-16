@@ -211,8 +211,12 @@ public class EnrollmentServiceImpl
                 .pageNumber(pageNumber)
                 .size(size)
                 .build();
-
-        Page<CourseResponse> courseResponses = courseService.getAllCourseOfTeacher(teacherUsername, courseRequest);
+        Page<CourseResponse> courseResponses;
+        if (teacherUsername == null) {
+            courseResponses = courseService.getAllCourse(courseRequest);
+        } else {
+            courseResponses = courseService.getAllCourseOfTeacher(teacherUsername, courseRequest);
+        }
 
         List<Map<String, Object>> courseList = courseResponses.getContent().stream().map(course -> {
             Map<String, Object> courseData = new HashMap<>();
