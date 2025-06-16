@@ -43,6 +43,13 @@ spring:
     show-sql: true
     open-in-view: true
 
+  data:
+    redis:
+      host: ${PROD_REDIS_HOST}
+      port: ${PROD_REDIS_PORT}
+      password: ${PROD_REDIS_PASS}
+      timeout: ${PROD_REDIS_TIMEOUT}
+
 security:
   jwt:
     secret-key: ${PROD_JWT_SECRET_KEY}
@@ -72,3 +79,7 @@ minio:
   secret-key: ${PROD_MINIO_SECRET_KEY}
   bucket:
     name: ${PROD_MINIO_BUCKET_NAME}
+
+gemini:
+  url: ${PROD_GEMINI_URL}
+  api-key: ${PROD_GEMINI_API_KEY}

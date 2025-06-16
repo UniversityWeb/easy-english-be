@@ -1,6 +1,6 @@
 package com.universityweb.questiongroup.service;
 
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.questiongroup.QuestionGroupRepos;
@@ -46,9 +46,7 @@ public class QuestionGroupServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
-        super.softDelete(id);
-
+    public void delete(Long id) {
         QuestionGroup existingQuestionGroup = getEntityById(id);
         existingQuestionGroup.setIsDeleted(true);
         repository.save(existingQuestionGroup);
@@ -56,7 +54,7 @@ public class QuestionGroupServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("QuestionGroup not found with ID: " + id);
+        throw new ResourceNotFoundException("QuestionGroup not found with ID: " + id);
     }
 
     @Override

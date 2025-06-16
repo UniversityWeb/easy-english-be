@@ -35,4 +35,30 @@ public class EmailUtils {
                 "</body>" +
                 "</html>";
     }
+
+    public static String generateHtmlReminderTemplate(String purpose, String message) {
+        return "<!DOCTYPE html>" +
+                "<html lang='en'>" +
+                "<head>" +
+                "<meta charset='UTF-8'>" +
+                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "<title>" + purpose + "</title>" +
+                "<style>" +
+                "body { font-family: Arial, sans-serif; background-color: #f4f4f4; }" +
+                ".container { max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; background-color: #ffffff; border: 1px solid #ddd; }" +
+                "h2 { color: #2c3e50; text-align: center; }" +
+                "p { font-size: 16px; color: #555; line-height: 1.6; }" +
+                ".footer { font-size: 12px; text-align: center; color: #999; margin-top: 30px; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class='container'>" +
+                "<h2>📚 " + purpose + "</h2>" +
+                "<p>" + message + "</p>" +
+                "<p style='font-size: 14px; color: #777;'>Need help? Reach out to your teacher or our support team anytime.</p>" +
+                "<div class='footer'>© 2024 An & Hung. All rights reserved.</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
 }

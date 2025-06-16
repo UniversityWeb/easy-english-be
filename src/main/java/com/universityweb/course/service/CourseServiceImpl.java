@@ -7,6 +7,7 @@ import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
+import com.universityweb.common.util.FrontendRoutes;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.exception.CourseNotFoundException;
 import com.universityweb.course.mapper.CourseMapper;
@@ -18,6 +19,11 @@ import com.universityweb.enrollment.EnrollmentRepos;
 import com.universityweb.enrollment.entity.Enrollment;
 import com.universityweb.level.LevelRepository;
 import com.universityweb.level.entity.Level;
+import com.universityweb.notification.request.AddNotificationRequest;
+import com.universityweb.notification.service.NotificationService;
+import com.universityweb.notification.util.CourseContentNotification;
+import com.universityweb.order.entity.Order;
+import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.price.entity.Price;
 import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
@@ -33,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +56,8 @@ public class CourseServiceImpl
     private final EnrollmentRepos enrollmentRepos;
     private final ReviewRepository reviewRepository;
     private final UserService userService;
+    private final NotificationService notificationService;
+    private final OrderRepos orderRepos;
 
     @Autowired
     public CourseServiceImpl(
@@ -59,7 +68,9 @@ public class CourseServiceImpl
             TopicRepository topicRepository,
             EnrollmentRepos enrollmentRepos,
             ReviewRepository reviewRepository,
-            UserService userService
+            UserService userService,
+            NotificationService notificationService,
+            OrderRepos orderRepos
     ) {
 
         super(repository, mapper);
@@ -69,6 +80,8 @@ public class CourseServiceImpl
         this.enrollmentRepos = enrollmentRepos;
         this.reviewRepository = reviewRepository;
         this.userService = userService;
+        this.notificationService = notificationService;
+        this.orderRepos = orderRepos;
     }
 
     @Override
@@ -316,7 +329,8 @@ public class CourseServiceImpl
     public CourseResponse updateStatus(
             User curUser,
             Long courseId,
-            Course.EStatus status
+            Course.EStatus status,
+            String reason
     ) {
         Course course = getEntityById(courseId);
         boolean hasEnrolledStudents = enrollmentRepos.existsByCourseId(courseId);
@@ -330,6 +344,35 @@ public class CourseServiceImpl
         boolean isOwner = courseOwnerUsername != null && courseOwnerUsername.equals(currentUsername);
         if (!isOwner && !isAdmin) {
             throw new PermissionDenyException("User is not authorized to update the course status");
+        }
+
+        boolean isPublished = Course.EStatus.PUBLISHED.equals(status);
+        boolean isRejected = Course.EStatus.REJECTED.equals(status);
+        String courseTitle = course.getTitle();
+        if (isAdmin && (isPublished || isRejected)) {
+            String notiMsg = isPublished
+                    ? CourseContentNotification.courseApproved(courseOwnerUsername, courseTitle)
+                    : CourseContentNotification.courseRejected(courseOwnerUsername, courseTitle, reason);
+            AddNotificationRequest req = AddNotificationRequest.builder()
+                    .previewImage(course.getImagePreview())
+                    .message(notiMsg)
+                    .url(FrontendRoutes.getCourseDetailRoute(courseId.toString()))
+                    .username(courseOwnerUsername)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+            notificationService.sendRealtimeNotification(req);
+        }
+
+        if (isOwner && Course.EStatus.PENDING_APPROVAL.equals(status)) {
+            String notiMsg = CourseContentNotification.newCoursePendingApproval(courseTitle, courseOwnerUsername);
+            AddNotificationRequest req = AddNotificationRequest.builder()
+                    .previewImage(course.getImagePreview())
+                    .message(notiMsg)
+                    .url(FrontendRoutes.getCourseDetailRoute(courseId.toString()))
+                    .username(courseOwnerUsername)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+            notificationService.sendRealtimeNotification(req);
         }
 
         course.setStatus(status);
@@ -427,9 +470,54 @@ public class CourseServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public boolean isAccessible(String username, Long courseId) {
+        User.ERole role = userService.loadUserByUsername(username).getRole();
+
+        if (role == User.ERole.ADMIN) {
+            return true;
+        }
+
+        Course course = getEntityById(courseId);
+
+        return switch (role) {
+            case STUDENT -> hasStudentPurchasedCourse(username, courseId);
+            case TEACHER -> isTeacherOwnerOfCourse(username, course);
+            default -> false;
+        };
+    }
+
+    @Override
+    public boolean canEdit(String username, Long courseId) {
+        return canDelete(username, courseId);
+    }
+
+    @Override
+    public boolean canDelete(String username, Long courseId) {
+        User.ERole role = userService.loadUserByUsername(username).getRole();
+
+        if (role == User.ERole.ADMIN) {
+            return true;
+        }
+
+        Course course = getEntityById(courseId);
+
+        return role.equals(User.ERole.TEACHER) && isTeacherOwnerOfCourse(username, course);
+    }
+
+    @Override
+    public void delete(Long id) {
         Course course = getEntityById(id);
         course.setStatus(Course.EStatus.DELETED);
         repository.save(course);
+    }
+
+    private boolean hasStudentPurchasedCourse(String username, Long courseId) {
+        return orderRepos.findByUserUsernameAndStatus(username, Order.EStatus.PAID).stream()
+                .flatMap(order -> order.getItems().stream())
+                .anyMatch(item -> item.getCourse().getId().equals(courseId));
+    }
+
+    private boolean isTeacherOwnerOfCourse(String username, Course course) {
+        return username.equals(course.getOwner().getUsername());
     }
 }

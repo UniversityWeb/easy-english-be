@@ -5,7 +5,7 @@ import com.universityweb.cart.entity.CartItem;
 import com.universityweb.cart.service.CartService;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.customenum.ECurrency;
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.order.dto.OrderDTO;
@@ -86,7 +86,6 @@ public class OrderServiceImpl
                     Course course = cartItem.getCourse();
                     return OrderItem.builder()
                             .price(cartItem.getPrice())
-                            .discountPercent(cartItem.getDiscountPercent())
                             .course(course)
                             .order(savedOrder)
                             .build();
@@ -231,6 +230,9 @@ public class OrderServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find order with ID: " + id);
+        throw new ResourceNotFoundException("Could not find order with ID: " + id);
     }
+
+    @Override
+    public void delete(Long id) {}
 }

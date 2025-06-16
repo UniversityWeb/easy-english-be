@@ -22,12 +22,12 @@ public class CourseContentNotification {
     }
 
     public static String courseRejected(String teacherName, String courseTitle, String reason) {
-        return String.format("Dear %s, your course '%s' has been rejected. Reason: %s. Please review and resubmit if necessary.",
+        return  String.format("Dear %s, your course '%s' has been rejected. Reason: %s. Please review and resubmit if necessary.",
                 teacherName, courseTitle, reason);
     }
 
-    public static String newCoursePendingApproval(String adminName, String courseTitle, String submittedBy) {
-        return String.format("Hello %s! A new course '%s' submitted by '%s' is waiting for your approval.",
-                adminName, courseTitle, submittedBy);
+    public static String newCoursePendingApproval(String courseTitle, String submittedBy) {
+        return String.format("Hello Admin! A new course '%s' submitted by '%s' is waiting for your approval.",
+                courseTitle, submittedBy);
     }
 }

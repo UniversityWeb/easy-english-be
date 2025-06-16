@@ -1,0 +1,80 @@
+@startuml
+title UC_032 – Quản lý chủ đề và cấp độ
+
+autonumber
+
+actor Admin
+boundary MenuView
+boundary TopicLevelManagementView
+boundary TopicLevelForm
+control TopicLevelController
+control TopicLevelService
+entity TopicLevelModel
+database Database
+
+== A. Thêm chủ đề và cấp độ ==
+
+Admin -> MenuView : Ấn “Menu”
+MenuView -> MenuView : Hiển thị danh sách menu
+
+Admin -> MenuView : Ấn “Topic & Level Management”
+MenuView -> TopicLevelManagementView : navigate()
+
+Admin -> TopicLevelManagementView : Ấn “Add Topic/Level”
+TopicLevelManagementView -> TopicLevelForm : openForm()
+
+Admin -> TopicLevelForm : Nhập thông tin
+Admin -> TopicLevelForm : Ấn “Add”
+TopicLevelForm -> TopicLevelController : addTopicLevel(data)
+activate TopicLevelController
+TopicLevelController -> TopicLevelService : create(data)
+activate TopicLevelService
+TopicLevelService -> TopicLevelModel : save()
+activate TopicLevelModel
+TopicLevelModel -> Database : insert()
+Database --> TopicLevelModel : success
+deactivate TopicLevelModel
+TopicLevelService --> TopicLevelController : result(success)
+deactivate TopicLevelService
+TopicLevelController --> TopicLevelForm : showSuccess()
+deactivate TopicLevelController
+
+== B. Sửa chủ đề và cấp độ ==
+
+Admin -> TopicLevelManagementView : Ấn biểu tượng “Chỉnh sửa”
+TopicLevelManagementView -> TopicLevelForm : openEditForm(data)
+
+Admin -> TopicLevelForm : Cập nhật thông tin
+Admin -> TopicLevelForm : Ấn “Save”
+TopicLevelForm -> TopicLevelController : updateTopicLevel(data)
+activate TopicLevelController
+TopicLevelController -> TopicLevelService : update(data)
+activate TopicLevelService
+TopicLevelService -> TopicLevelModel : update()
+activate TopicLevelModel
+TopicLevelModel -> Database : update()
+Database --> TopicLevelModel : success
+deactivate TopicLevelModel
+TopicLevelService --> TopicLevelController : result(success)
+deactivate TopicLevelService
+TopicLevelController --> TopicLevelForm : showUpdateSuccess()
+deactivate TopicLevelController
+
+== C. Xóa chủ đề và cấp độ ==
+
+Admin -> TopicLevelManagementView : Ấn biểu tượng “Xóa”
+TopicLevelManagementView -> TopicLevelController : deleteTopicLevel(id)
+activate TopicLevelController
+TopicLevelController -> TopicLevelService : delete(id)
+activate TopicLevelService
+TopicLevelService -> TopicLevelModel : delete()
+activate TopicLevelModel
+TopicLevelModel -> Database : delete()
+Database --> TopicLevelModel : success
+deactivate TopicLevelModel
+TopicLevelService --> TopicLevelController : result(success)
+deactivate TopicLevelService
+TopicLevelController --> TopicLevelManagementView : showDeleteSuccess()
+deactivate TopicLevelController
+
+@enduml

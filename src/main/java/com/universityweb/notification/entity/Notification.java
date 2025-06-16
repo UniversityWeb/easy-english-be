@@ -3,6 +3,7 @@ package com.universityweb.notification.entity;
 import com.universityweb.common.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ public class Notification {
     private String url;
 
     @Column(name = "created_date")
+    @CreationTimestamp
     private LocalDateTime createdDate;
 
     private boolean read;

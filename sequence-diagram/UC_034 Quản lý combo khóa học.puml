@@ -1,0 +1,77 @@
+@startuml
+title UC_034 – Quản lý combo khóa học
+
+autonumber
+
+actor Teacher
+boundary ComboView
+boundary ComboForm
+control ComboController
+control ComboService
+entity ComboModel
+database Database
+
+== A. Tạo combo khóa học ==
+
+Teacher -> ComboView : Truy cập "Quản lý combo khóa học"
+ComboView -> ComboView : Hiển thị danh sách combo
+
+Teacher -> ComboView : Ấn “Tạo combo mới”
+ComboView -> ComboForm : openCreateForm()
+
+Teacher -> ComboForm : Nhập thông tin combo (tên, mô tả, khóa học, ưu đãi)
+Teacher -> ComboForm : Ấn “Lưu combo”
+ComboForm -> ComboController : createCombo(data)
+activate ComboController
+ComboController -> ComboService : create(data)
+activate ComboService
+ComboService -> ComboModel : save()
+activate ComboModel
+ComboModel -> Database : insert combo
+Database --> ComboModel : success
+deactivate ComboModel
+ComboService --> ComboController : success
+deactivate ComboService
+ComboController --> ComboForm : “Tạo combo thành công”
+deactivate ComboController
+
+== B. Chỉnh sửa combo khóa học ==
+
+Teacher -> ComboView : Chọn combo để chỉnh sửa
+ComboView -> ComboForm : openEditForm(data)
+
+Teacher -> ComboForm : Sửa thông tin combo
+Teacher -> ComboForm : Ấn “Lưu thay đổi”
+ComboForm -> ComboController : updateCombo(data)
+activate ComboController
+ComboController -> ComboService : update(data)
+activate ComboService
+ComboService -> ComboModel : update()
+ComboModel -> Database : update combo
+Database --> ComboModel : success
+deactivate ComboModel
+ComboService --> ComboController : success
+deactivate ComboService
+ComboController --> ComboForm : “Cập nhật thành công”
+deactivate ComboController
+
+== C. Xóa combo khóa học ==
+
+Teacher -> ComboView : Chọn combo cần xóa
+ComboView -> ComboView : Hiển thị xác nhận xóa
+
+Teacher -> ComboView : Xác nhận xóa
+ComboView -> ComboController : deleteCombo(id)
+activate ComboController
+ComboController -> ComboService : delete(id)
+activate ComboService
+ComboService -> ComboModel : delete()
+ComboModel -> Database : delete combo
+Database --> ComboModel : success
+deactivate ComboModel
+ComboService --> ComboController : success
+deactivate ComboService
+ComboController --> ComboView : “Xóa thành công”
+deactivate ComboController
+
+@enduml

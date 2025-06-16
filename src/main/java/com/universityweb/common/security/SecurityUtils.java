@@ -19,6 +19,11 @@ public class SecurityUtils {
             "api/v1/auth/login-with-google/**",
             "/ws/**",
             "ws://localhost:8001/ws",
+            "/api/v1/media/upload-base64",
+
+            "/api/v1/course-statistics/suggestions/get-users",
+            "/api/v1/course-statistics/suggestions/get-courses",
+            "/api/v1/course-statistics/suggestions/get-interactions",
     };
 
     public static final String[] SWAGGER_URLS = {

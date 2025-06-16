@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.controller;
 
+import com.universityweb.common.auth.dto.SettingsDTO;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.auth.entity.User;
@@ -12,6 +13,7 @@ import com.universityweb.common.infrastructure.BaseController;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
+import com.universityweb.common.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -127,7 +129,7 @@ public class UserController
     public ResponseEntity<Void> deleteUserForAdmin(
             @PathVariable String username
     ) {
-        service.softDelete(username);
+        service.delete(username);
         return ResponseEntity.noContent().build();
     }
 
@@ -158,5 +160,31 @@ public class UserController
         user.setAvatarPath(suffixPath);
         User saved = service.save(user);
         return ResponseEntity.ok(mediaService.constructFileUrl(saved.getAvatarPath()));
+    }
+
+    @PutMapping("/update-own-settings")
+    public ResponseEntity<UserDTO> updateUserSettings(
+        @RequestBody SettingsDTO newSettingsDTO
+    ) {
+        User user = authService.getCurUser();
+        log.info("Received request to update settings with username: {}", user.getUsername());
+
+        SettingsDTO existingSettingsDTO = Utils.convertFromJson(user.getSettings(), SettingsDTO.class);
+
+        if (newSettingsDTO.getAutoReplyMessage() == null) {
+            assert existingSettingsDTO != null;
+            newSettingsDTO.setAutoReplyMessage(existingSettingsDTO.getAutoReplyMessage());
+        }
+        if (newSettingsDTO.getAutoReplyEnabled() == null) {
+            assert existingSettingsDTO != null;
+            newSettingsDTO.setAutoReplyEnabled(existingSettingsDTO.getAutoReplyEnabled());
+        }
+
+        String jsonString = Utils.convertToJson(newSettingsDTO);
+        user.setSettings(jsonString);
+        UserDTO saved = service.savedAndConvertToDTO(user);
+
+        log.info("Successfully updated settings with username: {}", saved.getUsername());
+        return ResponseEntity.ok(saved);
     }
 }

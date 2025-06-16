@@ -3,10 +3,7 @@ package com.universityweb.cart.response;
 import com.universityweb.cart.entity.CartItem;
 import com.universityweb.course.response.CourseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CartItemResponse implements Serializable {
     private Long id;
 
@@ -27,10 +25,6 @@ public class CartItemResponse implements Serializable {
             example = "99.99")
     private BigDecimal price;
 
-    @Schema(description = "Discount percentage applied to the item",
-            example = "10.00")
-    private BigDecimal discountPercent;
-
     @Schema(description = "Date and time when the item was last updated",
             example = "2024-09-28T14:30:00")
     private LocalDateTime updatedAt;
@@ -41,4 +35,6 @@ public class CartItemResponse implements Serializable {
     @Schema(description = "Cart ID to which this item belongs",
             example = "1")
     private Long cartId;
+
+    private Long bundleId;
 }

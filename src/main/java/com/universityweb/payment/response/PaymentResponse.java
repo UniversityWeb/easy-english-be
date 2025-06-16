@@ -2,10 +2,7 @@ package com.universityweb.payment.response;
 
 import com.universityweb.common.customenum.ECurrency;
 import com.universityweb.payment.entity.Payment;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class PaymentResponse {
     private Long id;
     private Payment.EStatus status;

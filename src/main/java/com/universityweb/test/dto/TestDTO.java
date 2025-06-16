@@ -16,6 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class TestDTO {
     Long id;
     Test.EType type;

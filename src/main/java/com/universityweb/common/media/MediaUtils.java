@@ -1,5 +1,6 @@
 package com.universityweb.common.media;
 
+import com.universityweb.bundle.BundleDTO;
 import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.dto.UserForAdminDTO;
 import com.universityweb.common.media.service.MediaService;
@@ -140,5 +141,11 @@ public class MediaUtils {
         if (notificationResponse == null) return null;
         notificationResponse.setPreviewImage(mediaService.constructFileUrl(notificationResponse.getPreviewImage()));
         return notificationResponse;
+    }
+
+    public static BundleDTO attachBundleUrl(MediaService mediaService, BundleDTO dto) {
+        if (dto == null) return null;
+        dto.setImagePreview(mediaService.constructFileUrl(dto.getImagePreview()));
+        return dto;
     }
 }

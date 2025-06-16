@@ -1,6 +1,6 @@
 package com.universityweb.testquestion.service;
 
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.questiongroup.entity.QuestionGroup;
 import com.universityweb.questiongroup.service.QuestionGroupService;
@@ -38,7 +38,7 @@ public class TestQuestionServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("TestQuestion Not Found with id=" + id);
+        throw new ResourceNotFoundException("TestQuestion Not Found with id=" + id);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class TestQuestionServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 }

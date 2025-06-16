@@ -1,6 +1,6 @@
 package com.universityweb.useranswer.service;
 
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.testquestion.service.TestQuestionService;
 import com.universityweb.testresult.service.TestResultService;
@@ -34,7 +34,7 @@ public class UserAnswerServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find user answer with id " + id);
+        throw new ResourceNotFoundException("Could not find user answer with id " + id);
     }
 
     @Override
@@ -54,4 +54,7 @@ public class UserAnswerServiceImpl
         UserAnswer saved = repository.save(userAnswer);
         return mapper.toDTO(saved);
     }
+
+    @Override
+    public void delete(Long id) {}
 }

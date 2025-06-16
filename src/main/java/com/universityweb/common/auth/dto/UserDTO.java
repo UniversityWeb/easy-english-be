@@ -1,5 +1,8 @@
 package com.universityweb.common.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universityweb.common.auth.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -7,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -79,4 +83,32 @@ public class UserDTO {
     LocalDateTime createdAt;
 
     String avatarPath;
+
+    String preferredSkill;
+
+    String learningGoal;
+
+    User.ECurrentLevel currentLevel;
+
+    @JsonIgnore
+    String settings = "";
+
+    @JsonGetter("settings")
+    public SettingsDTO getSettingsDTO() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            SettingsDTO settings = objectMapper.readValue(this.settings, SettingsDTO.class);
+            return settings;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @JsonGetter("age")
+    public int calculateAge() {
+        if (dob == null) {
+            return 0;
+        }
+        return Period.between(dob, LocalDate.now()).getYears();
+    }
 }

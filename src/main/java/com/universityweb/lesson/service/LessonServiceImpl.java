@@ -1,7 +1,7 @@
 package com.universityweb.lesson.service;
 
 
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.drip.Drip;
 import com.universityweb.drip.DripRepos;
@@ -136,18 +136,18 @@ public class LessonServiceImpl
             lessonResponse.setSectionId(currentLesson.getSection().getId());
             return lessonResponse;
         } else {
-            throw new CustomException("Lesson not found");
+            throw new ResourceNotFoundException("Lesson not found");
         }
     }
 
     @Override
     public void deleteLesson(LessonRequest lessonRequest) {
-        softDelete(lessonRequest.getId());
+        delete(lessonRequest.getId());
     }
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Lesson not found");
+        throw new ResourceNotFoundException("Lesson not found");
     }
 
     @Override
@@ -156,7 +156,7 @@ public class LessonServiceImpl
     }
 
     @Override
-    public void softDelete(Long lessonId) {
+    public void delete(Long lessonId) {
         Lesson lesson = getEntityById(lessonId);
         lesson.setIsDeleted(true);
         lessonRepository.save(lesson);

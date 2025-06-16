@@ -6,6 +6,7 @@ import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface MessageService extends BaseService<Message, MessageDTO, UUID> {
@@ -14,4 +15,8 @@ public interface MessageService extends BaseService<Message, MessageDTO, UUID> {
     Page<UserDTO> getRecentChats(String curUsername, int page, int size);
 
     MessageDTO sendRealtimeMessage(MessageDTO dto);
+
+    MessageDTO sendAutoMessage(String senderUsername, String recipientUsername, LocalDateTime sendingTime);
+
+    Message getLastMsg(String senderUsername, String recipientUsername);
 }

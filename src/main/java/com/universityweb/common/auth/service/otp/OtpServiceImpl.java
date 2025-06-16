@@ -1,5 +1,6 @@
 package com.universityweb.common.auth.service.otp;
 
+import com.universityweb.common.auth.entity.OTP;
 import com.universityweb.common.auth.exception.ExpiredOtpException;
 import com.universityweb.common.auth.exception.InvalidOtpException;
 import com.universityweb.common.service.mail.EmailService;
@@ -7,36 +8,45 @@ import com.universityweb.common.service.mail.EmailUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class OtpServiceImpl implements OtpService {
-    private static Logger log = LogManager.getLogger(OtpServiceImpl.class);
-    private static final Map<String, OtpRecord> otpCache = new ConcurrentHashMap<>();
+    private static final Logger log = LogManager.getLogger(OtpServiceImpl.class);
+    private static final Duration OTP_TTL = Duration.ofMinutes(OTP_EXPIRATION_MINUTES);
 
     @Autowired
     private EmailService emailService;
 
-    @Override
-    public boolean validateOtp(String email, String otp, EPurpose purpose) {
-        String key = generateKey(email, purpose);
-        OtpRecord otpRecord = otpCache.get(key);
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
-        if (otpRecord == null) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Override
+    public boolean validateOtp(String email, String otpStr, EPurpose purpose) {
+        String key = generateKey(email, purpose);
+        String json = (String) redisTemplate.opsForValue().get(key);
+
+        if (json == null) {
             throw new InvalidOtpException("OTP not found for the given email: " + email);
         }
 
-        if (otpRecord.expiryTime().isBefore(LocalDateTime.now())) {
+        OTP otp = OTP.fromJson(json);
+
+        if (otp.getExpiryTime().isBefore(LocalDateTime.now())) {
+            redisTemplate.delete(key);
             throw new ExpiredOtpException("OTP has expired for the given email: " + email);
         }
 
-        if (!otpRecord.otp().equals(otp)) {
+        if (!passwordEncoder.matches(otpStr, otp.getOtpStr())) {
             throw new InvalidOtpException("Invalid OTP provided for the given email: " + email);
         }
 
@@ -46,37 +56,47 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public void invalidateOtp(String email, EPurpose purpose) {
         String key = generateKey(email, purpose);
-        otpCache.remove(key);
+        redisTemplate.delete(key);
     }
 
     @Override
     public void generateAndSendOtp(String email, EPurpose purpose) {
         String otp = generateOtp(email, purpose);
         switch (purpose) {
-            case LOGIN:
-                sendOtpToLogin(email, otp);
-                break;
-            case ACTIVE_ACCOUNT:
-                sendOtpToActiveAccount(email, otp);
-                break;
-            case UPDATE_PROFILE:
-                sendOtpToUpdateProfile(email, otp);
-                break;
-            case UPDATE_PASS:
-                sendOtpToUpdatePass(email, otp);
-                break;
-            case RESET_PASS:
-                sendOtpToResetPassword(email, otp);
-                break;
+            case LOGIN -> sendOtpToLogin(email, otp);
+            case ACTIVE_ACCOUNT -> sendOtpToActiveAccount(email, otp);
+            case UPDATE_PROFILE -> sendOtpToUpdateProfile(email, otp);
+            case UPDATE_PASS -> sendOtpToUpdatePass(email, otp);
+            case RESET_PASS -> sendOtpToResetPassword(email, otp);
         }
+    }
+
+    private String generateOtp(String email, EPurpose purpose) {
+        String otpStr = String.valueOf((int) (Math.random() * 900000) + 100000);
+        String encodedOtpStr = passwordEncoder.encode(otpStr);
+        log.info("Generated OTP for {}: {}", email, otpStr);
+
+        String key = generateKey(email, purpose);
+        OTP otp = OTP.builder()
+                .otpStr(encodedOtpStr)
+                .expiryTime(LocalDateTime.now().plus(OTP_TTL))
+                .build();
+        String otpJson = otp.toJson();
+
+        redisTemplate.opsForValue().set(key, otpJson, OTP_TTL.toSeconds(), TimeUnit.SECONDS);
+
+        return otpStr;
+    }
+
+    private String generateKey(String email, EPurpose purpose) {
+        return "otp:" + email + ":" + purpose.name();
     }
 
     private void sendOtpToResetPassword(String email, String otp) {
         String subject = "Reset Password - Your One-Time Password (OTP)";
         String htmlBody = EmailUtils.generateHtmlOtpTemplate("Reset Password", otp,
                 "Please use this code to reset your password. This code is valid for " +
-                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
-
+                        OTP_EXPIRATION_MINUTES + " minutes.");
         emailService.sendHtmlContent(email, subject, htmlBody);
     }
 
@@ -84,8 +104,7 @@ public class OtpServiceImpl implements OtpService {
         String subject = "Update Password - Your One-Time Password (OTP)";
         String htmlBody = EmailUtils.generateHtmlOtpTemplate("Update Password", otp,
                 "Please use this code to update your password. This code is valid for " +
-                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
-
+                        OTP_EXPIRATION_MINUTES + " minutes.");
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
@@ -93,8 +112,7 @@ public class OtpServiceImpl implements OtpService {
         String subject = "Login - Your One-Time Password (OTP)";
         String htmlBody = EmailUtils.generateHtmlOtpTemplate("Login", otp,
                 "Please use this code to complete your login. This code is valid for " +
-                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
-
+                        OTP_EXPIRATION_MINUTES + " minutes.");
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
@@ -102,8 +120,7 @@ public class OtpServiceImpl implements OtpService {
         String subject = "Account Activation - One-Time Password (OTP)";
         String htmlBody = EmailUtils.generateHtmlOtpTemplate("Account Activation", otp,
                 "Please use this code to activate your account. The OTP is valid for " +
-                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
-
+                        OTP_EXPIRATION_MINUTES + " minutes.");
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
 
@@ -111,42 +128,7 @@ public class OtpServiceImpl implements OtpService {
         String subject = "Update Profile - One-Time Password (OTP)";
         String htmlBody = EmailUtils.generateHtmlOtpTemplate("Update Profile", otp,
                 "Please use this code to update your profile. The OTP is valid for " +
-                        OtpService.OTP_EXPIRATION_MINUTES + " minutes.");
-
+                        OTP_EXPIRATION_MINUTES + " minutes.");
         emailService.sendHtmlContent(toEmail, subject, htmlBody);
     }
-
-    private String generateKey(String email, EPurpose purpose) {
-        return email + "_" + purpose;
-    }
-
-    @Scheduled(fixedRate = 3_600_000)
-    private void removeExpiredOtp() {
-        Iterator<String> iterator = otpCache.keySet().iterator();
-
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            OtpRecord otpRecord = otpCache.get(key);
-
-            if (otpRecord != null && otpRecord.expiryTime().isBefore(LocalDateTime.now())) {
-                iterator.remove();
-            }
-        }
-    }
-
-    private String generateOtp(String email, EPurpose purpose) {
-        String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
-        log.info("Generated OTP for {}: {}", email, otp);
-
-        OtpRecord otpRecord = new OtpRecord(otp, LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES));
-        String key = generateKey(email, purpose);
-        otpCache.put(key, otpRecord);
-
-        return otp;
-    }
-
-    private record OtpRecord(
-            String otp,
-            LocalDateTime expiryTime
-    ) {}
 }

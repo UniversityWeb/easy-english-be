@@ -67,4 +67,51 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
     Optional<Enrollment> findByUserAndCourse(User user, Course course);
 
     boolean existsByCourseId(Long courseId);
+
+    @Query(value = """
+        SELECT
+            u.username,
+            u.full_name,
+            u.email,
+            e.created_at,
+            SUM(CASE WHEN lt.is_completed = true THEN 1 ELSE 0 END) AS passed_lessons,
+            COUNT(DISTINCT l.id) AS total_lessons,
+            SUM(CASE WHEN tr.status = 'DONE' THEN 1 ELSE 0 END) AS passed_quizzes,
+            COUNT(DISTINCT t.id) AS total_quizzes,
+            e.progress
+        FROM enrollments e
+        JOIN users u ON e.username = u.username
+        JOIN courses c ON e.course_id = c.id
+        LEFT JOIN sections s ON s.course_id = c.id
+        LEFT JOIN lessons l ON l.section_id = s.id
+        LEFT JOIN tests t ON t.course_section_id = s.id
+        LEFT JOIN lesson_trackers lt ON lt.lesson_id = l.id AND lt.username = u.username
+        LEFT JOIN test_results tr ON tr.test_id = t.id AND tr.username = u.username
+        WHERE c.id = :courseId
+            AND (
+              :studentUsername IS NULL OR
+              LOWER(u.username) LIKE LOWER(CONCAT('%', :studentUsername, '%')) OR
+              LOWER(u.full_name) LIKE LOWER(CONCAT('%', :studentUsername, '%'))
+            )
+        GROUP BY u.username, u.full_name, u.email, e.created_at, e.progress
+    """, nativeQuery = true
+    )
+    Page<Object[]> getStudentStatistics(
+            @Param("courseId") Long courseId,
+            @Param("studentUsername") String studentUsername,
+            Pageable pageable);
+
+    List<Enrollment> findAllByCourseId(Long courseId);
+
+    @Query("""
+        SELECT e FROM Enrollment e
+        WHERE (:courseId IS NULL OR e.course.id = :courseId)
+            AND (:username IS NULL OR :username = '' OR LOWER(e.user.username) LIKE LOWER(CONCAT('%', :username, '%')))
+        ORDER BY e.createdAt DESC
+    """)
+    Page<Enrollment> findByFilters(
+            @Param("courseId") Long courseId,
+            @Param("username") String username,
+            Pageable pageable
+    );
 }

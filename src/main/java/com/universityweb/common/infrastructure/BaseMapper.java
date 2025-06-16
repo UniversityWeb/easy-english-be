@@ -1,5 +1,6 @@
 package com.universityweb.common.infrastructure;
 
+import org.mapstruct.MappingTarget;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
@@ -10,6 +11,8 @@ public interface BaseMapper<E, D> {
     E toEntity(D dto);
     List<D> toDTOs(List<E> entities);
     List<E> toEntities(List<D> dtos);
+
+    void updateEntityFromDTO(D dto, @MappingTarget E entity);
 
     default Page<D> mapPageToPageDTO(Page<E> page) {
         List<D> dtos = toDTOs(page.getContent());

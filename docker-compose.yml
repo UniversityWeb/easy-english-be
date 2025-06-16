@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   easy-english-db:
-    image: postgres:latest
+    image: postgres:17.2
     container_name: easy-english-db
     environment:
       POSTGRES_USER: root
@@ -15,7 +15,7 @@ services:
       - pgnetwork
 
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:8.13
     container_name: my_pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
@@ -30,7 +30,7 @@ services:
       - pgnetwork
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-02-03T21-03-04Z
     container_name: minio
     environment:
       MINIO_ACCESS_KEY: minioadmin
@@ -45,9 +45,31 @@ services:
     networks:
       - pgnetwork
 
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=redis
+    volumes:
+      - redis_data:/data
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "redis" ]
+    restart: unless-stopped
+
+  redisinsight:
+    container_name: redisinsight
+    image: redislabs/redisinsight:latest
+    ports:
+      - '5540:5540'
+    restart: unless-stopped
+    depends_on:
+      - redis
+
 volumes:
   easy-english-data:
   minio-data:
+  redis_data:
 
 networks:
   pgnetwork:

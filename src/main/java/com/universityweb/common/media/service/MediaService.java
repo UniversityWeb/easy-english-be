@@ -23,6 +23,8 @@ public interface MediaService {
      */
     String uploadFile(MultipartFile file);
 
+    String uploadFile(String base64Str);
+
     byte[] getFile(String suffixPath);
 
     void deleteFile(String suffixPath);

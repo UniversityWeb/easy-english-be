@@ -48,10 +48,11 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
     @Transactional
     @Override
     public D create(D dto) {
-        checkBeforeAdd(dto);
+        this.checkBeforeAdd(dto);
         E entity = mapper.toEntity(dto);
         this.setEntityRelationshipsBeforeAdd(entity, dto);
         E savedEntity = repository.save(entity);
+        this.postCreate(savedEntity);
         return mapper.toDTO(savedEntity);
     }
 
@@ -64,11 +65,6 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
             log.error(e);
             return null;
         }
-    }
-
-    @Transactional
-    @Override
-    public void softDelete(ID id) {
     }
 
     @Transactional
@@ -90,9 +86,7 @@ public abstract class BaseServiceImpl<E, D, ID, REPOS extends JpaRepository<E, I
 
     protected abstract void throwNotFoundException(ID id);
 
-    protected void setEntityRelationshipsBeforeAdd(E entity, D dto) {
-    }
-
-    protected void checkBeforeAdd(D dto) {
-    }
+    protected void checkBeforeAdd(D dto) {}
+    protected void setEntityRelationshipsBeforeAdd(E entity, D dto) {}
+    protected void postCreate(E savedEntity) {}
 }

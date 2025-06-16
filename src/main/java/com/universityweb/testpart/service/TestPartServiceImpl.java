@@ -1,6 +1,6 @@
 package com.universityweb.testpart.service;
 
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.test.entity.Test;
 import com.universityweb.test.service.TestService;
@@ -82,9 +82,7 @@ public class TestPartServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
-        super.softDelete(id);
-
+    public void delete(Long id) {
         TestPart existingTestPart = getEntityById(id);
         existingTestPart.setIsDeleted(true);
         repository.save(existingTestPart);
@@ -92,7 +90,7 @@ public class TestPartServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find any test parts with id" + id);
+        throw new ResourceNotFoundException("Could not find any test parts with id" + id);
     }
 
     @Override

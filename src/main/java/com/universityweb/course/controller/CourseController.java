@@ -116,7 +116,7 @@ public class CourseController {
 
     @PostMapping("/delete-course")
     public ResponseEntity<String> deleteCourse(@RequestBody CourseRequest courseRequest) {
-        courseService.softDelete(courseRequest.getId());
+        courseService.delete(courseRequest.getId());
         return ResponseEntity.status(HttpStatus.OK).body("Course deleted successfully");
     }
 
@@ -154,10 +154,11 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<CourseResponse> updateStatus(
             @PathVariable Long courseId,
-            @PathVariable Course.EStatus status
+            @PathVariable Course.EStatus status,
+            @RequestParam(required = false) String reason
     ) {
         User curUser = authService.getCurUser();
-        CourseResponse courseResponse = courseService.updateStatus(curUser, courseId, status);
+        CourseResponse courseResponse = courseService.updateStatus(curUser, courseId, status, reason);
         return ResponseEntity.ok(courseResponse);
     }
 

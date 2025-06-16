@@ -16,23 +16,27 @@ public interface TestMapper extends BaseMapper<Test, TestDTO> {
     @Mapping(target = "section", ignore = true)
     Test toEntity(TestDTO testDTO);
 
-    @Named("toLockedDTO")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(source = "test.id", target = "id")
-    @Mapping(source = "test.title", target = "title")
-    @Mapping(source = "test.type", target = "type")
-    @Mapping(source = "test.section.id", target = "sectionId")
-    TestDTO toLockedDTO(Test test);
+//    @Named("toLockedDTO")
+//    @BeanMapping(ignoreByDefault = true)
+//    @Mapping(source = "test.id", target = "id")
+//    @Mapping(source = "test.title", target = "title")
+//    @Mapping(source = "test.type", target = "type")
+//    @Mapping(source = "test.section.id", target = "sectionId")
+//    TestDTO toLockedDTO(Test test);
 
     default TestDTO toDTOBasedOnIsLocked(boolean isLocked, Test test) {
-        if (isLocked) {
-            TestDTO lockedDTO = toLockedDTO(test);
-            lockedDTO.setLocked(true);
-            return lockedDTO;
-        } else {
-            TestDTO fullDTO = toDTO(test);
-            fullDTO.setLocked(false);
-            return fullDTO;
-        }
+//        if (isLocked) {
+//            TestDTO lockedDTO = toLockedDTO(test);
+//            lockedDTO.setLocked(true);
+//            return lockedDTO;
+//        } else {
+//            TestDTO fullDTO = toDTO(test);
+//            fullDTO.setLocked(false);
+//            return fullDTO;
+//        }
+
+        TestDTO fullDTO = toDTO(test);
+        fullDTO.setLocked(isLocked);
+        return fullDTO;
     }
 }

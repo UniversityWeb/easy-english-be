@@ -1,0 +1,89 @@
+@startuml
+title UC_036 – Quản lý bài luyện viết
+
+autonumber
+
+actor Teacher as User
+boundary WritingExerciseView
+boundary WritingExerciseForm
+boundary StudentProgressView
+control WritingExerciseController
+control WritingExerciseService
+entity WritingExerciseModel
+database Database
+
+== A. Tạo bài luyện viết ==
+
+User -> WritingExerciseView : Truy cập "Quản lý bài luyện viết"
+WritingExerciseView -> WritingExerciseView : Hiển thị danh sách bài luyện viết
+
+User -> WritingExerciseView : Ấn “Tạo bài mới”
+WritingExerciseView -> WritingExerciseForm : openCreateForm()
+
+User -> WritingExerciseForm : Nhập tên, mô tả, cấp độ, yêu cầu, thời gian
+User -> WritingExerciseForm : Ấn “Lưu bài viết”
+WritingExerciseForm -> WritingExerciseController : createExercise(data)
+activate WritingExerciseController
+WritingExerciseController -> WritingExerciseService : create(data)
+activate WritingExerciseService
+WritingExerciseService -> WritingExerciseModel : save()
+activate WritingExerciseModel
+WritingExerciseModel -> Database : insert
+Database --> WritingExerciseModel : success
+deactivate WritingExerciseModel
+WritingExerciseService --> WritingExerciseController : success
+deactivate WritingExerciseService
+WritingExerciseController --> WritingExerciseForm : “Bài luyện viết đã được tạo thành công”
+deactivate WritingExerciseController
+
+== B. Chỉnh sửa bài luyện viết ==
+
+User -> WritingExerciseView : Ấn biểu tượng chỉnh sửa
+WritingExerciseView -> WritingExerciseForm : openEditForm(data)
+
+User -> WritingExerciseForm : Chỉnh sửa thông tin
+User -> WritingExerciseForm : Ấn “Cập nhật”
+WritingExerciseForm -> WritingExerciseController : updateExercise(data)
+activate WritingExerciseController
+WritingExerciseController -> WritingExerciseService : update(data)
+activate WritingExerciseService
+WritingExerciseService -> WritingExerciseModel : update()
+activate WritingExerciseModel
+WritingExerciseModel -> Database : update
+Database --> WritingExerciseModel : success
+deactivate WritingExerciseModel
+WritingExerciseService --> WritingExerciseController : success
+deactivate WritingExerciseService
+WritingExerciseController --> WritingExerciseForm : “Bài luyện viết đã được cập nhật thành công”
+deactivate WritingExerciseController
+
+== C. Xóa bài luyện viết ==
+
+User -> WritingExerciseView : Ấn biểu tượng xóa
+WritingExerciseView -> WritingExerciseView : Hiển thị xác nhận
+
+User -> WritingExerciseView : Xác nhận xóa
+WritingExerciseView -> WritingExerciseController : deleteExercise(id)
+activate WritingExerciseController
+WritingExerciseController -> WritingExerciseService : delete(id)
+activate WritingExerciseService
+WritingExerciseService -> WritingExerciseModel : delete()
+activate WritingExerciseModel
+WritingExerciseModel -> Database : delete
+Database --> WritingExerciseModel : success
+deactivate WritingExerciseModel
+WritingExerciseService --> WritingExerciseController : success
+deactivate WritingExerciseService
+WritingExerciseController --> WritingExerciseView : “Bài luyện viết đã được xóa thành công”
+deactivate WritingExerciseController
+
+== D. Theo dõi tiến độ bài luyện viết ==
+
+User -> WritingExerciseView : Truy cập danh sách bài viết của học viên
+WritingExerciseView -> StudentProgressView : openProgressList()
+
+StudentProgressView -> StudentProgressView : Hiển thị danh sách + trạng thái bài
+User -> StudentProgressView : Chọn bài viết để xem chi tiết
+StudentProgressView -> StudentProgressView : Hiển thị tiến độ, nhận xét (nếu có)
+
+@enduml

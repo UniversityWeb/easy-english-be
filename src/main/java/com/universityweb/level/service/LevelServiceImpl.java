@@ -1,6 +1,7 @@
 package com.universityweb.level.service;
 
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.level.LevelRepository;
 import com.universityweb.level.entity.Level;
@@ -63,7 +64,7 @@ public class LevelServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Level not found");
+        throw new ResourceNotFoundException("Level not found");
     }
 
     @Override
@@ -82,7 +83,7 @@ public class LevelServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Level level = getEntityById(id);
         level.setIsDeleted(true);
         repository.save(level);

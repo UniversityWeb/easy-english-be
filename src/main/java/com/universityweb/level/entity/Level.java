@@ -14,6 +14,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "levels")
 @Where(clause = "is_deleted = false")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Level {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -22,9 +22,6 @@ public class OrderItem implements Serializable {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Column(name = "discount_percent")
-    private BigDecimal discountPercent;
-
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;

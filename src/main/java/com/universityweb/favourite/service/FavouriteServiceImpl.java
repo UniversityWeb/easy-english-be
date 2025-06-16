@@ -3,6 +3,7 @@ package com.universityweb.favourite.service;
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.course.entity.Course;
 import com.universityweb.course.request.CourseRequest;
@@ -57,7 +58,7 @@ public class FavouriteServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find Favourite with ID " + id);
+        throw new ResourceNotFoundException("Could not find Favourite with ID " + id);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class FavouriteServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         Favourite favourite = getEntityById(id);
         favourite.setIsDeleted(true);
         repository.save(favourite);

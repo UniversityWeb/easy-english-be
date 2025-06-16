@@ -1,0 +1,51 @@
+@startuml
+title UC_037 – Chấm điểm bài viết
+
+autonumber
+
+actor Teacher
+actor Student
+boundary GradingListView
+boundary GradingForm
+control GradingController
+control GradingService
+entity GradingModel
+database Database
+
+== Truy cập danh sách bài viết cần chấm ==
+
+Teacher -> GradingListView : Truy cập “Danh sách bài viết cần chấm”
+GradingListView -> GradingListView : Hiển thị danh sách bài chưa chấm
+
+== Mở và chấm bài viết ==
+
+Teacher -> GradingListView : Chọn bài viết
+GradingListView -> GradingForm : openGradingForm(essayData)
+
+GradingForm -> GradingForm : Hiển thị bài viết + tiêu chí chấm điểm
+
+Teacher -> GradingForm : Nhập điểm từng tiêu chí + nhận xét chi tiết
+Teacher -> GradingForm : Ấn “Lưu điểm và nhận xét”
+
+GradingForm -> GradingController : submitGrade(data)
+activate GradingController
+GradingController -> GradingService : saveGrade(data)
+activate GradingService
+GradingService -> GradingModel : save()
+activate GradingModel
+GradingModel -> Database : insert/update grade + comment
+Database --> GradingModel : success
+deactivate GradingModel
+GradingService --> GradingController : success
+deactivate GradingService
+GradingController --> GradingForm : “Điểm bài viết đã được cập nhật thành công”
+deactivate GradingController
+
+== Học viên xem điểm ==
+
+Student -> System : Truy cập danh sách bài đã nộp
+System -> Database : Truy vấn điểm và nhận xét
+Database --> System : Trả về kết quả
+System -> Student : Hiển thị điểm + nhận xét từ giáo viên
+
+@enduml

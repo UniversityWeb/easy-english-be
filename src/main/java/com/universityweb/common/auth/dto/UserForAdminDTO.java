@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class UserForAdminDTO {
 
     @Schema(description = "The unique username of the user.", example = "john_doe")

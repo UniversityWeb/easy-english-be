@@ -27,15 +27,14 @@ public class CartItem implements Serializable {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Column(name = "discount_percent")
-    private BigDecimal discountPercent;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    private Long bundleId = null;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "cart_id", nullable = false)

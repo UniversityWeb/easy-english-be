@@ -1,5 +1,7 @@
 package com.universityweb.cart.service;
 
+import com.universityweb.bundle.Bundle;
+import com.universityweb.bundle.service.BundleService;
 import com.universityweb.cart.entity.Cart;
 import com.universityweb.cart.entity.CartItem;
 import com.universityweb.cart.exception.CartItemAlreadyExistsException;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,10 +36,16 @@ public class CartServiceImpl implements CartService {
     private final CartItemRepos cartItemRepos;
     private final UserService userService;
     private final CourseService courseService;
+    private final BundleService bundleService;
 
     @Override
-    public CartItemResponse addItemToCart(String username, Long courseId) {
-        boolean isValid = existNotInCart(username, courseId);
+    public CartItemResponse addItemToCart(String username, Long courseId, Long bundleId) {
+        boolean existNotInCart = existNotInCart(username, courseId);
+        boolean isCourseInBundle = true;
+        if (bundleId != null) {
+            isCourseInBundle =  bundleService.isCourseInBundle(courseId, bundleId);
+        }
+        boolean isValid = existNotInCart && isCourseInBundle;
         if (!isValid) {
             throw new CartItemAlreadyExistsException("Item already exists");
         }
@@ -50,9 +59,9 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = CartItem.builder()
                 .status(CartItem.EStatus.ACTIVE)
                 .price(priceToUse)
-                .discountPercent(BigDecimal.ZERO)
                 .updatedAt(LocalDateTime.now())
                 .course(course)
+                .bundleId(bundleId)
                 .cart(cart)
                 .build();
 
@@ -65,12 +74,6 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartItemResponse updateItem(Long cartItemId) {
         CartItem cartItem = getCartItemByCartItemId(cartItemId);
-
-        Long courseId = cartItem.getCourse().getId();
-        Course course = courseService.getEntityById(courseId);
-
-        BigDecimal discountPercent = calculateDiscount(course.getPrice().getPrice(), cartItem.getPrice());
-        cartItem.setDiscountPercent(discountPercent);
         CartItemResponse cartItemResponse = cartItemMapper.toDTO(cartItem);
         updateCartTime(cartItem.getCart());
         return cartItemResponse;
@@ -118,6 +121,16 @@ public class CartServiceImpl implements CartService {
         CartResponse cartResponse = cartMapper.toDTO(cart);
         BigDecimal totalAmount = cartResponse.getTotalAmount();
         cartResponse.setTotalAmount(totalAmount);
+
+        try {
+            for (int i = 0; i < cart.getItems().size(); i++) {
+                CartItem c1 = cart.getItems().get(i);
+                CartItemResponse c2 = cartResponse.getItems().get(i);
+                c2.setBundleId(c1.getBundleId());
+            }
+        } catch (Exception e) {
+        }
+
         return cartResponse;
     }
 
@@ -165,6 +178,20 @@ public class CartServiceImpl implements CartService {
         List<CartItem> cartItems = cartItemRepos.findByUsernameAndCourseId(username, courseId);
         return cartItems.stream()
                 .noneMatch(cartItem -> cartItem.getStatus() == CartItem.EStatus.ACTIVE);
+    }
+
+    @Override
+    public List<CartItemResponse> addBundleToCart(String username, Long bundleId) {
+        Bundle bundle = bundleService.getEntityById(bundleId);
+        List<Long> courseIds = bundle.getCourses().stream()
+                .map(Course::getId)
+                .toList();
+        List<CartItemResponse> cartItemResponses = new ArrayList<>();
+        courseIds.forEach(courseId -> {
+            CartItemResponse cartItemResponse = addItemToCart(username, courseId, bundleId);
+            cartItemResponses.add(cartItemResponse);
+        });
+        return cartItemResponses;
     }
 
     private List<CartItem> getCartItemsToDisplay(String username) {

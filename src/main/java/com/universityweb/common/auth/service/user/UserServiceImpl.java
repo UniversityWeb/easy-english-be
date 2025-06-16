@@ -10,6 +10,7 @@ import com.universityweb.common.auth.repos.UserRepos;
 import com.universityweb.common.auth.request.GetUserFilterReq;
 import com.universityweb.common.auth.request.UpdateProfileRequest;
 import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceAlreadyExistsException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.util.AuthUtils;
 import com.universityweb.common.util.Utils;
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,7 +177,14 @@ public class UserServiceImpl
     }
 
     @Override
-    public void softDelete(String username) {
+    public void setLastLogin(String username, LocalDateTime lastLogin) {
+        User user = loadUserByUsername(username);
+        user.setLastLogin(lastLogin);
+        save(user);
+    }
+
+    @Override
+    public void delete(String username) {
         User user = loadUserByUsername(username);
         user.setStatus(User.EStatus.DELETED);
         repository.save(user);
@@ -186,7 +195,7 @@ public class UserServiceImpl
                 .orElseThrow(() -> new CustomException("User not found"));
 
         if (repository.existsById(newUsername)) {
-            throw new CustomException("Username already taken");
+            throw new ResourceAlreadyExistsException("Username already taken");
         }
 
         User newUser = User.builder()

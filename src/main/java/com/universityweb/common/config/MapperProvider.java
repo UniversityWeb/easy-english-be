@@ -1,5 +1,6 @@
 package com.universityweb.common.config;
 
+import com.universityweb.bundle.BundleMapper;
 import com.universityweb.cart.mapper.CartItemMapper;
 import com.universityweb.cart.mapper.CartMapper;
 import com.universityweb.category.mapper.CategoryMapper;
@@ -17,10 +18,13 @@ import com.universityweb.order.mapper.OrderMapper;
 import com.universityweb.payment.mapper.PaymentMapper;
 import com.universityweb.questiongroup.QuestionGroupMapper;
 import com.universityweb.review.mapper.ReviewMapper;
+import com.universityweb.section.mapper.SectionMapper;
 import com.universityweb.test.TestMapper;
 import com.universityweb.testpart.mapper.TestPartMapper;
 import com.universityweb.topic.mapper.TopicMapper;
 import com.universityweb.useranswer.UserAnswerMapper;
+import com.universityweb.writingresult.WritingResultMapper;
+import com.universityweb.writingtask.WritingTaskMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -152,5 +156,29 @@ public class MapperProvider {
     @Primary
     public ReviewMapper reviewMapper() {
         return Mappers.getMapper(ReviewMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public SectionMapper sectionMapper() {
+        return Mappers.getMapper(SectionMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public BundleMapper bundleMapper() {
+        return Mappers.getMapper(BundleMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public WritingTaskMapper writingTaskMapper() {
+        return Mappers.getMapper(WritingTaskMapper.class);
+    }
+
+    @Bean
+    @Primary
+    public WritingResultMapper writingResultMapper() {
+        return Mappers.getMapper(WritingResultMapper.class);
     }
 }

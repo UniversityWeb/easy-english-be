@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   easy-english-db:
-    image: postgres:latest
+    image: postgres:17.2
     container_name: easy-english-db
     environment:
       POSTGRES_USER: root

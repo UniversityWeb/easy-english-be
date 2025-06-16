@@ -2,7 +2,7 @@ package com.universityweb.review.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.util.FrontendRoutes;
 import com.universityweb.course.entity.Course;
@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, Long, ReviewRepository, ReviewMapper> implements ReviewService {
+public class ReviewServiceImpl
+        extends BaseServiceImpl<Review, ReviewResponse, Long, ReviewRepository, ReviewMapper>
+        implements ReviewService {
     private final CourseMapper courseMapper;
     private final CourseService courseService;
     private final UserService userService;
@@ -154,7 +156,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find review with id=" + id);
+        throw new ResourceNotFoundException("Could not find review with id=" + id);
     }
 
     private void notifyCourseRated(Course course, int rating) {
@@ -164,7 +166,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
             String courseTitle = course.getTitle();
 
             String msg = CourseContentNotification.courseRated(teacherName, courseTitle, rating);
-            String url = FrontendRoutes.getCourseDetailRoute(course.getId().toString());
+            String url = FrontendRoutes.getCourseViewDetailWithReviewTabRoute(course.getId().toString());
             AddNotificationRequest addNotiReq = AddNotificationRequest.builder()
                     .previewImage(course.getImagePreview())
                     .message(msg)
@@ -183,18 +185,18 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
         try {
             Course course = review.getCourse();
             String studentName = review.getUser().getFullName();
+            String studentUsername = review.getUser().getUsername();
             String teacherName = course.getOwner().getFullName();
-            String teacherUsername = course.getOwner().getUsername();
             String courseTitle = course.getTitle();
             String response = review.getResponse();
 
             String msg = CourseContentNotification.reviewResponded(studentName, teacherName, courseTitle, response);
-            String url = FrontendRoutes.getCourseDetailRoute(course.getId().toString());
+            String url = FrontendRoutes.getCourseViewDetailWithReviewTabRoute(course.getId().toString());
             AddNotificationRequest addNotiReq = AddNotificationRequest.builder()
                     .previewImage(course.getImagePreview())
                     .message(msg)
                     .url(url)
-                    .username(teacherUsername)
+                    .username(studentUsername)
                     .createdDate(LocalDateTime.now())
                     .build();
 
@@ -203,4 +205,7 @@ public class ReviewServiceImpl extends BaseServiceImpl<Review, ReviewResponse, L
             log.error(e);
         }
     }
+
+    @Override
+    public void delete(Long id) {}
 }

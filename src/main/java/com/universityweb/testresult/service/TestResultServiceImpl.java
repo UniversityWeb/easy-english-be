@@ -2,7 +2,7 @@ package com.universityweb.testresult.service;
 
 import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.service.user.UserService;
-import com.universityweb.common.exception.CustomException;
+import com.universityweb.common.exception.ResourceNotFoundException;
 import com.universityweb.common.infrastructure.service.BaseServiceImpl;
 import com.universityweb.common.util.Utils;
 import com.universityweb.common.websocket.WebSocketConstants;
@@ -82,7 +82,7 @@ public class TestResultServiceImpl
 
     @Override
     protected void throwNotFoundException(Long id) {
-        throw new CustomException("Could not find any test results with id=" + id);
+        throw new ResourceNotFoundException("Could not find any test results with id=" + id);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class TestResultServiceImpl
     public TestResultDTO submit(String username, SubmitTestRequest req) {
         List<SubmitTestRequest.UserAnswerDTO> answerDTOs = req.getUserAnswers();
         if (answerDTOs == null || answerDTOs.isEmpty()) {
-            throw new CustomException("Could not find any user answers");
+            throw new ResourceNotFoundException("Could not find any user answers");
         }
 
         Long testId = req.getTestId();
@@ -148,7 +148,7 @@ public class TestResultServiceImpl
     }
 
     @Override
-    public void softDelete(Long id) {
+    public void delete(Long id) {
         TestResult testResult = getEntityById(id);
         testResult.setIsDeleted(true);
         repository.save(testResult);
@@ -218,7 +218,9 @@ public class TestResultServiceImpl
 
     private void sendRealtimeNewResult(TestResult savedResult) {
         TestResultWithoutListDTO testResultWithoutListDTO = mapper.toTestResultWithoutListDTO(savedResult);
-        String destination = WebSocketConstants.testResultNotificationTopic(testResultWithoutListDTO.getTestId());
-        notificationService.sendRealtimeNotification(destination, testResultWithoutListDTO);
+        if (testResultWithoutListDTO != null) {
+            String destination = WebSocketConstants.testResultNotificationTopic(testResultWithoutListDTO.getTestId());
+            notificationService.sendRealtimeNotification(destination, testResultWithoutListDTO);
+        }
     }
 }
