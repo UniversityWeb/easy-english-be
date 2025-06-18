@@ -212,7 +212,7 @@ public class EnrollmentServiceImpl
                 .size(size)
                 .build();
         Page<CourseResponse> courseResponses;
-        if (teacherUsername == null) {
+        if (teacherUsername == null || teacherUsername.isBlank()) {
             courseResponses = courseService.getAllCourse(courseRequest);
         } else {
             courseResponses = courseService.getAllCourseOfTeacher(teacherUsername, courseRequest);
