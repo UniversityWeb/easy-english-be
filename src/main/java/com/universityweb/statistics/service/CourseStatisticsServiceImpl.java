@@ -175,6 +175,11 @@ public class CourseStatisticsServiceImpl implements CourseStatisticsService {
     }
 
     @Override
+    public List<String> getAllTeacherUsernames() {
+        return courseStatisticsRepos.findAllTeacherUsernames();
+    }
+
+    @Override
     public Page<Map<String, Object>> getTopCoursesByRevenue(String ownerUsername, int month, int year, int page, int size) {
         // Fetch the data from the repository
         Page<Object[]> results = courseStatisticsRepos.findTopCoursesByRevenue(ownerUsername, month, year, PageRequest.of(page, size));

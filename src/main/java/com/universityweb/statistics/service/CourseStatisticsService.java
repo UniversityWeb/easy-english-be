@@ -17,4 +17,6 @@ public interface CourseStatisticsService {
     List<Map<String, Object>> getUsersForSuggestions();
 
     List<Map<String, Object>> getInteractionsForSuggestions();
+
+    List<String> getAllTeacherUsernames();
 }

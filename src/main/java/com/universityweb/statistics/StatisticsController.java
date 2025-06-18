@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,5 +116,12 @@ public class StatisticsController {
     public ResponseEntity<List<Map<String, Object>>> getInteractionsForSuggestions() {
         List<Map<String, Object>> interactions = courseStatisticsService.getInteractionsForSuggestions();
         return ResponseEntity.ok(interactions);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/get-teacher-usernames")
+    public ResponseEntity<List<String>> getAllTeacherUsernames() {
+        List<String> teacherUsernames = courseStatisticsService.getAllTeacherUsernames();
+        return ResponseEntity.ok(teacherUsernames);
     }
 }
