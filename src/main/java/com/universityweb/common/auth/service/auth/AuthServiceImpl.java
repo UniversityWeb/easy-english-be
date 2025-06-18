@@ -106,6 +106,9 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = authenticateUser(username, password);
 
+        user.setLastLogin(LocalDateTime.now());
+        userService.save(user);
+
         String generatedToken = jwtGenerator.generateAndSaveToken(user);
         return LoginResponse.builder()
                 .message("Login successfully")
@@ -355,6 +358,10 @@ public class AuthServiceImpl implements AuthService {
             if (statusResponse != null) {
                 return statusResponse;
             }
+
+            existingUser.setLastLogin(LocalDateTime.now());
+            userService.save(existingUser);
+
             String generatedToken = jwtGenerator.generateAndSaveToken(existingUser);
             return LoginResponse.builder()
                     .message("OTP login successfully")
