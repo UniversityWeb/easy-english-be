@@ -68,7 +68,7 @@ public class StatisticsController {
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @GetMapping("/top-revenue/{month}/{year}")
     public ResponseEntity<Page<Map<String, Object>>> getRevenueByMonthAndYear(
-            @RequestParam String teacherUsername,
+            @RequestParam(required = false) String teacherUsername,
             @PathVariable int month,
             @PathVariable int year,
             @RequestParam int page,
