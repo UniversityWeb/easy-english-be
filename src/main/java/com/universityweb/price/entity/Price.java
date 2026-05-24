@@ -1,7 +1,6 @@
 package com.universityweb.price.entity;
 
 import com.universityweb.common.util.Utils;
-import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -39,8 +38,8 @@ public class Price {
     @Column(name = "active")
     Boolean isActive;
 
-    @OneToOne(mappedBy = "price")
-    Course course;
+    @Column(name = "course_id")
+    Long courseId;
 
     /**
      * Utility method to get the price, considering the sale price validity.

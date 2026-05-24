@@ -1,16 +1,9 @@
 package com.universityweb.course.entity;
 
-import com.universityweb.bundle.Bundle;
 import com.universityweb.category.entity.Category;
 import com.universityweb.common.auth.entity.User;
-import com.universityweb.drip.Drip;
-import com.universityweb.enrollment.entity.Enrollment;
-import com.universityweb.faq.entity.FAQ;
-import com.universityweb.favourite.entity.Favourite;
 import com.universityweb.level.entity.Level;
 import com.universityweb.price.entity.Price;
-import com.universityweb.review.entity.Review;
-import com.universityweb.section.entity.Section;
 import com.universityweb.topic.entity.Topic;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,9 +14,8 @@ import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Setter
@@ -80,50 +72,83 @@ public class Course {
     @Enumerated(EnumType.STRING)
     EDifficulty difficulty;
 
-    @ManyToOne
-    @JoinColumn(name = "username")
-    User owner;
+    @Column(name = "owner_username")
+    String ownerUsername;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "price_id", referencedColumnName = "id")
-    Price price;
+    @Column(name = "price_id")
+    Long priceId;
 
-    @ManyToOne
-    @JoinColumn(name = "topic_id")
-    Topic topic;
+    @Column(name = "topic_id")
+    Long topicId;
 
-    @ManyToOne
-    @JoinColumn(name = "level_id")
-    Level level;
+    @Column(name = "level_id")
+    Long levelId;
 
-    @ManyToMany(mappedBy = "courses")
-    private Set<Bundle> bundles = new HashSet<>();
+    @ElementCollection
+    @CollectionTable(name = "course_category", joinColumns = @JoinColumn(name = "course_id"))
+    @Column(name = "category_id")
+    List<Long> categoryIds = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Section> sections = new ArrayList<>();
+    @Transient
+    public User getOwner() {
+        if (ownerUsername == null) {
+            return null;
+        }
+        return User.builder().username(ownerUsername).build();
+    }
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<FAQ> faqs;
+    public void setOwner(User owner) {
+        this.ownerUsername = owner == null ? null : owner.getUsername();
+    }
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Review> reviews;
+    @Transient
+    public Price getPrice() {
+        if (priceId == null) {
+            return null;
+        }
+        return Price.builder().id(priceId).build();
+    }
 
-    @ManyToMany
-    @JoinTable(
-            name = "course_category",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    List<Category> categories;
+    public void setPrice(Price price) {
+        this.priceId = price == null ? null : price.getId();
+    }
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Drip> drips;
+    @Transient
+    public Topic getTopic() {
+        if (topicId == null) {
+            return null;
+        }
+        return Topic.builder().id(topicId).build();
+    }
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Enrollment> enrollments;
+    public void setTopic(Topic topic) {
+        this.topicId = topic == null ? null : topic.getId();
+    }
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Favourite> favourites;
+    @Transient
+    public Level getLevel() {
+        if (levelId == null) {
+            return null;
+        }
+        return Level.builder().id(levelId).build();
+    }
+
+    public void setLevel(Level level) {
+        this.levelId = level == null ? null : level.getId();
+    }
+
+    @Transient
+    public List<Category> getCategories() {
+        return categoryIds == null
+                ? new ArrayList<>()
+                : categoryIds.stream().map(id -> Category.builder().id(id).build()).collect(Collectors.toList());
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categoryIds = categories == null
+                ? new ArrayList<>()
+                : categories.stream().map(Category::getId).collect(Collectors.toList());
+    }
 
     public enum EStatus {
         PUBLISHED,

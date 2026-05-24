@@ -87,7 +87,7 @@ public class EnrollmentServiceImpl
         User user = userService.loadUserByUsername(addRequest.username());
         Course course = courseService.getEntityById(addRequest.courseId());
 
-        Optional<Enrollment> optionalEnrollment = repository.findByUserAndCourse(user, course);
+        Optional<Enrollment> optionalEnrollment = repository.findByUsernameAndCourseId(user.getUsername(), course.getId());
         if (optionalEnrollment.isPresent()) {
             throw new ResourceAlreadyExistsException("Enrollment already exists");
         }
@@ -129,7 +129,7 @@ public class EnrollmentServiceImpl
     @Override
     public Page<CourseResponse> getEnrolledCourses(String username, int page, int size) {
         Pageable pageable = createPageable(page, size);
-        Page<Enrollment> enrollmentsPage = repository.findByUser_UsernameAndStatusNot(username, Enrollment.EStatus.CANCELLED, pageable);
+        Page<Enrollment> enrollmentsPage = repository.findByUsernameAndStatusNot(username, Enrollment.EStatus.CANCELLED, pageable);
         return mapEnrollmentsToCourseResponses(username, enrollmentsPage);
     }
 
@@ -190,7 +190,7 @@ public class EnrollmentServiceImpl
 
     @Override
     public int refreshProgress(String username, Long courseId) {
-        Enrollment enrollment = repository.findByUser_UsernameAndCourse_Id(username, courseId)
+        Enrollment enrollment = repository.findByUsernameAndCourseId(username, courseId)
                 .orElseThrow(() -> new CustomException("Could not find any enrollments with username=" + username + ", courseId=" + courseId));
 
         int progress = calculateProgress(username, courseId);

@@ -1,10 +1,5 @@
 package com.universityweb.common.auth.entity;
 
-import com.universityweb.bundle.Bundle;
-import com.universityweb.cart.entity.Cart;
-import com.universityweb.course.entity.Course;
-import com.universityweb.message.Message;
-import com.universityweb.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -81,27 +76,6 @@ public class User implements UserDetails, Serializable {
 
     @Enumerated(EnumType.STRING)
     ECurrentLevel currentLevel;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    Cart cart;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    Token token;
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Course> courses;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Review> reviews;
-
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Message> sentMessages;
-
-    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Message> receivedMessages;
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Bundle> bundles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

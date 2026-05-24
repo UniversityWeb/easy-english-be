@@ -1,12 +1,9 @@
 package com.universityweb.category.entity;
 
-import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Where;
-
-import java.util.List;
 
 @Setter
 @Getter
@@ -26,9 +23,6 @@ public class Category {
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     Boolean isDeleted = false;
-
-    @ManyToMany(mappedBy = "categories")
-    List<Course> courses;
 
     @PrePersist
     @PreUpdate

@@ -27,9 +27,20 @@ public class Level {
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     Boolean isDeleted;
 
-    @ManyToOne
-    @JoinColumn(name = "topic_id", nullable = false)
-    Topic topic;
+    @Column(name = "topic_id", nullable = false)
+    Long topicId;
+
+    @Transient
+    public Topic getTopic() {
+        if (topicId == null) {
+            return null;
+        }
+        return Topic.builder().id(topicId).build();
+    }
+
+    public void setTopic(Topic topic) {
+        this.topicId = topic == null ? null : topic.getId();
+    }
 
     @PrePersist
     private void setDefaults() {

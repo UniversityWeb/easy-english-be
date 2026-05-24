@@ -201,7 +201,7 @@ public class CourseServiceImpl
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByStatusAndCategoriesId(Course.EStatus.PUBLISHED, categoryIds.get(0), pageable);
+        Page<Course> coursePage = repository.findByStatusAndCategoryIdsContains(Course.EStatus.PUBLISHED, categoryIds.get(0), pageable);
 
         return coursePage.map(mapper::toDTO);
     }
@@ -221,7 +221,7 @@ public class CourseServiceImpl
     @Override
     public List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest) {
         User user = userService.loadUserByUsername(courseRequest.getUsername());
-        List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
+        List<Enrollment> enrollments = enrollmentRepos.findByUsername(user.getUsername());
         List<CourseResponse> courseResponses = new ArrayList<>();
         for (Enrollment enrollment : enrollments) {
             Course course = enrollment.getCourse();
@@ -238,7 +238,7 @@ public class CourseServiceImpl
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
 
         // Lấy danh sách các khóa học mà User đã tham gia
-        List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
+        List<Enrollment> enrollments = enrollmentRepos.findByUsername(user.getUsername());
 
         // Tạo danh sách các khóa học mà User đã tham gia
         Set<Course> enrolledCourses = enrollments.stream()

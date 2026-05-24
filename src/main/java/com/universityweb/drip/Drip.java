@@ -1,6 +1,5 @@
 package com.universityweb.drip;
 
-import com.universityweb.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,9 +32,8 @@ public class Drip implements Serializable {
     @Column(name = "next_type")
     private ESourceType nextType;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
 
     public enum ESourceType {
         LESSON,
@@ -51,11 +49,11 @@ public class Drip implements Serializable {
                 prevType == drip.prevType &&
                 Objects.equals(nextId, drip.nextId) &&
                 nextType == drip.nextType &&
-                Objects.equals(course.getId(), drip.course.getId());
+                Objects.equals(courseId, drip.courseId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(prevId, prevType, nextId, nextType, course.getId());
+        return Objects.hash(prevId, prevType, nextId, nextType, courseId);
     }
 }

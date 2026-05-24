@@ -2,7 +2,6 @@ package com.universityweb.price.service;
 
 import com.universityweb.common.exception.CustomException;
 import com.universityweb.common.exception.ResourceNotFoundException;
-import com.universityweb.course.entity.Course;
 import com.universityweb.course.repository.CourseRepository;
 import com.universityweb.price.PriceRepository;
 import com.universityweb.price.entity.Price;
@@ -34,10 +33,10 @@ public class PriceService {
     }
 
     public PriceResponse getPriceByCourse(PriceRequest priceRequest) {
-        Course course = courseRepository.findById(priceRequest.getCourseId())
-                .orElseThrow(() -> new CustomException("Course not found with ID: " + priceRequest.getCourseId()));
+        courseRepository.findById(priceRequest.getCourseId())
+            .orElseThrow(() -> new CustomException("Course not found with ID: " + priceRequest.getCourseId()));
 
-        Price price = priceRepository.findByCourse(course)
+        Price price = priceRepository.findByCourseId(priceRequest.getCourseId())
                 .orElseThrow(() -> new CustomException("Price not found for course with ID: " + priceRequest.getCourseId()));
         PriceResponse priceResponse = new PriceResponse();
         BeanUtils.copyProperties(price, priceResponse);

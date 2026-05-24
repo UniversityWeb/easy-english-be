@@ -23,9 +23,8 @@ public class Review implements Serializable {
     @Column(name = "id")
     Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    Course course;
+    @Column(name = "course_id")
+    Long courseId;
 
     @Column(name = "rating")
     double rating;
@@ -39,9 +38,32 @@ public class Review implements Serializable {
     @Column(name = "created_at")
     LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    User user;
+    @Column(name = "user_id")
+    String userId;
+
+    @Transient
+    public Course getCourse() {
+        if (courseId == null) {
+            return null;
+        }
+        return Course.builder().id(courseId).build();
+    }
+
+    public void setCourse(Course course) {
+        this.courseId = course == null ? null : course.getId();
+    }
+
+    @Transient
+    public User getUser() {
+        if (userId == null) {
+            return null;
+        }
+        return User.builder().username(userId).build();
+    }
+
+    public void setUser(User user) {
+        this.userId = user == null ? null : user.getUsername();
+    }
 
     @PrePersist
     @PreUpdate
