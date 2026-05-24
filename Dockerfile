@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Set up the runtime environment
-FROM --platform=linux/amd64 openjdk:17-jdk-slim AS runtime
+FROM --platform=linux/amd64 openjdk:17.0.1-jdk-slim AS runtime
 WORKDIR /easy-english-be
 
 # Copy the built JAR file from the previous stage

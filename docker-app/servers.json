@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "EasyEnglishDB",
+      "Group": "Servers",
+      "Host": "easy-english-db",
+      "Port": 5432,
+      "MaintenanceDB": "EasyEnglish",
+      "Username": "easyenglish",
+      "Password": "easyenglish123",
+      "SSLMode": "prefer"
+    }
+  }
+}

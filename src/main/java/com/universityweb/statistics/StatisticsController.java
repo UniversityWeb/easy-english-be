@@ -13,8 +13,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,15 +66,16 @@ public class StatisticsController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @GetMapping("/top-revenue/{month}/{year}")
     public ResponseEntity<Page<Map<String, Object>>> getRevenueByMonthAndYear(
+            @RequestParam(required = false) String teacherUsername,
             @PathVariable int month,
             @PathVariable int year,
             @RequestParam int page,
             @RequestParam int size
     ) {
-        String username = authService.getCurrentUsername();
-        Page<Map<String, Object>> topCourses = courseStatisticsService.getTopCoursesByRevenue(username, month, year, page, size);
+        Page<Map<String, Object>> topCourses = courseStatisticsService.getTopCoursesByRevenue(teacherUsername, month, year, page, size);
         return ResponseEntity.ok(topCourses);
     }
 
@@ -113,5 +116,12 @@ public class StatisticsController {
     public ResponseEntity<List<Map<String, Object>>> getInteractionsForSuggestions() {
         List<Map<String, Object>> interactions = courseStatisticsService.getInteractionsForSuggestions();
         return ResponseEntity.ok(interactions);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/get-teacher-usernames")
+    public ResponseEntity<List<String>> getAllTeacherUsernames() {
+        List<String> teacherUsernames = courseStatisticsService.getAllTeacherUsernames();
+        return ResponseEntity.ok(teacherUsernames);
     }
 }

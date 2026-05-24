@@ -104,7 +104,6 @@ public class EnrollmentController extends BaseController<Enrollment, EnrollmentD
     public ResponseEntity<Page<Map<String, Object>>> getCoursesStatistics(
             @RequestBody CourseStatsFilterReq courseStatsFilterReq
     ) {
-        courseStatsFilterReq.setTeacherUsername(authService.getCurrentUsername());
         log.info("Entering getCoursesStatistics with filter request: {}", courseStatsFilterReq);
 
         Page<Map<String, Object>> courseStats = service.getCoursesStatistics(courseStatsFilterReq);

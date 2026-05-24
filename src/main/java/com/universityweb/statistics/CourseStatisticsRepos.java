@@ -47,4 +47,7 @@ public interface CourseStatisticsRepos extends CrudRepository<Order, Long> {
             @Param("month") Integer month,
             @Param("year") Integer year,
             Pageable pageable);
+
+    @Query("SELECT u.username FROM User u WHERE  u.role = 'TEACHER'")
+    List<String> findAllTeacherUsernames();
 }

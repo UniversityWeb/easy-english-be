@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  easy-english-app:
+    container_name: easy-english-app
+    build:
+      context: ..
+      dockerfile: docker-app/Dockerfile
+    environment:
+      PROD_BASE_URL: ${PROD_BASE_URL}
+      PROD_DB_URL: ${PROD_DB_URL}
+      PROD_DB_USER: ${PROD_DB_USER}
+      PROD_DB_PASSWORD: ${PROD_DB_PASSWORD}
+      PROD_REDIS_HOST: ${PROD_REDIS_HOST}
+      PROD_REDIS_PORT: ${PROD_REDIS_PORT}
+      PROD_REDIS_PASS: ${PROD_REDIS_PASS}
+      PROD_REDIS_TIMEOUT: ${PROD_REDIS_TIMEOUT}
+      PROD_MINIO_URL: ${PROD_MINIO_URL}
+      PROD_MINIO_ACCESS_KEY: ${PROD_MINIO_ACCESS_KEY}
+      PROD_MINIO_SECRET_KEY: ${PROD_MINIO_SECRET_KEY}
+      PROD_MINIO_BUCKET_NAME: ${PROD_MINIO_BUCKET_NAME}
+      PROD_JWT_SECRET_KEY: ${PROD_JWT_SECRET_KEY}
+      PROD_FRONTEND_URL: ${PROD_FRONTEND_URL}
+      PROD_SENDING_EMAIL_ADDRESS: ${PROD_SENDING_EMAIL_ADDRESS}
+      PROD_SENDING_EMAIL_PASSWORD: ${PROD_SENDING_EMAIL_PASSWORD}
+      PROD_VNPAY_PAY_URL: ${PROD_VNPAY_PAY_URL}
+      PROD_VNPAY_TMN_CODE: ${PROD_VNPAY_TMN_CODE}
+      PROD_VNPAY_HASH_SECRET: ${PROD_VNPAY_HASH_SECRET}
+      PROD_GOOGLE_CLIENT_ID: ${PROD_GOOGLE_CLIENT_ID}
+      PROD_GOOGLE_CLIENT_SECRET: ${PROD_GOOGLE_CLIENT_SECRET}
+      PROD_GEMINI_URL: ${PROD_GEMINI_URL}
+      PROD_GEMINI_API_KEY: ${PROD_GEMINI_API_KEY}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+    ports:
+      - "8001:8001"
+    volumes:
+      - ..:/easy-english
+      - ~/.m2:/root/.m2
+    networks:
+      - easy-english-net
+    restart: unless-stopped
+
+networks:
+  easy-english-net:
+    driver: bridge
