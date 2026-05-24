@@ -3,32 +3,42 @@ package com.universityweb.level.controller;
 import com.universityweb.level.request.LevelRequest;
 import com.universityweb.level.service.LevelService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
-@RequestMapping("/api/v1/level")
 @RestController
+@RequestMapping("/api/v1/levels")
 @Tag(name = "Levels")
+@RequiredArgsConstructor
 public class LevelController {
-    @Autowired
-    private LevelService levelService;
-    @PostMapping("create-level")
+
+    private final LevelService levelService;
+
+    public LevelController(LevelService levelService) {
+        this.levelService = levelService;
+    }
+
+    @PostMapping("/create")
     public ResponseEntity<String> createLevel(@RequestBody LevelRequest levelRequest) {
         levelService.createLevel(levelRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Level added successfully");
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Level created successfully");
     }
 
-    @PostMapping("update-level")
+    @PutMapping("/update")
     public ResponseEntity<String> updateLevel(@RequestBody LevelRequest levelRequest) {
         levelService.updateLevel(levelRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Level updated successfully");
+        return ResponseEntity
+                .ok("Level updated successfully");
     }
 
-    @PostMapping("get-all-level-by-topic")
-    public ResponseEntity<?> getLevelByTopic(@RequestBody LevelRequest levelRequest) {
-        return ResponseEntity.ok(levelService.getLevelByTopic(levelRequest));
+    @PostMapping("/by-topic")
+    public ResponseEntity<?> getLevelsByTopic(@RequestBody LevelRequest levelRequest) {
+        return ResponseEntity.ok(
+                levelService.getLevelByTopic(levelRequest)
+        );
     }
 }
