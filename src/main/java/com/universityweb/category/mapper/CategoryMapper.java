@@ -11,7 +11,6 @@ public interface CategoryMapper extends BaseMapper<Category, CategoryResponse> {
     @Override
     CategoryResponse toDTO(Category entity);
 
-    @Mapping(target = "courses", ignore = true)
     @Override
     Category toEntity(CategoryResponse dto);
 }

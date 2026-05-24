@@ -7,9 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface DripMapper extends BaseMapper<Drip, DripDTO> {
-    @Mapping(source = "course.id", target = "courseId")
+    @Mapping(source = "courseId", target = "courseId")
     DripDTO toDTO(Drip entity);
 
-    @Mapping(target = "course", ignore = true)
     Drip toEntity(DripDTO dto);
 }

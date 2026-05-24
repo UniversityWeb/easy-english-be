@@ -11,7 +11,6 @@ public interface PriceMapper extends BaseMapper<Price, PriceResponse> {
     @Override
     PriceResponse toDTO(Price entity);
 
-    @Mapping(target = "course", ignore = true)
     @Override
     Price toEntity(PriceResponse dto);
 }

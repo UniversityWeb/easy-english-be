@@ -16,7 +16,6 @@ public interface FAQMapper {
 
     List<FAQResponse> toDTOs(List<FAQ> entities);
 
-    @Mapping(target = "course", ignore = true)
     FAQ toEntity(FAQResponse dto);
 
     List<FAQ> toEntities(List<FAQResponse> dtos);
