@@ -137,8 +137,6 @@ public class CourseServiceImpl
         price.setSalePrice(BigDecimal.valueOf(0));
         course.setPrice(price);
 
-        price.setCourse(course);
-
         Level level = levelRepository.findById(courseRequest.getLevelId())
                 .orElseThrow(() -> new CustomException("Level not found"));
         course.setLevel(level);
@@ -319,7 +317,7 @@ public class CourseServiceImpl
         courseResponse.setRating(Double.parseDouble(formattedRating));
         courseResponse.setRatingCount((long) reviews.size());
         courseResponse.setCountStudent(enrollmentRepos.countSalesByCourseId(course.getId()));
-        courseResponse.setCountSection((long) course.getSections().size());
+        courseResponse.setCountSection((long) sectionRepository.findByCourseId(course.getId()).size());
 
         return courseResponse;
     }

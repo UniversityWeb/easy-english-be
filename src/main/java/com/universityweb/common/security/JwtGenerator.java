@@ -103,7 +103,7 @@ public class JwtGenerator implements Serializable {
         LocalDateTime curTime = LocalDateTime.now();
         LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
         String generatedToken = generateToken(user.getUsername(), curTime, expirationTime);
-        Token existingToken = user.getToken();
+        Token existingToken = tokenRepos.findByUser_Username(user.getUsername()).orElse(null);
         Token newToken;
         if (existingToken != null) {
             existingToken.setTokenStr(generatedToken);

@@ -82,8 +82,7 @@ public class DripServiceImpl
 
     @Override
     protected void setEntityRelationshipsBeforeAdd(Drip entity, DripDTO dto) {
-        Course course = courseService.getEntityById(dto.getCourseId());
-        entity.setCourse(course);
+        entity.setCourseId(dto.getCourseId());
     }
 
     @Override
@@ -159,7 +158,7 @@ public class DripServiceImpl
             List<DripsOfPrevDTO> dripsUpdateRequest
     ) {
         repository.deleteByCourseId(courseId);
-        Course course = courseService.getEntityById(courseId);
+        courseService.getEntityById(courseId);
 
         Set<Drip> uniqueDrips = new HashSet<>();
         for (DripsOfPrevDTO dripsOfPrevDTO : dripsUpdateRequest) {
@@ -175,7 +174,7 @@ public class DripServiceImpl
                         .prevId(prevId)
                         .nextType(nextType)
                         .nextId(nextId)
-                        .course(course)
+                    .courseId(courseId)
                         .build();
                 uniqueDrips .add(drip);
             });

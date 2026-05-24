@@ -209,12 +209,13 @@ public class UserServiceImpl
                 .dob(user.getDob())
                 .role(user.getRole())
                 .createdAt(user.getCreatedAt())
+                .lastLogin(user.getLastLogin())
                 .status(user.getStatus())
                 .avatarPath(user.getAvatarPath())
-                .cart(user.getCart())
-                .token(user.getToken())
-                .courses(user.getCourses())
-                .reviews(user.getReviews())
+            .settings(user.getSettings())
+            .preferredSkill(user.getPreferredSkill())
+            .learningGoal(user.getLearningGoal())
+            .currentLevel(user.getCurrentLevel())
                 .build();
 
         repository.save(newUser);

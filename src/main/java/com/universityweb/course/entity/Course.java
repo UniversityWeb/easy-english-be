@@ -141,7 +141,7 @@ public class Course {
     public List<Category> getCategories() {
         return categoryIds == null
                 ? new ArrayList<>()
-                : categoryIds.stream().map(id -> Category.builder().id(id).build()).collect(Collectors.toList());
+                : categoryIds.stream().map(categoryId -> Category.builder().id(categoryId).build()).collect(Collectors.toList());
     }
 
     public void setCategories(List<Category> categories) {

@@ -98,8 +98,8 @@ public class EnrollmentServiceImpl
                 .type(addRequest.type())
                 .createdAt(addRequest.createdAt())
                 .lastAccessed(addRequest.lastAccessed())
-                .user(user)
-                .course(course)
+            .username(user.getUsername())
+            .courseId(course.getId())
                 .build();
         try {
             Enrollment saved = repository.save(enrollment);
