@@ -20,7 +20,6 @@ public interface CourseMapper extends BaseMapper<Course, CourseResponse> {
     @Override
     Course toEntity(CourseResponse dto);
 
-    @Mapping(target = "price", ignore = true)
     Course toEntity(CourseRequest dto);
 
     @Mapping(target = "id", ignore = true)
