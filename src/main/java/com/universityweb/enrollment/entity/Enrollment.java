@@ -39,15 +39,37 @@ public class Enrollment implements Serializable {
     @Column(name = "last_accessed")
     LocalDateTime lastAccessed;
 
-    @ManyToOne
-    @JoinColumn(name = "username")
+    @Column(name = "username")
     @JsonBackReference
-    User user;
+    String username;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @Column(name = "course_id")
     @JsonBackReference
-    Course course;
+    Long courseId;
+
+    @Transient
+    public User getUser() {
+        if (username == null) {
+            return null;
+        }
+        return User.builder().username(username).build();
+    }
+
+    public void setUser(User user) {
+        this.username = user == null ? null : user.getUsername();
+    }
+
+    @Transient
+    public Course getCourse() {
+        if (courseId == null) {
+            return null;
+        }
+        return Course.builder().id(courseId).build();
+    }
+
+    public void setCourse(Course course) {
+        this.courseId = course == null ? null : course.getId();
+    }
 
     public enum EStatus {
         ACTIVE,

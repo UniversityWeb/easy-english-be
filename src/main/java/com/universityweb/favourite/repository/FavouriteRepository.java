@@ -14,29 +14,23 @@ import java.util.Optional;
 
 @Repository
 public interface FavouriteRepository extends JpaRepository<Favourite, Long>{
-    Optional<Favourite> findByUser_UsernameAndCourse_IdAndIsDeletedFalse(String username, Long courseId);
-    Page<Favourite> findByUser_UsernameAndIsDeletedFalse(String username, Pageable pageable);
+        Optional<Favourite> findByUsernameAndCourseIdAndIsDeletedFalse(String username, Long courseId);
+        Page<Favourite> findByUsernameAndIsDeletedFalse(String username, Pageable pageable);
 
     @Query("SELECT f FROM Favourite f " +
-            "JOIN f.course c " +
-            "JOIN c.categories cat " +
-            "JOIN c.topic t " +
-            "JOIN c.level l " +
-            "JOIN c.price p " +
-            "LEFT JOIN c.reviews r " +
-            "WHERE f.user.username = :username " +
+            "JOIN Course c ON c.id = f.courseId " +
+            "WHERE f.username = :username " +
             "AND f.isDeleted = false " +
-            "AND (:categoryId IS NULL OR cat.id IN :categoryId) " +
-            "AND (:topicId IS NULL OR t.id = :topicId) " +
+            "AND (:categoryId IS NULL OR EXISTS (SELECT cid FROM c.categoryIds cid WHERE cid IN :categoryId)) " +
+            "AND (:topicId IS NULL OR c.topicId = :topicId) " +
             "AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) " +
-            "AND (:levelId IS NULL OR l.id = :levelId) " +
-            "AND (:price IS NULL OR (" +
-            "  (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate " +
-            "  AND c.price.salePrice <= :price) " +
-            "  OR (c.price.price <= :price))" +
-            ") " +
-            "GROUP BY f.id " +
-            "HAVING (:rating IS NULL OR AVG(r.rating) >= :rating) " +
+            "AND (:levelId IS NULL OR c.levelId = :levelId) " +
+            "AND (:price IS NULL OR EXISTS (" +
+            "  SELECT p.id FROM Price p WHERE p.id = c.priceId " +
+            "  AND ((p.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN p.startDate AND p.endDate " +
+            "  AND p.salePrice <= :price) OR (p.price <= :price))" +
+            ")) " +
+            "AND (:rating IS NULL OR (SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.courseId = c.id) >= :rating) " +
             "ORDER BY f.createdAt DESC")
     Page<Favourite> findByUserAndFilter(
             @Param("username") String username,

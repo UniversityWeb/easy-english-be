@@ -1,13 +1,9 @@
 package com.universityweb.topic.entity;
 
-import com.universityweb.course.entity.Course;
-import com.universityweb.level.entity.Level;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Where;
-
-import java.util.List;
 
 @Entity
 @Setter
@@ -27,12 +23,6 @@ public class Topic {
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     Boolean isDeleted = false;
-
-    @OneToMany(mappedBy = "topic")
-    List<Course> courses;
-
-    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
-    List<Level> levels;
 
     @PrePersist
     private void setDefaults() {

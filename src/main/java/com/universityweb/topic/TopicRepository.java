@@ -15,7 +15,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     @Query("""
         SELECT c 
         FROM Course c
-        WHERE c.topic.id = (SELECT ct.topic.id FROM Course ct WHERE ct.id = :courseId)
+                WHERE c.topicId = (SELECT ct.topicId FROM Course ct WHERE ct.id = :courseId)
           AND c.id != :courseId
           AND c.status = 'PUBLISHED'
     """)

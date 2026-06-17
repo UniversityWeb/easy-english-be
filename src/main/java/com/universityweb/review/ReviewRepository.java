@@ -14,21 +14,21 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByCourseIdAndRating(Long courseId, double rating);
 
     @Query("SELECT c, AVG(r.rating), COUNT(r.id) " +
-            "FROM Review r JOIN r.course c " +
+            "FROM Review r JOIN Course c ON c.id = r.courseId " +
             "GROUP BY c.id, c.countView, c.createdAt, c.description, c.descriptionPreview, c.duration, c.imagePreview, " +
-            "c.status, c.level.id, c.owner.username, c.price.id, c.title, c.topic.id, c.updatedAt, c.videoPreview " +
+            "c.status, c.levelId, c.ownerUsername, c.priceId, c.title, c.topicId, c.updatedAt, c.videoPreview " +
             "ORDER BY AVG(r.rating) DESC")
     List<Object[]> getTop10CoursesByRating();
 
     @Query("""
         SELECT c, AVG(r.rating), COUNT(r.id)
         FROM Review r
-        JOIN r.course c
-        WHERE (:ownerUsername IS NULL OR c.owner.username = :ownerUsername)
+        JOIN Course c ON c.id = r.courseId
+        WHERE (:ownerUsername IS NULL OR c.ownerUsername = :ownerUsername)
         AND (:month IS NULL OR MONTH(r.createdAt) = :month)
         AND (:year IS NULL OR YEAR(r.createdAt) = :year)
         GROUP BY c.id, c.countView, c.createdAt, c.description, c.descriptionPreview, c.duration, c.imagePreview,
-                 c.status, c.level.id, c.owner.username, c.price.id, c.title, c.topic.id, c.updatedAt, c.videoPreview
+                 c.status, c.levelId, c.ownerUsername, c.priceId, c.title, c.topicId, c.updatedAt, c.videoPreview
         ORDER BY AVG(r.rating) DESC
     """)
     Page<Object[]> getTopCoursesByRating(

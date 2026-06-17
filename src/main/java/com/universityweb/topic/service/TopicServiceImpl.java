@@ -57,11 +57,6 @@ public class TopicServiceImpl
     @Override
     public TopicResponse update(Long id, TopicResponse dto) {
         Topic currentTopic = getEntityById(id);
-
-        if (!currentTopic.getCourses().isEmpty()) {
-            throw new IllegalStateException("Topic update failed: associated with courses");
-        }
-
         currentTopic.setName(dto.getName());
         return savedAndConvertToDTO(currentTopic);
     }
@@ -69,11 +64,6 @@ public class TopicServiceImpl
     @Override
     public void delete(Long id) {
         Topic topic = getEntityById(id);
-
-        if (!topic.getCourses().isEmpty()) {
-            throw new IllegalStateException("Topic delete failed: associated with courses");
-        }
-
         topic.setIsDeleted(true);
         repository.save(topic);
     }

@@ -9,14 +9,12 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface LevelMapper extends BaseMapper<Level, LevelResponse> {
-    @Mapping(source = "topic.id", target = "topicId")
+    @Mapping(source = "topicId", target = "topicId")
     @Override
     LevelResponse toDTO(Level entity);
 
-    @Mapping(target = "topic", ignore = true)
     @Override
     Level toEntity(LevelResponse dto);
 
-    @Mapping(target = "topic", ignore = true)
     Level toEntity(LevelRequest dto);
 }

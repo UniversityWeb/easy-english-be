@@ -79,7 +79,7 @@ public class FavouriteServiceImpl
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // Get paginated list of favorites
-        Page<Favourite> favouritesPage = repository.findByUser_UsernameAndIsDeletedFalse(username, pageable);
+        Page<Favourite> favouritesPage = repository.findByUsernameAndIsDeletedFalse(username, pageable);
 
         // Map favorites to CourseResponse
         return favouritesPage.map(favourite -> courseService.mapCourseToResponse(favourite.getCourse()));
@@ -111,13 +111,13 @@ public class FavouriteServiceImpl
 
     @Override
     public Boolean checkCourseInFavorite(String username, Long courseId) {
-        Optional<Favourite> optionalFavourite = repository.findByUser_UsernameAndCourse_IdAndIsDeletedFalse(username, courseId);
+        Optional<Favourite> optionalFavourite = repository.findByUsernameAndCourseIdAndIsDeletedFalse(username, courseId);
         return optionalFavourite.isPresent();
     }
 
     @Override
     public Favourite getByUsernameAndCourseId(String username, Long courseId) {
-        return repository.findByUser_UsernameAndCourse_IdAndIsDeletedFalse(username, courseId)
+        return repository.findByUsernameAndCourseIdAndIsDeletedFalse(username, courseId)
                 .orElseThrow(() -> new CustomException("Could not find Favourite with ID " + courseId));
     }
 }

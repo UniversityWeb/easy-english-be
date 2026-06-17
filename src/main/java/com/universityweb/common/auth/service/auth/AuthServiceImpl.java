@@ -26,8 +26,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.universityweb.common.security.SecurityUtils;
+import com.universityweb.common.auth.response.SessionResponse;
+import com.universityweb.common.infrastructure.search.dto.FilterRequest;
+import com.universityweb.common.infrastructure.search.dto.SearchRequest;
+import com.universityweb.common.infrastructure.search.operator.FilterOperator;
+import com.universityweb.common.infrastructure.search.specification.GenericSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -90,6 +102,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
+        return login(loginRequest, "Unknown Device", "127.0.0.1", "Unknown Location");
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse login(LoginRequest loginRequest, String deviceInfo, String ipAddress, String loginLocation) {
         String usernameOrEmail = loginRequest.usernameOrEmail();
         String password = loginRequest.password();
 
@@ -106,11 +124,12 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = authenticateUser(username, password);
 
-        String generatedToken = jwtGenerator.generateAndSaveToken(user);
+        Token generatedToken = jwtGenerator.generateAndSaveToken(user, deviceInfo, ipAddress, loginLocation);
         return LoginResponse.builder()
                 .message("Login successfully")
                 .tokenType("Bearer")
-                .tokenStr(generatedToken)
+                .tokenStr(generatedToken.getTokenStr())
+                .refreshTokenStr(generatedToken.getRefreshTokenStr())
                 .user(uMapper.toDTO(user))
                 .accountStatus(User.EStatus.ACTIVE)
                 .build();
@@ -118,14 +137,33 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout() {
+        revokeAllDevices();
+    }
+
+    @Override
+    @Transactional
+    public void logoutDevice(String tokenStr) {
+        if (tokenStr != null) {
+            if (tokenStr.startsWith("Bearer ")) {
+                tokenStr = tokenStr.substring(7);
+            }
+            tokenRepos.deleteByTokenStr(tokenStr);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void revokeAllDevices() {
         User user = getCurUser();
-        tokenRepos.deleteByUser(user);
+        tokenRepos.deleteByUserUsername(user.getUsername());
     }
 
     @Override
     public UserDTO getUserByTokenStr(String tokenStr) {
-        jwtGenerator.isValidToken(tokenStr);
-        Token token = tokenRepos.findByTokenStr(tokenStr)
+        if (!jwtGenerator.isValidToken(tokenStr)) {
+            throw new BadCredentialsException("Invalid or expired token");
+        }
+        Token token = tokenRepos.findWithUserByTokenStr(tokenStr)
                 .orElseThrow(() -> new TokenNotFoundException(tokenStr));
         return uMapper.toDTO(token.getUser());
     }
@@ -178,6 +216,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse loginWithOtp(OtpRequest loginWithOtpRequest) {
+        return loginWithOtp(loginWithOtpRequest, "Unknown Device", "127.0.0.1", "Unknown Location");
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse loginWithOtp(OtpRequest loginWithOtpRequest, String deviceInfo, String ipAddress, String loginLocation) {
         String username = loginWithOtpRequest.username();
         String otp = loginWithOtpRequest.otp();
         User user = userService.loadUserByUsername(username);
@@ -190,11 +234,12 @@ public class AuthServiceImpl implements AuthService {
         otpService.validateOtp(email, otp, OtpService.EPurpose.LOGIN);
         otpService.invalidateOtp(email, OtpService.EPurpose.LOGIN);
 
-        String generatedToken = jwtGenerator.generateAndSaveToken(user);
+        Token generatedToken = jwtGenerator.generateAndSaveToken(user, deviceInfo, ipAddress, loginLocation);
         return LoginResponse.builder()
                 .message("OTP login successfully")
                 .tokenType("Bearer")
-                .tokenStr(generatedToken)
+                .tokenStr(generatedToken.getTokenStr())
+                .refreshTokenStr(generatedToken.getRefreshTokenStr())
                 .user(uMapper.toDTO(user))
                 .accountStatus(User.EStatus.ACTIVE)
                 .build();
@@ -332,6 +377,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse loginWithGoogle(GoogleLoginRequest request) {
+        return loginWithGoogle(request, "Unknown Device", "127.0.0.1", "Unknown Location");
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse loginWithGoogle(GoogleLoginRequest request, String deviceInfo, String ipAddress, String loginLocation) {
         String idToken = request.token();
         if (idToken == null || idToken.isEmpty()) {
             throw new BadCredentialsException("Invalid token");
@@ -355,17 +406,72 @@ public class AuthServiceImpl implements AuthService {
             if (statusResponse != null) {
                 return statusResponse;
             }
-            String generatedToken = jwtGenerator.generateAndSaveToken(existingUser);
+            Token generatedToken = jwtGenerator.generateAndSaveToken(existingUser, deviceInfo, ipAddress, loginLocation);
             return LoginResponse.builder()
                     .message("OTP login successfully")
                     .tokenType("Bearer")
-                    .tokenStr(generatedToken)
+                    .tokenStr(generatedToken.getTokenStr())
+                    .refreshTokenStr(generatedToken.getRefreshTokenStr())
                     .user(uMapper.toDTO(existingUser))
                     .accountStatus(User.EStatus.ACTIVE)
                     .build();
         } catch (Exception e) {
             throw new CustomException("Error during verify Google Account: " + e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse refreshToken(RefreshTokenRequest request) {
+        String refreshTokenStr = request.refreshTokenStr();
+        Token token = tokenRepos.findWithUserByRefreshTokenStr(refreshTokenStr)
+                .orElseThrow(() -> new TokenNotFoundException("Invalid Refresh Token"));
+
+        if (token.isUsed() || token.isRevoked()) {
+            tokenRepos.deleteByUserUsername(token.getUser().getUsername());
+            throw new SecurityException("Security Alert: Refresh Token reuse detected. All sessions revoked.");
+        }
+
+        if (token.getRefreshExpiryDate().isBefore(LocalDateTime.now())) {
+            tokenRepos.delete(token);
+            throw new ExpiredTokenException("Refresh Token has expired. Please login again.");
+        }
+
+        User user = token.getUser();
+
+        token.setUsed(true);
+        tokenRepos.save(token);
+
+        LocalDateTime curTime = LocalDateTime.now();
+        LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
+        String generatedToken = jwtGenerator.generateToken(user.getUsername(), curTime, expirationTime);
+
+        String generatedRefreshToken = java.util.UUID.randomUUID().toString();
+        LocalDateTime refreshExpirationTime = curTime.plus(7, ChronoUnit.DAYS);
+
+        Token newToken = Token.builder()
+                .tokenStr(generatedToken)
+                .expiryDate(expirationTime)
+                .refreshTokenStr(generatedRefreshToken)
+                .refreshExpiryDate(refreshExpirationTime)
+                .deviceInfo(token.getDeviceInfo())
+                .ipAddress(token.getIpAddress())
+                .loginLocation(token.getLoginLocation())
+                .user(user)
+                .used(false)
+                .revoked(false)
+                .build();
+
+        tokenRepos.save(newToken);
+
+        return LoginResponse.builder()
+                .message("Token refreshed successfully")
+                .tokenType("Bearer")
+                .tokenStr(generatedToken)
+                .refreshTokenStr(generatedRefreshToken)
+                .user(uMapper.toDTO(user))
+                .accountStatus(User.EStatus.ACTIVE)
+                .build();
     }
 
     private UserDTO saveUserAndConvertToDTO(User user) {
@@ -409,5 +515,54 @@ public class AuthServiceImpl implements AuthService {
 
     private Authentication authenticateUser(String username, String password) {
         return authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+    }
+
+    @Override
+    public Page<SessionResponse> getActiveSessions(String authHeader, SearchRequest searchRequest) {
+        User user = getCurUser();
+        String currentToken = authHeader != null ? authHeader.replace("Bearer ", "").trim() : "";
+
+        // Enforce user scope and active sessions constraint
+        FilterRequest userFilter = new FilterRequest();
+        userFilter.setField("user.username");
+        userFilter.setOperator(FilterOperator.EQ);
+        userFilter.setValue(user.getUsername());
+
+        FilterRequest revokedFilter = new FilterRequest();
+        revokedFilter.setField("revoked");
+        revokedFilter.setOperator(FilterOperator.EQ);
+        revokedFilter.setValue(false);
+
+        searchRequest.getFilters().add(userFilter);
+        searchRequest.getFilters().add(revokedFilter);
+
+        GenericSpecification<Token> spec = new GenericSpecification<>(searchRequest);
+
+        List<Sort.Order> orders = searchRequest.getSort().stream()
+                .map(s -> new Sort.Order(s.getDirection(), s.getField()))
+                .collect(Collectors.toList());
+        Sort sort = orders.isEmpty() ? Sort.unsorted() : Sort.by(orders);
+        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
+
+        Page<Token> tokensPage = tokenRepos.findAll(spec, pageable);
+
+        return tokensPage.map(t -> SessionResponse.builder()
+                .id(t.getId())
+                .deviceInfo(t.getDeviceInfo())
+                .ipAddress(t.getIpAddress())
+                .loginLocation(t.getLoginLocation())
+                .expiryDate(t.getExpiryDate())
+                .isCurrent(currentToken.equals(t.getTokenStr()))
+                .build());
+    }
+
+    @Override
+    @Transactional
+    public void revokeSession(Long id) {
+        User user = getCurUser();
+        Token token = tokenRepos.findById(id).orElse(null);
+        if (token != null && token.getUser().getUsername().equals(user.getUsername())) {
+            tokenRepos.delete(token);
+        }
     }
 }

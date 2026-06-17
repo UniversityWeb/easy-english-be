@@ -29,7 +29,7 @@ public interface CourseStatisticsRepos extends CrudRepository<Order, Long> {
     List<Map<String, Object>> findRevenueByYear(int year);
 
     @Query("""
-        SELECT c.id, c.imagePreview, c.title, SUM(oi.price) AS totalRevenue, c.owner.username AS ownerUsername
+        SELECT c.id, c.imagePreview, c.title, SUM(oi.price) AS totalRevenue, c.ownerUsername AS ownerUsername
         FROM OrderItem oi
         JOIN oi.course c
         JOIN oi.order o 
@@ -38,8 +38,8 @@ public interface CourseStatisticsRepos extends CrudRepository<Order, Long> {
         AND oi.price != 0
         AND (:month IS NULL OR MONTH(o.createdAt) = :month)
         AND (:year IS NULL OR YEAR(o.createdAt) = :year)
-        AND (:ownerUsername IS NULL OR c.owner.username = :ownerUsername)
-        GROUP BY c.id, c.title 
+        AND (:ownerUsername IS NULL OR c.ownerUsername = :ownerUsername)
+        GROUP BY c.id, c.imagePreview, c.title, c.ownerUsername
         ORDER BY totalRevenue DESC
     """)
     Page<Object[]> findTopCoursesByRevenue(

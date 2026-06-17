@@ -24,8 +24,29 @@ public class Token implements Serializable {
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "username")
+    @Column(columnDefinition = "TEXT")
+    private String refreshTokenStr;
+
+    @Column(name = "refresh_expiry_date")
+    private LocalDateTime refreshExpiryDate;
+
+    @Column(name = "device_info", columnDefinition = "TEXT")
+    private String deviceInfo;
+
+    @Column(name = "ip_address")
+    private String ipAddress;
+
+    @Column(name = "login_location")
+    private String loginLocation;
+
+    @Column(name = "used", nullable = false)
+    private boolean used = false;
+
+    @Column(name = "revoked", nullable = false)
+    private boolean revoked = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "username", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
     @PrePersist

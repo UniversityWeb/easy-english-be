@@ -9,13 +9,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface FavouriteMapper extends BaseMapper<Favourite, FavouriteDTO> {
 
-    @Mapping(source = "user.username", target = "username")
-    @Mapping(source = "course.id", target = "courseId")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "courseId", target = "courseId")
     @Override
     FavouriteDTO toDTO(Favourite entity);
 
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "course", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
     @Override
     Favourite toEntity(FavouriteDTO dto);

@@ -31,15 +31,37 @@ public class Favourite  {
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isDeleted;
 
-    @ManyToOne
-    @JoinColumn(name = "username")
+    @Column(name = "username")
     @JsonBackReference
-    private User user;
+    private String username;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @Column(name = "course_id")
     @JsonBackReference
-    private Course course;
+    private Long courseId;
+
+    @Transient
+    public User getUser() {
+        if (username == null) {
+            return null;
+        }
+        return User.builder().username(username).build();
+    }
+
+    public void setUser(User user) {
+        this.username = user == null ? null : user.getUsername();
+    }
+
+    @Transient
+    public Course getCourse() {
+        if (courseId == null) {
+            return null;
+        }
+        return Course.builder().id(courseId).build();
+    }
+
+    public void setCourse(Course course) {
+        this.courseId = course == null ? null : course.getId();
+    }
 
     @PrePersist
     @PreUpdate

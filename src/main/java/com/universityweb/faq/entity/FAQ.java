@@ -24,8 +24,19 @@ public class FAQ {
     @Column(name = "answer")
     private String answer;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @Column(name = "course_id")
     @JsonBackReference
-    private Course course;
+    private Long courseId;
+
+    @Transient
+    public Course getCourse() {
+        if (courseId == null) {
+            return null;
+        }
+        return Course.builder().id(courseId).build();
+    }
+
+    public void setCourse(Course course) {
+        this.courseId = course == null ? null : course.getId();
+    }
 }

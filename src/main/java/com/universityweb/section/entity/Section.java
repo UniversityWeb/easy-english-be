@@ -1,17 +1,12 @@
 package com.universityweb.section.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.universityweb.course.entity.Course;
-import com.universityweb.lesson.entity.Lesson;
-import com.universityweb.test.entity.Test;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -41,18 +36,21 @@ public class Section {
     @Column(name = "updated_at")
     private String updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @Column(name = "course_id")
     @JsonBackReference
-    private Course course;
+    private Long courseId;
 
-    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Lesson> lessons;
+    @Transient
+    public Course getCourse() {
+        if (courseId == null) {
+            return null;
+        }
+        return Course.builder().id(courseId).build();
+    }
 
-    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Test> tests;
+    public void setCourse(Course course) {
+        this.courseId = course == null ? null : course.getId();
+    }
 
     public enum EStatus {
         DISPLAY,

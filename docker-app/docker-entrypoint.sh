@@ -57,4 +57,4 @@ echo "  - Min compilation interval: ${MIN_COMPILATION_INTERVAL_SECONDS}s"
 ) &
 
 echo "Starting Spring Boot application on port 8001"
-exec mvn spring-boot:run -Dspring-boot.run.fork=false
+exec mvn spring-boot:run -Dspring-boot.run.fork=false -Dmaven.test.skip=true

@@ -11,8 +11,6 @@ public interface TopicMapper extends BaseMapper<Topic, TopicResponse> {
     @Override
     TopicResponse toDTO(Topic entity);
 
-    @Mapping(target = "courses", ignore = true)
-    @Mapping(target = "levels", ignore = true)
     @Override
     Topic toEntity(TopicResponse dto);
 }

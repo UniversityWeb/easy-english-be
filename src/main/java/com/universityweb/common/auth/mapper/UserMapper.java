@@ -22,13 +22,6 @@ public interface UserMapper extends BaseMapper<User, UserDTO> {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "username", ignore = true)
-    @Mapping(target = "cart", ignore = true)
-    @Mapping(target = "token", ignore = true)
-    @Mapping(target = "courses", ignore = true)
-    @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "sentMessages", ignore = true)
-    @Mapping(target = "receivedMessages", ignore = true)
-    @Mapping(target = "bundles", ignore = true)
     @Override
     User toEntity(UserDTO userDTO);
 

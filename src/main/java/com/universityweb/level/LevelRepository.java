@@ -17,7 +17,7 @@ public interface LevelRepository extends JpaRepository<Level, Long> {
     @Query("""
         SELECT c 
         FROM Course c
-        WHERE c.level.id = (SELECT cl.level.id FROM Course cl WHERE cl.id = :courseId)
+        WHERE c.levelId = (SELECT cl.levelId FROM Course cl WHERE cl.id = :courseId)
           AND c.id != :courseId
           AND c.status = 'PUBLISHED'
         ORDER BY function('random')

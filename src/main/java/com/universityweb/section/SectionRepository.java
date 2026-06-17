@@ -11,7 +11,7 @@ public interface SectionRepository extends JpaRepository<Section, Long> {
     Optional<Section> findById(Long id);
 
     @Query("""
-        SELECT s FROM Section s WHERE s.course.id = :courseId 
+        SELECT s FROM Section s WHERE s.courseId = :courseId 
         AND s.status <> 'DELETED'
         ORDER BY s.createdAt ASC
     """)

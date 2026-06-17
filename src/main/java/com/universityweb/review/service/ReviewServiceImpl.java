@@ -62,10 +62,10 @@ public class ReviewServiceImpl
         User user = userService.loadUserByUsername(reviewRequest.getUser());
         int rating = reviewRequest.getRating();
         Review review = Review.builder()
-                .course(course)
+            .courseId(course.getId())
                 .rating(rating)
                 .comment(reviewRequest.getComment())
-                .user(user)
+            .userId(user.getUsername())
                 .build();
 
         ReviewResponse savedReview = savedAndConvertToDTO(review);

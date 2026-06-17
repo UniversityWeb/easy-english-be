@@ -1,8 +1,7 @@
 package com.universityweb.enrollment;
 
-import com.universityweb.common.auth.entity.User;
-import com.universityweb.course.entity.Course;
 import com.universityweb.enrollment.entity.Enrollment;
+import com.universityweb.course.entity.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,39 +15,33 @@ import java.util.Optional;
 @Repository
 public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
     @Query("SELECT COUNT(e) FROM Enrollment e " +
-            "WHERE e.type = 'PAID' AND e.course.id = :courseId")
+            "WHERE e.type = 'PAID' AND e.courseId = :courseId")
     Long countSalesByCourseId(Long courseId);
 
-    @Query("SELECT e.course FROM Enrollment e WHERE e.type = 'PAID' " +
-            "GROUP BY e.course ORDER BY COUNT(e) DESC")
-    List<Course> findTop10CoursesBySales();
+        @Query("SELECT c FROM Enrollment e JOIN Course c ON c.id = e.courseId WHERE e.type = 'PAID' GROUP BY c ORDER BY COUNT(e) DESC")
+        List<Course> findTop10CoursesBySales();
 
-    List<Enrollment> findByUser(User user);
+        List<Enrollment> findByUsername(String username);
 
-    @Query("SELECT e FROM Enrollment e WHERE e.user.username = :username " +
-            "AND e.course.id = :courseId AND e.status <> 'CANCELLED'")
+        @Query("SELECT e FROM Enrollment e WHERE e.username = :username " +
+            "AND e.courseId = :courseId AND e.status <> 'CANCELLED'")
     Optional<Enrollment> findByUserUsernameAndCourseId(String username, Long courseId);
 
-    Page<Enrollment> findByUser_UsernameAndStatusNot(String username, Enrollment.EStatus eStatus, Pageable pageable);
+        Page<Enrollment> findByUsernameAndStatusNot(String username, Enrollment.EStatus eStatus, Pageable pageable);
 
     @Query("""
-        SELECT e FROM Enrollment e 
-        JOIN e.course c 
-        JOIN c.categories cat 
-        JOIN c.topic t 
-        JOIN c.level l 
-        LEFT JOIN c.reviews r 
-        WHERE e.user.username = :username 
+        SELECT e FROM Enrollment e
+        JOIN Course c ON c.id = e.courseId
+        WHERE e.username = :username 
         AND e.status <> 'CANCELLED' 
-        AND (:categoryIds IS NULL OR cat.id IN :categoryIds) 
-        AND (:levelId IS NULL OR l.id = :levelId) 
-        AND (:topicId IS NULL OR t.id = :topicId) 
-        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
+        AND (:categoryIds IS NULL OR EXISTS (SELECT cid FROM c.categoryIds cid WHERE cid IN :categoryIds))
+        AND (:levelId IS NULL OR c.levelId = :levelId)
+        AND (:topicId IS NULL OR c.topicId = :topicId)
+        AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%')))
+        AND (:rating IS NULL OR (SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.courseId = c.id) >= :rating)
         AND (:progress IS NULL OR :progress = 0 OR e.progress >= :progress) 
         AND (:enrollmentStatus IS NULL OR e.status = :enrollmentStatus) 
         AND (:enrollmentType IS NULL OR e.type = :enrollmentType) 
-        GROUP BY e.id, e.createdAt 
-        HAVING (:rating IS NULL OR COALESCE(AVG(r.rating), 0) >= :rating)
         ORDER BY e.createdAt DESC
     """)
     Page<Enrollment> findByUser_UsernameAndFilter(
@@ -63,8 +56,7 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
             @Param("enrollmentType") Enrollment.EType enrollmentType,
             Pageable pageable);
 
-    Optional<Enrollment> findByUser_UsernameAndCourse_Id(String username, Long courseId);
-    Optional<Enrollment> findByUserAndCourse(User user, Course course);
+    Optional<Enrollment> findByUsernameAndCourseId(String username, Long courseId);
 
     boolean existsByCourseId(Long courseId);
 
@@ -105,8 +97,8 @@ public interface EnrollmentRepos extends JpaRepository<Enrollment, Long> {
 
     @Query("""
         SELECT e FROM Enrollment e
-        WHERE (:courseId IS NULL OR e.course.id = :courseId)
-            AND (:username IS NULL OR :username = '' OR LOWER(e.user.username) LIKE LOWER(CONCAT('%', :username, '%')))
+        WHERE (:courseId IS NULL OR e.courseId = :courseId)
+            AND (:username IS NULL OR :username = '' OR LOWER(e.username) LIKE LOWER(CONCAT('%', :username, '%')))
         ORDER BY e.createdAt DESC
     """)
     Page<Enrollment> findByFilters(

@@ -4,17 +4,22 @@ import com.universityweb.common.auth.dto.UserDTO;
 import com.universityweb.common.auth.request.*;
 import com.universityweb.common.auth.response.ActiveAccountResponse;
 import com.universityweb.common.auth.response.LoginResponse;
+import com.universityweb.common.auth.response.SessionResponse;
+import com.universityweb.common.infrastructure.search.dto.SearchRequest;
+import org.springframework.data.domain.Page;
 import com.universityweb.common.auth.service.auth.AuthService;
 import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
+import com.universityweb.common.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -128,10 +133,13 @@ public class AuthController {
             })
     @PostMapping("/login-with-otp")
     public ResponseEntity<LoginResponse> loginWithOtp(
-            @RequestBody OtpRequest loginWithOtpRequest
+            @RequestBody OtpRequest loginWithOtpRequest,
+            HttpServletRequest request
     ) {
         log.info("Login with OTP method called with request: {}", loginWithOtpRequest);
-        LoginResponse loginResponse = authService.loginWithOtp(loginWithOtpRequest);
+        String deviceInfo = Utils.getDeviceInfo(request);
+        String ipAddress = Utils.getClientIp(request);
+        LoginResponse loginResponse = authService.loginWithOtp(loginWithOtpRequest, deviceInfo, ipAddress, "Unknown Location");
         userService.setLastLogin(loginWithOtpRequest.username(), LocalDateTime.now());
         log.info("Login with OTP method completed successfully with response: {}", loginResponse);
         return ResponseEntity.ok(loginResponse);
@@ -166,10 +174,13 @@ public class AuthController {
             })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @RequestBody LoginRequest loginRequest
+            @RequestBody LoginRequest loginRequest,
+            HttpServletRequest request
     ) {
         log.info("Login method called with request: {}", loginRequest);
-        LoginResponse loginResponse = authService.login(loginRequest);
+        String deviceInfo = Utils.getDeviceInfo(request);
+        String ipAddress = Utils.getClientIp(request);
+        LoginResponse loginResponse = authService.login(loginRequest, deviceInfo, ipAddress, "Unknown Location");
         log.info("Login method completed successfully with response: {}", loginResponse);
         return ResponseEntity.ok(loginResponse);
     }
@@ -198,10 +209,11 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String tokenStr) {
         log.info("Logout method called with token: {}", tokenStr);
-        authService.logout();
+        authService.logoutDevice(tokenStr);
         log.info("Logout method completed successfully");
         return ResponseEntity.ok("Logged out successfully");
     }
+
 
     @Operation(
             summary = "Get User by Token",
@@ -442,10 +454,66 @@ public class AuthController {
     }
 
     @PostMapping("/login-with-google")
-    public ResponseEntity<LoginResponse> loginWithGoogle(@RequestBody GoogleLoginRequest req) {
+    public ResponseEntity<LoginResponse> loginWithGoogle(
+            @RequestBody GoogleLoginRequest req,
+            HttpServletRequest request
+    ) {
         log.info("Received Google login request with token: {}", req.token());
-        LoginResponse loginResponse = authService.loginWithGoogle(req);
+        String deviceInfo = Utils.getDeviceInfo(request);
+        String ipAddress = Utils.getClientIp(request);
+        LoginResponse loginResponse = authService.loginWithGoogle(req, deviceInfo, ipAddress, "Unknown Location");
         log.info("User logged in successfully with Google. User: {}", loginResponse.getUser());
         return ResponseEntity.ok().body(loginResponse);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refreshToken(
+            @Valid @RequestBody RefreshTokenRequest request
+    ) {
+        log.info("Refresh token endpoint called");
+        LoginResponse loginResponse = authService.refreshToken(request);
+        return ResponseEntity.ok(loginResponse);
+    }
+
+    @Operation(
+            summary = "Search active login sessions dynamically",
+            description = "Retrieve page of active login sessions/devices for the authenticated user based on search request parameters.",
+            responses = {
+                    @ApiResponse(
+                            description = "Sessions retrieved successfully.",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json"))
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/sessions/search")
+    public ResponseEntity<Page<SessionResponse>> getActiveSessions(
+            @RequestHeader("Authorization") String tokenStr,
+            @RequestBody SearchRequest searchRequest
+    ) {
+        log.info("GetActiveSessions endpoint called with filters: {}", searchRequest.getFilters());
+        Page<SessionResponse> sessions = authService.getActiveSessions(tokenStr, searchRequest);
+        return ResponseEntity.ok(sessions);
+    }
+
+    @Operation(
+            summary = "Revoke/terminate a specific active session by ID",
+            responses = {
+                    @ApiResponse(description = "Session revoked successfully.", responseCode = "200")
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @DeleteMapping("/sessions/{id}")
+    public ResponseEntity<String> revokeSession(@PathVariable Long id) {
+        log.info("Revoke session endpoint called for id: {}", id);
+        authService.revokeSession(id);
+        return ResponseEntity.ok("Session revoked successfully");
+    }
+
+    @PostMapping("/revoke-all")
+    public ResponseEntity<String> revokeAll() {
+        log.info("Revoke all sessions endpoint called");
+        authService.revokeAllDevices();
+        return ResponseEntity.ok("All sessions revoked successfully");
     }
 }

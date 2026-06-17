@@ -29,6 +29,7 @@ import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
 import com.universityweb.topic.TopicRepository;
 import com.universityweb.topic.entity.Topic;
+import com.universityweb.section.SectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +59,7 @@ public class CourseServiceImpl
     private final UserService userService;
     private final NotificationService notificationService;
     private final OrderRepos orderRepos;
+    private final SectionRepository sectionRepository;
 
     @Autowired
     public CourseServiceImpl(
@@ -70,7 +72,8 @@ public class CourseServiceImpl
             ReviewRepository reviewRepository,
             UserService userService,
             NotificationService notificationService,
-            OrderRepos orderRepos
+            OrderRepos orderRepos,
+            SectionRepository sectionRepository
     ) {
 
         super(repository, mapper);
@@ -82,6 +85,7 @@ public class CourseServiceImpl
         this.userService = userService;
         this.notificationService = notificationService;
         this.orderRepos = orderRepos;
+        this.sectionRepository = sectionRepository;
     }
 
     @Override
@@ -136,8 +140,6 @@ public class CourseServiceImpl
         price.setPrice(BigDecimal.valueOf(0));
         price.setSalePrice(BigDecimal.valueOf(0));
         course.setPrice(price);
-
-        price.setCourse(course);
 
         Level level = levelRepository.findById(courseRequest.getLevelId())
                 .orElseThrow(() -> new CustomException("Level not found"));
@@ -201,7 +203,7 @@ public class CourseServiceImpl
 
         Sort sort = Sort.by("createdAt");
         Pageable pageable = PageRequest.of(pageNumber, size, sort.descending());
-        Page<Course> coursePage = repository.findByStatusAndCategoriesId(Course.EStatus.PUBLISHED, categoryIds.get(0), pageable);
+        Page<Course> coursePage = repository.findByStatusAndCategoryIdsContains(Course.EStatus.PUBLISHED, categoryIds.get(0), pageable);
 
         return coursePage.map(mapper::toDTO);
     }
@@ -221,7 +223,7 @@ public class CourseServiceImpl
     @Override
     public List<CourseResponse> getAllCourseOfStudent(CourseRequest courseRequest) {
         User user = userService.loadUserByUsername(courseRequest.getUsername());
-        List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
+        List<Enrollment> enrollments = enrollmentRepos.findByUsername(user.getUsername());
         List<CourseResponse> courseResponses = new ArrayList<>();
         for (Enrollment enrollment : enrollments) {
             Course course = enrollment.getCourse();
@@ -238,7 +240,7 @@ public class CourseServiceImpl
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
 
         // Lấy danh sách các khóa học mà User đã tham gia
-        List<Enrollment> enrollments = enrollmentRepos.findByUser(user);
+        List<Enrollment> enrollments = enrollmentRepos.findByUsername(user.getUsername());
 
         // Tạo danh sách các khóa học mà User đã tham gia
         Set<Course> enrolledCourses = enrollments.stream()
@@ -319,7 +321,7 @@ public class CourseServiceImpl
         courseResponse.setRating(Double.parseDouble(formattedRating));
         courseResponse.setRatingCount((long) reviews.size());
         courseResponse.setCountStudent(enrollmentRepos.countSalesByCourseId(course.getId()));
-        courseResponse.setCountSection((long) course.getSections().size());
+        courseResponse.setCountSection((long) sectionRepository.findByCourseId(course.getId()).size());
 
         return courseResponse;
     }

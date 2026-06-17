@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
-    Page<Course> findByStatusAndCategoriesId(Course.EStatus status, Long categoryId, Pageable pageable);
+    Page<Course> findByStatusAndCategoryIdsContains(Course.EStatus status, Long categoryId, Pageable pageable);
 
     Page<Course> findByStatusAndTopicId(Course.EStatus status, Long topicId, Pageable pageable);
 
@@ -24,25 +24,19 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("""
         SELECT c FROM Course c
-        JOIN c.categories cat 
-        JOIN c.topic t 
-        JOIN c.level l 
-        JOIN c.price p 
-        LEFT JOIN c.reviews r 
-        WHERE c.owner.username = :ownerUsername
-        AND (:categoryId IS NULL OR cat.id IN :categoryId) 
-        AND (:topicId IS NULL OR t.id = :topicId) 
+        WHERE c.ownerUsername = :ownerUsername
+        AND (:categoryId IS NULL OR EXISTS (SELECT cid FROM c.categoryIds cid WHERE cid IN :categoryId))
+        AND (:topicId IS NULL OR c.topicId = :topicId) 
         AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
-        AND (:levelId IS NULL OR l.id = :levelId) 
-        AND (:price IS NULL OR (
-            (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate 
-            AND c.price.salePrice <= :price) 
-            OR (c.price.price <= :price))
-        ) 
+        AND (:levelId IS NULL OR c.levelId = :levelId) 
+        AND (:price IS NULL OR EXISTS (
+            SELECT p.id FROM Price p WHERE p.id = c.priceId
+            AND ((p.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN p.startDate AND p.endDate AND p.salePrice <= :price)
+            OR p.price <= :price)
+        ))
+        AND (:rating IS NULL OR (SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.courseId = c.id) >= :rating)
         AND (:status IS NULL OR c.status = :status)
         AND c.status <> 'DELETED'
-        GROUP BY c.id 
-        HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
         ORDER BY c.createdAt DESC
     """)
     Page<Course> findCourseForTeacher(
@@ -58,23 +52,17 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("""
         SELECT c FROM Course c
-        JOIN c.categories cat 
-        JOIN c.topic t 
-        JOIN c.level l 
-        JOIN c.price p 
-        LEFT JOIN c.reviews r 
-        WHERE (:categoryId IS NULL OR cat.id IN :categoryId) 
-        AND (:topicId IS NULL OR t.id = :topicId) 
+        WHERE (:categoryId IS NULL OR EXISTS (SELECT cid FROM c.categoryIds cid WHERE cid IN :categoryId))
+        AND (:topicId IS NULL OR c.topicId = :topicId) 
         AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
-        AND (:levelId IS NULL OR l.id = :levelId) 
-        AND (:price IS NULL OR (
-            (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate 
-            AND c.price.salePrice <= :price) 
-            OR (c.price.price <= :price))
-        ) 
+        AND (:levelId IS NULL OR c.levelId = :levelId) 
+        AND (:price IS NULL OR EXISTS (
+            SELECT p.id FROM Price p WHERE p.id = c.priceId
+            AND ((p.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN p.startDate AND p.endDate AND p.salePrice <= :price)
+            OR p.price <= :price)
+        ))
+        AND (:rating IS NULL OR (SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.courseId = c.id) >= :rating)
         AND (:statuses IS NULL OR c.status IN :statuses)
-        GROUP BY c.id 
-        HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
         ORDER BY c.createdAt DESC
     """)
     Page<Course> findCourseByFilter(
@@ -89,24 +77,18 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("""
         SELECT c FROM Course c
-        JOIN c.categories cat 
-        JOIN c.topic t 
-        JOIN c.level l 
-        JOIN c.price p 
-        LEFT JOIN c.reviews r 
-        WHERE (:categoryId IS NULL OR cat.id IN :categoryId) 
-        AND (:topicId IS NULL OR t.id = :topicId) 
+        WHERE (:topicId IS NULL OR c.topicId = :topicId) 
         AND (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:title AS text), '%'))) 
-        AND (:levelId IS NULL OR l.id = :levelId) 
-        AND (:price IS NULL OR (
-            (c.price.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN c.price.startDate AND c.price.endDate 
-            AND c.price.salePrice <= :price) 
-            OR (c.price.price <= :price))
-        ) 
-        AND (:ownerUsername IS NULL OR LOWER(c.owner.username) LIKE LOWER(CONCAT('%', CAST(:ownerUsername AS text), '%'))) 
+        AND (:levelId IS NULL OR c.levelId = :levelId) 
+        AND (:categoryId IS NULL OR EXISTS (SELECT cid FROM c.categoryIds cid WHERE cid IN :categoryId))
+        AND (:price IS NULL OR EXISTS (
+            SELECT p.id FROM Price p WHERE p.id = c.priceId
+            AND ((p.salePrice IS NOT NULL AND CURRENT_DATE BETWEEN p.startDate AND p.endDate AND p.salePrice <= :price)
+            OR p.price <= :price)
+        ))
+        AND (:rating IS NULL OR (SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.courseId = c.id) >= :rating)
+        AND (:ownerUsername IS NULL OR LOWER(c.ownerUsername) LIKE LOWER(CONCAT('%', CAST(:ownerUsername AS text), '%'))) 
         AND (:status IS NULL OR c.status = :status) 
-        GROUP BY c.id 
-        HAVING (:rating IS NULL OR AVG(r.rating) >= :rating)
         ORDER BY c.createdAt DESC
     """)
     Page<Course> findCourseForAdmin(

@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ReviewMapper extends BaseMapper<Review, ReviewResponse> {
-    @Mapping(source = "user.username", target = "owner")
+    @Mapping(source = "userId", target = "owner")
     ReviewResponse toDTO(Review entity);
 
-    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "courseId", ignore = true)
     Review toEntity(ReviewResponse dto);
 }
