@@ -29,6 +29,12 @@ public class LoginResponse {
         )
         String tokenStr;
 
+        @Schema(
+                description = "Refresh token string",
+                example = "ref-qwerqwr234asdgasg..."
+        )
+        String refreshTokenStr;
+
         UserDTO user;
 
         User.EStatus accountStatus;

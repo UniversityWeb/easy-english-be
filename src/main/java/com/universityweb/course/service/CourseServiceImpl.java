@@ -29,6 +29,7 @@ import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
 import com.universityweb.topic.TopicRepository;
 import com.universityweb.topic.entity.Topic;
+import com.universityweb.section.SectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +59,7 @@ public class CourseServiceImpl
     private final UserService userService;
     private final NotificationService notificationService;
     private final OrderRepos orderRepos;
+    private final SectionRepository sectionRepository;
 
     @Autowired
     public CourseServiceImpl(
@@ -70,7 +72,8 @@ public class CourseServiceImpl
             ReviewRepository reviewRepository,
             UserService userService,
             NotificationService notificationService,
-            OrderRepos orderRepos
+            OrderRepos orderRepos,
+            SectionRepository sectionRepository
     ) {
 
         super(repository, mapper);
@@ -82,6 +85,7 @@ public class CourseServiceImpl
         this.userService = userService;
         this.notificationService = notificationService;
         this.orderRepos = orderRepos;
+        this.sectionRepository = sectionRepository;
     }
 
     @Override

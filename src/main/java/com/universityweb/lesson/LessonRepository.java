@@ -16,6 +16,6 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     """)
     List<Lesson> findBySectionId(Long sectionId);
 
-    @Query("SELECT l.id FROM Lesson l JOIN l.section s WHERE s.course.id = :courseId")
+    @Query("SELECT l.id FROM Lesson l JOIN l.section s WHERE s.courseId = :courseId")
     List<Long> findLessonIdsByCourseId(@Param("courseId") Long courseId);
 }

@@ -20,9 +20,8 @@ public interface TestResultRepos extends JpaRepository<TestResult, Long> {
             "FROM TestResult tr " +
             "JOIN tr.test t " +
             "JOIN t.section s " +
-            "JOIN s.course c " +
             "WHERE tr.user.username = :username " +
-            "AND c.id = :courseId " +
+            "AND s.courseId = :courseId " +
             "AND tr.status = :status")
     int countDistinctTestsByUsernameAndCourseId(@Param("username") String username,
                                                  @Param("courseId") Long courseId,

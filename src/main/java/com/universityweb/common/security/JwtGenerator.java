@@ -96,28 +96,41 @@ public class JwtGenerator implements Serializable {
         }
 
         Token token = tokenOptional.get();
-        return !isTokenExpired(token);
+        return !isTokenExpired(token) && !token.isUsed() && !token.isRevoked();
     }
 
     public String generateAndSaveToken(@NonNull User user) {
+        Token token = generateAndSaveToken(user, "Unknown Device", "127.0.0.1", "Unknown Location");
+        return token.getTokenStr();
+    }
+
+    public Token generateAndSaveToken(
+            @NonNull User user,
+            String deviceInfo,
+            String ipAddress,
+            String loginLocation
+    ) {
         LocalDateTime curTime = LocalDateTime.now();
         LocalDateTime expirationTime = curTime.plus(SecurityUtils.EXPIRATION_DURATION_MILLIS, ChronoUnit.MILLIS);
         String generatedToken = generateToken(user.getUsername(), curTime, expirationTime);
-        Token existingToken = tokenRepos.findByUser_Username(user.getUsername()).orElse(null);
-        Token newToken;
-        if (existingToken != null) {
-            existingToken.setTokenStr(generatedToken);
-            existingToken.setExpiryDate(expirationTime);
-            newToken = existingToken;
-        } else {
-            newToken = Token.builder()
-                    .tokenStr(generatedToken)
-                    .expiryDate(expirationTime)
-                    .user(user)
-                    .build();
-        }
-        Token saved = tokenRepos.save(newToken);
-        return saved.getTokenStr();
+
+        String generatedRefreshToken = java.util.UUID.randomUUID().toString();
+        LocalDateTime refreshExpirationTime = curTime.plus(7, ChronoUnit.DAYS);
+
+        Token tokenToSave = Token.builder()
+                .tokenStr(generatedToken)
+                .expiryDate(expirationTime)
+                .refreshTokenStr(generatedRefreshToken)
+                .refreshExpiryDate(refreshExpirationTime)
+                .deviceInfo(deviceInfo)
+                .ipAddress(ipAddress)
+                .loginLocation(loginLocation)
+                .user(user)
+                .used(false)
+                .revoked(false)
+                .build();
+
+        return tokenRepos.save(tokenToSave);
     }
 
     private boolean isTokenExpired(Token token) {

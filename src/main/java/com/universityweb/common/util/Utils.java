@@ -2,6 +2,7 @@ package com.universityweb.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universityweb.common.auth.dto.SettingsDTO;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -137,5 +138,18 @@ public class Utils {
             return ((java.util.Date) obj).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         }
         return null;
+    }
+
+    public static String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+
+    public static String getDeviceInfo(HttpServletRequest request) {
+        String ua = request.getHeader("User-Agent");
+        return ua != null ? ua : "Unknown Device";
     }
 }

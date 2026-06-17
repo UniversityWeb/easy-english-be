@@ -18,11 +18,11 @@ public interface TestRepos extends JpaRepository<Test, Long> {
     List<Test> findBySectionId(Long sectionId);
 
     @Query("""
-            SELECT c.id FROM Test t JOIN t.section s JOIN s.course c 
+            SELECT s.courseId FROM Test t JOIN t.section s 
             WHERE t.id = :id
             """)
     Long findCourseIdByTestId(Long id);
 
-    @Query("SELECT t.id FROM Test t WHERE t.section.course.id = :courseId")
+    @Query("SELECT t.id FROM Test t WHERE t.section.courseId = :courseId")
     List<Long> findTestIdsByCourseId(@Param("courseId") Long courseId);
 }
