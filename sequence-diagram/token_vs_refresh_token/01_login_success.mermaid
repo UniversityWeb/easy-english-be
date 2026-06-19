@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Ctrl as Controller
+    participant Svc as Service
+    participant Repo as Repository
+    participant DB as Database
+    Client->>Ctrl: POST /api/v1/auth/login (usernameOrEmail, password)
+    Ctrl->>Svc: login(loginRequest, deviceInfo, ipAddress, ...)
+    Svc->>Repo: userRepos.findByUsername / getUsernameByEmail
+    Repo->>DB: SELECT * FROM users
+    DB-->>Repo: User data & Password Hash
+    Repo-->>Svc: User entity
+    Svc->>Svc: authenticateUser (using authManager)
+    Svc->>Svc: jwtGenerator.generateAndSaveToken
+    Svc->>Repo: tokenRepos.save(Token record)
+    Repo->>DB: INSERT INTO tokens (token_str, refresh_token_str, used=false, ...)
+    DB-->>Repo: Confirmation
+    Repo-->>Svc: Token entity
+    Svc-->>Ctrl: LoginResponse
+    Ctrl-->>Client: 200 OK (JSON body with AT & RT)
+    Client->>Client: Save loginResponse to localStorage

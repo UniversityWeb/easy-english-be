@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Filter as Filter (JwtAuthFilter)
+    participant Ctrl as Controller
+    participant Svc as Service
+    participant Repo as Repository
+    participant DB as Database
+    Client->>Filter: GET /api/v1/admin/dashboard (Headers: Authorization: Bearer <AT>)
+    Filter->>Svc: jwtGenerator.isValidToken(AT)
+    Svc->>Repo: tokenRepos.findByTokenStr(AT)
+    Repo->>DB: SELECT * FROM tokens WHERE token_str = AT
+    DB-->>Repo: Token record hợp lệ
+    Repo-->>Svc: Token entity
+    Svc-->>Filter: return true
+    Filter->>Repo: userRepos.findByUsername(username)
+    Repo->>DB: SELECT * FROM users WHERE username = username
+    DB-->>Repo: User data (role = STUDENT)
+    Repo-->>Filter: User entity
+    Filter->>Filter: Set SecurityContextHolder
+    Filter->>Ctrl: Forward Request
+    Ctrl->>Ctrl: Spring Security authorization check (Yêu cầu: ADMIN)
+    Note over Ctrl: Kiểm tra vai trò: STUDENT != ADMIN
+    Ctrl-->>Client: 403 Forbidden (Access Denied)

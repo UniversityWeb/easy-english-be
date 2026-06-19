@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Ctrl as Controller
+    participant Svc as Service
+    participant Repo as Repository
+    participant DB as Database
+    Client->>Ctrl: POST /api/v1/auth/revoke-all (Header: Authorization: Bearer <AT>)
+    Ctrl->>Svc: revokeAllDevices()
+    Svc->>Svc: Lấy thông tin User hiện tại từ SecurityContext
+    Svc->>Repo: tokenRepos.deleteByUserUsername(username)
+    Repo->>DB: DELETE FROM tokens WHERE username = username
+    DB-->>Repo: Confirmation
+    Repo-->>Svc: Done
+    Svc-->>Ctrl: Done
+    Ctrl-->>Client: 200 OK ("All sessions revoked successfully")
+    Client->>Client: Xóa loginResponse khỏi localStorage
+    Note over Client, DB: Toàn bộ phiên đăng nhập của User trên mọi thiết bị đều bị xóa khỏi Database

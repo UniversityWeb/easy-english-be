@@ -1,0 +1,16 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Ctrl as Controller
+    participant Svc as Service
+    participant Repo as Repository
+    participant DB as Database
+    Client->>Ctrl: POST /api/v1/auth/logout (Header: Authorization: Bearer <AT>)
+    Ctrl->>Svc: logoutDevice(tokenStr)
+    Svc->>Repo: tokenRepos.deleteByTokenStr(AT)
+    Repo->>DB: DELETE FROM tokens WHERE token_str = AT
+    DB-->>Repo: Confirmation
+    Repo-->>Svc: Done
+    Svc-->>Ctrl: Done
+    Ctrl-->>Client: 200 OK ("Logged out successfully")
+    Client->>Client: Xóa loginResponse khỏi localStorage

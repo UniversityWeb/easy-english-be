@@ -1,0 +1,11 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Filter as Filter (JwtAuthFilter)
+    participant Svc as Service
+    Client->>Filter: GET /api/v1/resource (Headers: Authorization: Bearer <AT_Tampered>)
+    Filter->>Svc: jwtGenerator.isValidToken(AT_Tampered)
+    Svc->>Svc: validateToken(AT_Tampered) (Xác thực signature bằng Secret Key)
+    Note over Svc: Chữ ký không khớp hoặc định dạng token không hợp lệ
+    Svc-->>Filter: return false (Không gọi Database)
+    Filter-->>Client: 401 Unauthorized

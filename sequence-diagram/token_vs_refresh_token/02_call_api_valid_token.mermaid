@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Filter as Filter (JwtAuthFilter)
+    participant Ctrl as Controller
+    participant Svc as Service
+    participant Repo as Repository
+    participant DB as Database
+    Client->>Filter: GET /api/v1/resource (Headers: Authorization: Bearer <AT>)
+    Filter->>Svc: jwtGenerator.isValidToken(AT)
+    Svc->>Svc: Validate signature & expiry of JWT
+    Svc->>Repo: tokenRepos.findByTokenStr(AT)
+    Repo->>DB: SELECT * FROM tokens WHERE token_str = AT
+    DB-->>Repo: Token record (used=false, revoked=false)
+    Repo-->>Svc: Token entity
+    Svc-->>Filter: return true (Token valid)
+    Filter->>Repo: userRepos.findByUsername(username)
+    Repo->>DB: SELECT * FROM users WHERE username = ...
+    DB-->>Repo: User details
+    Repo-->>Filter: User entity
+    Filter->>Filter: Set SecurityContextHolder (Authentication)
+    Filter->>Ctrl: Forward Request
+    Ctrl->>Svc: Get resource business logic
+    Svc-->>Ctrl: Resource data
+    Ctrl-->>Client: 200 OK (Resource data)
