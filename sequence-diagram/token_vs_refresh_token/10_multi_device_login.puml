@@ -1,0 +1,33 @@
+@startuml
+autonumber
+actor "Client 1 (Mobile)" as Client1
+actor "Client 2 (Web)" as Client2
+participant "Controller" as Ctrl
+participant "Service" as Svc
+participant "Repository" as Repo
+database "Database" as DB
+
+== Thiết bị 1 đăng nhập ==
+Client1 -> Ctrl: POST /api/v1/auth/login (username, password)
+Ctrl -> Svc: login(loginRequest, deviceInfo="Mobile", ...)
+Svc -> Svc: Xác thực & Tạo AT_1 (JWT), RT_1 (UUID)
+Svc -> Repo: tokenRepos.save(Token_1)
+Repo -> DB: INSERT INTO tokens (AT_1, RT_1, deviceInfo="Mobile", used=false)
+DB --> Repo: Confirmation
+Repo --> Svc: Saved Token
+Svc --> Ctrl: LoginResponse
+Ctrl --> Client1: 200 OK (AT_1 & RT_1)
+
+== Thiết bị 2 đăng nhập đồng thời ==
+Client2 -> Ctrl: POST /api/v1/auth/login (username, password)
+Ctrl -> Svc: login(loginRequest, deviceInfo="Web", ...)
+Svc -> Svc: Xác thực & Tạo AT_2 (JWT), RT_2 (UUID)
+Svc -> Repo: tokenRepos.save(Token_2)
+Repo -> DB: INSERT INTO tokens (AT_2, RT_2, deviceInfo="Web", used=false)
+DB --> Repo: Confirmation
+Repo --> Svc: Saved Token
+Svc --> Ctrl: LoginResponse
+Ctrl --> Client2: 200 OK (AT_2 & RT_2)
+
+note over Client1, Client2: Cả 2 thiết bị hoạt động song song với 2 bản ghi Token độc lập trong Database
+@enduml

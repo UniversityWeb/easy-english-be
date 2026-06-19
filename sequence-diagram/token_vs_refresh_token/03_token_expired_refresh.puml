@@ -1,0 +1,36 @@
+@startuml
+autonumber
+actor Client
+participant "Filter (JwtAuthFilter)" as Filter
+participant "Controller" as Ctrl
+participant "Service" as Svc
+participant "Repository" as Repo
+database "Database" as DB
+
+== Bước 1: Gọi API bằng Token hết hạn ==
+Client -> Filter: GET /api/v1/resource (Headers: Authorization: Bearer <AT_Expired>)
+Filter -> Svc: jwtGenerator.isValidToken(AT_Expired)
+Svc -> Svc: Kiểm tra signature & expiry
+note over Svc: Phát hiện token đã hết hạn
+Svc --> Filter: return false (Token expired)
+Filter --> Client: 401 Unauthorized (Token Expired)
+
+== Bước 2: Refresh Token ==
+Client -> Ctrl: POST /api/v1/auth/refresh (Body: {"refreshTokenStr": "RT_1"})
+Ctrl -> Svc: refreshToken(RefreshTokenRequest)
+Svc -> Repo: tokenRepos.findWithUserByRefreshTokenStr(RT_1)
+Repo -> DB: SELECT * FROM tokens WHERE refresh_token_str = RT_1
+DB --> Repo: Token record (used=false, revoked=false)
+Repo --> Svc: Token entity (with User details)
+Svc -> Repo: Đánh dấu Token cũ đã dùng (used = true)
+Repo -> DB: UPDATE tokens SET used = true WHERE id = ...
+DB --> Repo: Confirmation
+Svc -> Svc: Tạo AT_New (JWT) & RT_New (UUID)
+Svc -> Repo: tokenRepos.save(Token_New)
+Repo -> DB: INSERT INTO tokens (AT_New, RT_New, used=false, ...)
+DB --> Repo: Confirmation
+Repo --> Svc: Token_New entity
+Svc --> Ctrl: LoginResponse (AT_New, RT_New)
+Ctrl --> Client: 200 OK (JSON body)
+Client -> Client: Cập nhật localStorage với token mới
+@enduml

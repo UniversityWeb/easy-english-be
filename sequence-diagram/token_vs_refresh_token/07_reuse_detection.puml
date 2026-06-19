@@ -1,0 +1,34 @@
+@startuml
+autonumber
+actor "Legitimate Client" as Legitimate
+actor "Attacker (Stolen RT)" as Attacker
+participant "Controller" as Ctrl
+participant "Service" as Svc
+participant "Repository" as Repo
+database "Database" as DB
+
+== Bước 1: Kẻ tấn công sử dụng RT_1 (đã dùng) gửi yêu cầu refresh ==
+Attacker -> Ctrl: POST /api/v1/auth/refresh (Body: {"refreshTokenStr": "RT_1"})
+Ctrl -> Svc: refreshToken(RefreshTokenRequest)
+Svc -> Repo: tokenRepos.findWithUserByRefreshTokenStr(RT_1)
+Repo -> DB: SELECT * FROM tokens WHERE refresh_token_str = RT_1
+DB --> Repo: Token record (used = true)
+Repo --> Svc: Token entity (with User details)
+
+== Bước 2: Phát hiện REUSE (RT_1 đã từng được sử dụng trước đó) ==
+Svc -> Repo: tokenRepos.deleteByUserUsername(username)
+Repo -> DB: DELETE FROM tokens WHERE username = username
+DB --> Repo: Confirmation
+Svc --> Ctrl: Throw SecurityException
+Ctrl --> Attacker: 403 Forbidden (Access Denied)
+
+== Bước 3: Người dùng hợp lệ dùng RT_2 (mới nhất) để refresh ==
+Legitimate -> Ctrl: POST /api/v1/auth/refresh (Body: {"refreshTokenStr": "RT_2"})
+Ctrl -> Svc: refreshToken(RefreshTokenRequest)
+Svc -> Repo: tokenRepos.findWithUserByRefreshTokenStr(RT_2)
+Repo -> DB: SELECT * FROM tokens WHERE refresh_token_str = RT_2
+DB --> Repo: Empty (Đã bị xóa ở Bước 2)
+Repo --> Svc: Optional.empty()
+Svc --> Ctrl: Throw TokenNotFoundException
+Ctrl --> Legitimate: 404 Not Found (Yêu cầu đăng nhập lại)
+@enduml
