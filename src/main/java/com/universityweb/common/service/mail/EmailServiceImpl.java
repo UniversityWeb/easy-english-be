@@ -2,6 +2,7 @@ package com.universityweb.common.service.mail;
 
 import com.universityweb.common.exception.CustomException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
@@ -20,6 +21,7 @@ public class EmailServiceImpl implements EmailService {
     private String password;
 
     @Override
+    @Async("taskExecutor")
     public void sendHtmlContent(String toEmail, String subject, String htmlBody) {
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");

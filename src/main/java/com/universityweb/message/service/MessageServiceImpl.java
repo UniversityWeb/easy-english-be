@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -129,6 +131,33 @@ public class MessageServiceImpl
                 .build();
 
         return sendRealtimeMessage(messageDTO);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void processAutoReplyIfNeeded(String senderUsername, String recipientUsername, Message lastMsgBeforeSending) {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+
+            if (lastMsgBeforeSending == null || !senderUsername.equals(lastMsgBeforeSending.getSender().getUsername())) {
+                return;
+            }
+
+            long minutesSinceLastMsg = Duration.between(lastMsgBeforeSending.getSendingTime(), now).toMinutes();
+            if (minutesSinceLastMsg <= Utils.AUTO_MESSAGE_TIMEOUT_MINUTES) {
+                return;
+            }
+
+            User recipient = userService.loadUserByUsername(recipientUsername);
+
+            if (recipient.getRole() != User.ERole.TEACHER) {
+                return;
+            }
+
+            sendAutoMessage(senderUsername, recipientUsername, now);
+        } catch (Exception e) {
+            log.error("Failed to send auto-message via @Async", e);
+        }
     }
 
     @Override

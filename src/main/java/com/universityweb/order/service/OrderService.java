@@ -28,4 +28,6 @@ public interface OrderService extends BaseService<Order, OrderDTO, Long> {
     boolean isPurchasedCourse(String username, Long courseId);
 
     boolean hasPurchasedItems(String username, Long orderId);
+
+    void updateExpiredOrders();
 }

@@ -83,3 +83,13 @@ minio:
 gemini:
   url: ${PROD_GEMINI_URL}
   api-key: ${PROD_GEMINI_API_KEY}
+
+async:
+  core-pool-size: ${PROD_ASYNC_CORE_POOL_SIZE:10}
+  max-pool-size: ${PROD_ASYNC_MAX_POOL_SIZE:50}
+  queue-capacity: ${PROD_ASYNC_QUEUE_CAPACITY:500}
+
+app:
+  scheduler:
+    online-user-cleanup-rate: ${PROD_SCHEDULER_ONLINE_USER_CLEANUP_RATE:60000}
+    order-expiration-rate: ${PROD_SCHEDULER_ORDER_EXPIRATION_RATE:3600000}

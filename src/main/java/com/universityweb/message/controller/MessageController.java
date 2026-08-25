@@ -1,13 +1,10 @@
 package com.universityweb.message.controller;
 
 import com.universityweb.common.auth.dto.UserDTO;
-import com.universityweb.common.auth.entity.User;
 import com.universityweb.common.auth.exception.PermissionDenyException;
 import com.universityweb.common.auth.service.auth.AuthService;
-import com.universityweb.common.auth.service.user.UserService;
 import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
-import com.universityweb.common.util.Utils;
 import com.universityweb.message.Message;
 import com.universityweb.message.MessageDTO;
 import com.universityweb.message.service.MessageService;
@@ -19,8 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/messages")
@@ -33,7 +29,6 @@ public class MessageController {
     private final AuthService authService;
     private final MessageService messageService;
     private final MediaService mediaService;
-    private final UserService userService;
 
     @GetMapping("/{senderUsername}/{recipientUsername}")
     public ResponseEntity<Page<MessageDTO>> getAllMessages(
@@ -75,7 +70,7 @@ public class MessageController {
         log.info("Sent message: {}", messageDTO);
 
         if (message.getType() == Message.EType.TEXT) {
-            sendAutoMessageIfNeeded(senderUsername, recipientUsername, lastMsgBeforeSending);
+            messageService.processAutoReplyIfNeeded(senderUsername, recipientUsername, lastMsgBeforeSending);
         }
 
         return ResponseEntity.ok().build();
@@ -90,31 +85,6 @@ public class MessageController {
             } catch (Exception e) {
                 log.error("Failed to upload image", e);
             }
-        }
-    }
-
-    private void sendAutoMessageIfNeeded(String senderUsername, String recipientUsername, Message lastMsgBeforeSending) {
-        try {
-            LocalDateTime now = LocalDateTime.now();
-
-            if (lastMsgBeforeSending == null || !senderUsername.equals(lastMsgBeforeSending.getSender().getUsername())) {
-                return;
-            }
-
-            long minutesSinceLastMsg = Duration.between(lastMsgBeforeSending.getSendingTime(), now).toMinutes();
-            if (minutesSinceLastMsg <= Utils.AUTO_MESSAGE_TIMEOUT_MINUTES) {
-                return;
-            }
-
-            User recipient = userService.loadUserByUsername(recipientUsername);
-
-            if (recipient.getRole() != User.ERole.TEACHER) {
-                return;
-            }
-
-            messageService.sendAutoMessage(senderUsername, recipientUsername, now);
-        } catch (Exception e) {
-            log.error("Failed to send auto-message", e);
         }
     }
 }
