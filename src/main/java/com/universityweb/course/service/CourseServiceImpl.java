@@ -25,6 +25,7 @@ import com.universityweb.notification.util.CourseContentNotification;
 import com.universityweb.order.entity.Order;
 import com.universityweb.order.repository.OrderRepos;
 import com.universityweb.price.entity.Price;
+import com.universityweb.price.PriceRepository;
 import com.universityweb.review.ReviewRepository;
 import com.universityweb.review.entity.Review;
 import com.universityweb.topic.TopicRepository;
@@ -60,6 +61,7 @@ public class CourseServiceImpl
     private final NotificationService notificationService;
     private final OrderRepos orderRepos;
     private final SectionRepository sectionRepository;
+    private final PriceRepository priceRepository;
 
     @Autowired
     public CourseServiceImpl(
@@ -73,7 +75,8 @@ public class CourseServiceImpl
             UserService userService,
             NotificationService notificationService,
             OrderRepos orderRepos,
-            SectionRepository sectionRepository
+            SectionRepository sectionRepository,
+            PriceRepository priceRepository
     ) {
 
         super(repository, mapper);
@@ -86,6 +89,7 @@ public class CourseServiceImpl
         this.notificationService = notificationService;
         this.orderRepos = orderRepos;
         this.sectionRepository = sectionRepository;
+        this.priceRepository = priceRepository;
     }
 
     @Override
@@ -136,11 +140,6 @@ public class CourseServiceImpl
     public CourseResponse createCourse(CourseRequest courseRequest) {
         Course course = mapper.toEntity(courseRequest);
 
-        Price price = new Price();
-        price.setPrice(BigDecimal.valueOf(0));
-        price.setSalePrice(BigDecimal.valueOf(0));
-        course.setPrice(price);
-
         Level level = levelRepository.findById(courseRequest.getLevelId())
                 .orElseThrow(() -> new CustomException("Level not found"));
         course.setLevel(level);
@@ -159,6 +158,17 @@ public class CourseServiceImpl
 
         User user = userService.loadUserByUsername(courseRequest.getOwnerUsername());
         course.setOwner(user);
+        
+        course = repository.save(course);
+
+        Price price = new Price();
+        price.setPrice(BigDecimal.valueOf(0));
+        price.setSalePrice(BigDecimal.valueOf(0));
+        price.setCourseId(course.getId());
+        price = priceRepository.save(price);
+
+        course.setPrice(price);
+
         return savedAndConvertToDTO(course);
     }
 

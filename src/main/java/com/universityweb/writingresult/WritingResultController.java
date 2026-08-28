@@ -29,6 +29,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.universityweb.common.auth.mapper.UserMapper.objectMapper;
+import com.universityweb.common.service.RateLimiterService;
+import com.universityweb.common.util.RedisKeys;
 
 @RestController
 @RequestMapping("/api/v1/writing-results")
@@ -45,18 +47,21 @@ public class WritingResultController
     private final AuthService authService;
     private final SectionService sectionService;
     private final WritingTaskService writingTaskService;
+    private final RateLimiterService rateLimiterService;
 
     @Autowired
     public WritingResultController(
             WritingResultService service,
             AuthService authService,
             SectionService sectionService,
-            WritingTaskService writingTaskService
+            WritingTaskService writingTaskService,
+            RateLimiterService rateLimiterService
     ) {
         super(service);
         this.authService = authService;
         this.sectionService = sectionService;
         this.writingTaskService = writingTaskService;
+        this.rateLimiterService = rateLimiterService;
     }
 
     @PreAuthorize("hasRole('STUDENT')")
@@ -104,6 +109,10 @@ public class WritingResultController
     @PostMapping("/support-by-ai")
     public ResponseEntity<?> generate(@RequestBody WritingResult writingResult) {
 
+        if (!rateLimiterService.isAllowed(RedisKeys.AI_RATE_LIMIT_KEY, 100, 60)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(objectMapper.createObjectNode().put("error", "Too many requests. Limit 100/minute."));
+        }
 
         try {
             // Đọc file prompt.txt trong resources folder
@@ -173,6 +182,10 @@ public class WritingResultController
 
     @PostMapping("/image-to-text")
     public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        if (!rateLimiterService.isAllowed(RedisKeys.AI_RATE_LIMIT_KEY, 100, 60)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(objectMapper.createObjectNode().put("error", "Too many requests. Limit 100/minute."));
+        }
         try {
             // 1. Convert ảnh sang base64
             byte[] imageBytes = file.getBytes();
@@ -235,6 +248,10 @@ public class WritingResultController
 
     @PostMapping("/chat-with-ai")
     public ResponseEntity<?> chatWithAI(@RequestBody WritingResult writingResult) {
+        if (!rateLimiterService.isAllowed(RedisKeys.AI_RATE_LIMIT_KEY, 100, 60)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(objectMapper.createObjectNode().put("error", "Too many requests. Limit 100/minute."));
+        }
         try {
             // 1. Tạo JSON payload gửi đến Gemini
             String jsonPayload = """

@@ -14,6 +14,10 @@ import com.universityweb.common.media.MediaUtils;
 import com.universityweb.common.media.service.MediaService;
 import com.universityweb.common.response.ErrorResponse;
 import com.universityweb.common.util.Utils;
+import com.universityweb.common.websocket.service.OnlineUserService;
+
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,16 +39,19 @@ public class UserController
 
     private final AuthService authService;
     private final MediaService mediaService;
+    private final OnlineUserService onlineUserService;
 
     @Autowired
     public UserController(
             UserService service,
             AuthService authService,
-            MediaService mediaService
+            MediaService mediaService,
+            OnlineUserService onlineUserService
     ) {
         super(service);
         this.authService = authService;
         this.mediaService = mediaService;
+        this.onlineUserService = onlineUserService;
     }
 
     @Operation(
@@ -186,5 +193,17 @@ public class UserController
 
         log.info("Successfully updated settings with username: {}", saved.getUsername());
         return ResponseEntity.ok(saved);
+    }
+
+    @PostMapping("/ping")
+    public ResponseEntity<Void> pingOnlineStatus() {
+        String username = authService.getCurrentUsername();
+        onlineUserService.ping(username);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/online")
+    public ResponseEntity<List<String>> getOnlineUsers() {
+        return ResponseEntity.ok(onlineUserService.getOnlineUsers());
     }
 }

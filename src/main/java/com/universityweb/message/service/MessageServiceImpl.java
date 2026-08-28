@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -81,6 +83,45 @@ public class MessageServiceImpl
     }
 
     @Override
+    public MessageDTO deleteMessage(UUID messageId, String curUsername, String deleteType) {
+        Message message = repository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find message with id: " + messageId));
+
+        boolean isSender = curUsername.equals(message.getSender().getUsername());
+        boolean isRecipient = curUsername.equals(message.getRecipient().getUsername());
+
+        if (!isSender && !isRecipient) {
+            throw new IllegalArgumentException("User does not have permission to delete this message.");
+        }
+
+        if ("FOR_ALL".equalsIgnoreCase(deleteType)) {
+            if (!isSender) {
+                throw new IllegalArgumentException("Only the sender can recall a message.");
+            }
+            message.setIsRecalled(true);
+            message.setContent(""); // Optional: clear content to save space and ensure privacy
+            repository.save(message);
+
+            MessageDTO messageDTO = mapper.toDTO(message);
+            // Broadcast the recall event to both users
+            sendNotifications(message.getRecipient().getUsername(), messageDTO);
+            sendNotifications(message.getSender().getUsername(), messageDTO);
+
+            return messageDTO;
+        } else if ("FOR_ME".equalsIgnoreCase(deleteType)) {
+            if (isSender) {
+                message.setDeletedBySender(true);
+            } else {
+                message.setDeletedByRecipient(true);
+            }
+            repository.save(message);
+            return mapper.toDTO(message);
+        } else {
+            throw new IllegalArgumentException("Invalid delete type.");
+        }
+    }
+
+    @Override
     public Page<MessageDTO> getAllMessages(
             String senderUsername,
             String recipientUsername,
@@ -95,12 +136,28 @@ public class MessageServiceImpl
     public Page<UserDTO> getRecentChats(String curUsername, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> users = repository.getRecentChats(curUsername, pageable);
-        return userMapper.mapPageToPageDTO(users);
+        return users.map(user -> {
+            UserDTO dto = userMapper.toDTO(user);
+            repository.findTopBySenderUsernameAndRecipientUsernameOrSenderUsernameAndRecipientUsernameOrderBySendingTimeDesc(
+                    curUsername, user.getUsername(), user.getUsername(), curUsername
+            ).ifPresent(lastMsg -> {
+                dto.setLastMessage(lastMsg.getContent());
+                dto.setLastMessageType(lastMsg.getType() != null ? lastMsg.getType().name() : null);
+                dto.setLastMessageIsRecalled(lastMsg.getIsRecalled());
+                dto.setLastMessageTime(lastMsg.getSendingTime());
+            });
+            int unreadCount = repository.countUnreadMessages(curUsername, user.getUsername());
+            dto.setUnreadCount(unreadCount);
+            dto.setLastLogin(user.getLastLogin());
+            return dto;
+        });
     }
 
     @Override
     public MessageDTO sendRealtimeMessage(MessageDTO dto) {
+        String tempId = dto.getTempId();
         MessageDTO messageDTO = super.create(dto);
+        messageDTO.setTempId(tempId);
 
         sendNotifications(dto.getRecipientUsername(), messageDTO);
         sendNotifications(dto.getSenderUsername(), messageDTO);
@@ -129,6 +186,33 @@ public class MessageServiceImpl
                 .build();
 
         return sendRealtimeMessage(messageDTO);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void processAutoReplyIfNeeded(String senderUsername, String recipientUsername, Message lastMsgBeforeSending) {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+
+            if (lastMsgBeforeSending == null || !senderUsername.equals(lastMsgBeforeSending.getSender().getUsername())) {
+                return;
+            }
+
+            long minutesSinceLastMsg = Duration.between(lastMsgBeforeSending.getSendingTime(), now).toMinutes();
+            if (minutesSinceLastMsg <= Utils.AUTO_MESSAGE_TIMEOUT_MINUTES) {
+                return;
+            }
+
+            User recipient = userService.loadUserByUsername(recipientUsername);
+
+            if (recipient.getRole() != User.ERole.TEACHER) {
+                return;
+            }
+
+            sendAutoMessage(senderUsername, recipientUsername, now);
+        } catch (Exception e) {
+            log.error("Failed to send auto-message via @Async", e);
+        }
     }
 
     @Override

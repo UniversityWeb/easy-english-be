@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,7 +37,6 @@ public class OrderServiceImpl
         extends BaseServiceImpl<Order, OrderDTO, Long, OrderRepos, OrderMapper>
         implements OrderService {
 
-    private static final long EXPIRATION_CHECK_RATE_MS = 3_600_000; // 1 hour
     private Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
     private final OrderItemRepos orderItemRepos;
@@ -208,7 +206,7 @@ public class OrderServiceImpl
         return false;
     }
 
-    @Scheduled(fixedRate = EXPIRATION_CHECK_RATE_MS)
+    @Override
     public void updateExpiredOrders() {
         LocalDateTime currentTime = LocalDateTime.now();
         LocalDateTime fiveMinutesAgo = currentTime.minusMinutes(5);

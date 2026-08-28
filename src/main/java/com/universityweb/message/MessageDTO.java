@@ -21,6 +21,16 @@ public class MessageDTO implements Serializable {
     LocalDateTime sendingTime;
     String senderUsername;
     String recipientUsername;
+    Message.EMessageStatus status;
+    LocalDateTime readAt;
+    Boolean isRecalled;
+
+    String tempId;
+
+    UUID replyToId;
+    String replyToContent;
+    Message.EType replyToType;
+    String replyToSender;
 
     UserDTO recipient;
 }

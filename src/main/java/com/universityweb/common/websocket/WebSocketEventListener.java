@@ -29,7 +29,6 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebsocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        OnlineUserStore onlineUserStore = OnlineUserStore.getIns();
         Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
 
         String senderUsername = (String) sessionAttributes.get("senderUsername");
@@ -41,10 +40,6 @@ public class WebSocketEventListener {
         String sessionId = headerAccessor.getSessionId();
         log.info("User Disconnected: `{}`, sessionId: `{}`", senderUsername, sessionId);
         removeSessionAttributes(sessionAttributes, "senderUsername", "conversationId");
-
-        onlineUserStore.remove(senderUsername, sessionId);
-        List<String> onlineUsers = onlineUserStore.getOnlineUsers();
-        messageHandler.sendOnlineUsers(onlineUsers);
     }
 
     private void removeSessionAttributes(Map<String, Object> sessionAttributes, String... attributes) {

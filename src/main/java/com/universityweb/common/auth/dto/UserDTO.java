@@ -90,6 +90,18 @@ public class UserDTO {
 
     User.ECurrentLevel currentLevel;
 
+    String lastMessage;
+
+    String lastMessageType;
+
+    Boolean lastMessageIsRecalled;
+
+    LocalDateTime lastMessageTime;
+
+    Integer unreadCount;
+
+    LocalDateTime lastLogin;
+
     @JsonIgnore
     String settings = "";
 
