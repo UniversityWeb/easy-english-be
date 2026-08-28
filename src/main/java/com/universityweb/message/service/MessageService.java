@@ -21,4 +21,6 @@ public interface MessageService extends BaseService<Message, MessageDTO, UUID> {
     void processAutoReplyIfNeeded(String senderUsername, String recipientUsername, Message lastMsgBeforeSending);
 
     Message getLastMsg(String senderUsername, String recipientUsername);
+
+    MessageDTO deleteMessage(UUID messageId, String curUsername, String deleteType);
 }

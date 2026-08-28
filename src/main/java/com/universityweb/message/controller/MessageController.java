@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @RestController
 @RequestMapping("/api/v1/messages")
@@ -29,6 +32,7 @@ public class MessageController {
     private final AuthService authService;
     private final MessageService messageService;
     private final MediaService mediaService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/{senderUsername}/{recipientUsername}")
     public ResponseEntity<Page<MessageDTO>> getAllMessages(
@@ -42,7 +46,8 @@ public class MessageController {
             throw new PermissionDenyException("You do not have permission to access this message");
         }
 
-        Page<MessageDTO> messages = messageService.getAllMessages(senderUsername, recipientUsername, page, size);
+        String otherUsername = curUsername.equals(senderUsername) ? recipientUsername : senderUsername;
+        Page<MessageDTO> messages = messageService.getAllMessages(curUsername, otherUsername, page, size);
         return ResponseEntity.ok(MediaUtils.addMessageMediaUrls(mediaService, messages));
     }
 
@@ -60,11 +65,18 @@ public class MessageController {
     public ResponseEntity<Void> handleMessage(@RequestBody MessageDTO message) {
         log.info("Received message request: {}", message);
 
-        handleImageMessage(message);
+        handleMediaMessage(message);
 
         String senderUsername = authService.getCurrentUsername();
+        message.setSenderUsername(senderUsername);
         String recipientUsername = message.getRecipientUsername();
-        Message lastMsgBeforeSending = messageService.getLastMsg(senderUsername, recipientUsername);
+        
+        Message lastMsgBeforeSending = null;
+        try {
+            lastMsgBeforeSending = messageService.getLastMsg(senderUsername, recipientUsername);
+        } catch (Exception e) {
+            log.warn("No previous messages found between {} and {}", senderUsername, recipientUsername);
+        }
 
         MessageDTO messageDTO = messageService.sendRealtimeMessage(message);
         log.info("Sent message: {}", messageDTO);
@@ -76,15 +88,35 @@ public class MessageController {
         return ResponseEntity.ok().build();
     }
 
-    private void handleImageMessage(MessageDTO message) {
-        if (message.getType() == Message.EType.IMAGE && message.getContent() != null && !message.getContent().isEmpty()) {
-            try {
-                String base64Str = message.getContent();
-                String suffixUrl = mediaService.uploadFile(base64Str);
+    private void handleMediaMessage(MessageDTO message) {
+        if (message.getContent() == null || message.getContent().isEmpty()) return;
+
+        try {
+            if (message.getType() == Message.EType.IMAGE) {
+                String suffixUrl = mediaService.uploadFile(message.getContent());
                 message.setContent(suffixUrl);
-            } catch (Exception e) {
-                log.error("Failed to upload image", e);
+            } else if (message.getType() == Message.EType.FILE) {
+                JsonNode jsonNode = objectMapper.readTree(message.getContent());
+                if (jsonNode.has("base64Data")) {
+                    String base64Str = jsonNode.get("base64Data").asText();
+                    String suffixUrl = mediaService.uploadFile(base64Str);
+                    ((ObjectNode) jsonNode).put("url", suffixUrl);
+                    ((ObjectNode) jsonNode).remove("base64Data");
+                    message.setContent(objectMapper.writeValueAsString(jsonNode));
+                }
             }
+        } catch (Exception e) {
+            log.error("Failed to upload media message", e);
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageDTO> deleteMessage(
+            @PathVariable java.util.UUID id,
+            @RequestParam String type
+    ) {
+        String curUsername = authService.getCurrentUsername();
+        MessageDTO updatedMsg = messageService.deleteMessage(id, curUsername, type);
+        return ResponseEntity.ok(updatedMsg);
     }
 }
